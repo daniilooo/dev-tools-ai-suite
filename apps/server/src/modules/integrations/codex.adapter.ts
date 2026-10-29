@@ -17,8 +17,8 @@ const TESTED = ["0.165"];
 const CAPABILITIES: ProviderCapability[] = [
   { id: "terminal", label: "Sessão interativa no terminal", level: "A" },
   { id: "auth-status", label: "Status de login (codex login status)", level: "A" },
-  { id: "sessions", label: "Arquivos de sessão locais", level: "B", phase: 5 },
-  { id: "usage", label: "Uso e limites", level: "C", phase: 6 },
+  { id: "sessions", label: "Arquivos de sessão locais", level: "B" },
+  { id: "usage", label: "Uso e limites (registrados nas sessões locais)", level: "B" },
 ];
 
 /** Interpreta `codex login status`: "Logged in using <método>" ou "Not logged in". */

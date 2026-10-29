@@ -6,12 +6,19 @@ const FIXTURES = join(import.meta.dirname, "../../../apps/server/test/fixtures")
 
 /**
  * Com `--session-id`, o Claude falso grava uma transcrição mínima onde o real gravaria
- * (`$CLAUDE_CONFIG_DIR/projects/<cwd codificado>/<id>.jsonl`), para o Agent Monitor achá-la.
+ * (`$CLAUDE_CONFIG_DIR/projects/<cwd codificado>/<id>.jsonl`), para o Agent Monitor achá-la,
+ * e roda a status line passada em `--settings` (cotas, Fase 6).
  */
 const FAKE_CLAUDE_SESSION = [
   'dir="$CLAUDE_CONFIG_DIR/projects/$(printf %s "$PWD" | sed "s/[^A-Za-z0-9]/-/g")"',
   'mkdir -p "$dir"',
   'printf \'{"type":"user","cwd":"%s","version":"2.1.312","timestamp":"%s","message":{"role":"user","content":"oi"}}\\n\' "$PWD" "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" > "$dir/$2.jsonl"',
+  // Como o Claude Code real: com `--settings`, executa a status line configurada passando
+  // `rate_limits` pela entrada padrão (renovações no futuro, relativas ao relógio atual).
+  'if [ "$3" = "--settings" ]; then' +
+    ` cmd=$("${process.execPath}" -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).statusLine.command)' "$4");` +
+    ` now=$(date +%s); printf '{"model":{"display_name":"Opus 5.5"},"version":"2.1.312","rate_limits":{"five_hour":{"used_percentage":23.5,"resets_at":%s},"seven_day":{"used_percentage":61,"resets_at":%s}}}' $((now + 3600)) $((now + 86400)) | sh -c "$cmd" > /dev/null;` +
+    " fi",
   'echo "claude-falso-interativo"',
 ].join("; ");
 

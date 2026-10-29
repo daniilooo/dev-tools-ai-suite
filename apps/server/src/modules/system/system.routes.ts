@@ -20,7 +20,7 @@ export function registerSystemRoutes(
       terminal: deps.terminals.backendName ? "ok" : "not_available",
       integrations: "ok",
       agents: "ok",
-      quota: "planned",
+      quota: "ok",
       knowledge: "planned",
       telemetry: "ok",
     },

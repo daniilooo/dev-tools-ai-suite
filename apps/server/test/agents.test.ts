@@ -25,6 +25,8 @@ import {
 import { createTestApp, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
+type AgentRunEvent = Extract<ServerEvent, { type: "agent.run.state" }>;
+
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const probe = createServer();
@@ -50,7 +52,7 @@ describe("AgentMonitor", () => {
   let project: Project;
   let repository: AgentsRepository;
   let now: number;
-  let events: ServerEvent[];
+  let events: AgentRunEvent[];
   let monitor: AgentMonitor;
 
   beforeEach(() => {
@@ -67,7 +69,7 @@ describe("AgentMonitor", () => {
     const sources = new AgentSources(new LocalSourceFiles(roots), () => now);
     monitor = new AgentMonitor({ sources, projects, repository, now: () => now });
     events = [];
-    monitor.subscribe((event) => events.push(event));
+    monitor.subscribe((event) => events.push(event as AgentRunEvent));
   });
 
   afterEach(() => {
@@ -187,8 +189,8 @@ describe("AgentMonitor", () => {
       terminals: { terminalFor: () => null },
       now: () => now,
     });
-    const published: ServerEvent[] = [];
-    restarted.subscribe((event) => published.push(event));
+    const published: AgentRunEvent[] = [];
+    restarted.subscribe((event) => published.push(event as AgentRunEvent));
     now = Date.parse("2026-10-28T10:40:00.000Z");
     restarted.tick();
     const event = published.find((e) => e.run.id === `claude-code:${CLAUDE_SESSION_ID}`)!;
@@ -263,8 +265,8 @@ describe("rotas de agentes e /ws/events", () => {
 
   function events(headers: Record<string, string> = { origin: `http://${host}`, cookie: auth.cookie }) {
     const ws = new WebSocket(`ws://${host}/ws/events`, { headers });
-    const received: ServerEvent[] = [];
-    ws.on("message", (raw) => received.push(JSON.parse(raw.toString()) as ServerEvent));
+    const received: AgentRunEvent[] = [];
+    ws.on("message", (raw) => received.push(JSON.parse(raw.toString()) as AgentRunEvent));
     const opened = new Promise<void>((resolve, reject) => {
       ws.once("open", () => resolve());
       ws.once("unexpected-response", (_req, res) => reject(new Error(`HTTP ${res.statusCode}`)));

@@ -18,8 +18,8 @@ const CAPABILITIES: ProviderCapability[] = [
   { id: "terminal", label: "Sessão interativa no terminal", level: "A" },
   { id: "auth-status", label: "Status de login (claude auth status)", level: "A" },
   { id: "hooks", label: "Hooks oficiais (eventos de agentes)", level: "A", phase: 5 },
-  { id: "transcripts", label: "Transcrições locais (.jsonl)", level: "B", phase: 5 },
-  { id: "usage", label: "Uso e limites", level: "C", phase: 6 },
+  { id: "transcripts", label: "Transcrições locais (.jsonl)", level: "B" },
+  { id: "usage", label: "Uso e limites (status line da suíte nas sessões abertas por ela)", level: "A" },
 ];
 
 /**

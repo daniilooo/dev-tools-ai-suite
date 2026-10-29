@@ -28,6 +28,11 @@ import { AgentSources } from "./modules/integrations/sources/agent-sources.js";
 import { defaultRoots, LocalSourceFiles } from "./modules/integrations/sources/local-files.js";
 import type { LocalSourceRoots } from "./modules/integrations/sources/local-files.js";
 import { ProvidersService } from "./modules/integrations/providers.service.js";
+import { QuotaSources } from "./modules/integrations/sources/quota-sources.js";
+import { prepareClaudeStatusLine, readClaudeStatusLine } from "./modules/quota/claude-statusline.js";
+import { QuotaMonitor } from "./modules/quota/quota-monitor.js";
+import { registerQuotaRoutes } from "./modules/quota/quota.routes.js";
+import { registerEventRoutes } from "./modules/system/events.routes.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
 import type { PtyBackendStatus } from "./modules/terminal/pty-backend.js";
@@ -52,6 +57,8 @@ export interface AppDeps {
   agentSourceRoots?: LocalSourceRoots;
   /** Intervalo da varredura do Agent Monitor; 0 desliga a varredura automática (testes). */
   agentScanIntervalMs?: number;
+  /** Intervalo da releitura de cotas; 0 desliga a releitura automática (testes). */
+  quotaScanIntervalMs?: number;
   /** Detecção de provedores (testes injetam adapters falsos). */
   providers?: ProvidersService;
   /** Ajustes do gerenciador de terminais (retenção, limites) — usado em testes. */
@@ -63,6 +70,7 @@ export interface App {
   codes: LaunchCodeStore;
   terminals: TerminalManager;
   agents: AgentMonitor;
+  quota: QuotaMonitor;
 }
 
 export async function buildApp(deps: AppDeps): Promise<App> {
@@ -132,6 +140,21 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   if (deps.agentScanIntervalMs !== 0) server.addHook("onReady", async () => agents.start());
   server.addHook("onClose", async () => agents.stop());
 
+  // Cotas (ADR-0014): status line da suíte nas sessões do Claude abertas por ela + arquivos locais.
+  const statusLine = deps.config.claudeStatusLine ? prepareClaudeStatusLine(deps.layout) : null;
+  if (statusLine) providers.setLaunchArgs("claude-code", statusLine.launchArgs);
+  const quota = new QuotaMonitor({
+    sources: new QuotaSources(new LocalSourceFiles(deps.agentSourceRoots ?? defaultRoots())),
+    statusLine: statusLine && { read: () => readClaudeStatusLine(statusLine.snapshotPath) },
+    intervalMs: deps.quotaScanIntervalMs || 5_000,
+    onError: (error) => server.log.warn({ err: error }, "falha na leitura de cotas"),
+  });
+  registerQuotaRoutes(server, quota);
+  if (deps.quotaScanIntervalMs !== 0) server.addHook("onReady", async () => quota.start());
+  server.addHook("onClose", async () => quota.stop());
+
+  registerEventRoutes(server, [agents, quota]);
+
   const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {
     await server.register(fastifyStatic, { root: publicDir, index: ["index.html"] });
@@ -152,7 +175,7 @@ export async function buildApp(deps: AppDeps): Promise<App> {
     );
   }
 
-  return { server, codes, terminals, agents };
+  return { server, codes, terminals, agents, quota };
 }
 
 /** dist/public no pacote publicado; em desenvolvimento (tsx), o build de apps/web. */

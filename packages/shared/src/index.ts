@@ -189,8 +189,48 @@ export interface AgentRunDetail extends AgentRun {
   subagents: AgentRun[];
 }
 
+/**
+ * Frescor de uma leitura de cota (STATE_MACHINES): `fresh` = medida recente;
+ * `stale` = medida antiga, o uso pode ter mudado; `reset` = a janela renovou depois
+ * da medida, então o percentual medido não vale mais.
+ */
+export type QuotaFreshness = "fresh" | "stale" | "reset";
+
+/** Uma janela de limite de uso (ex.: 5 h, semanal), como o provedor informou. */
+export interface QuotaWindow {
+  /** `five_hour`, `seven_day` ou `window_<min>m`. */
+  id: string;
+  label: string;
+  /** Percentual usado informado pelo provedor; null quando só se sabe que o limite foi atingido. */
+  usedPercent: number | null;
+  limitReached: boolean;
+  resetsAt: string | null;
+  freshness: QuotaFreshness;
+  category: Exclude<DataCategory, "unavailable">;
+  /** Quando o provedor informou o valor (não quando a suíte leu). */
+  observedAt: string;
+  source: { level: SupportLevel; description: string };
+}
+
+export interface ProviderQuota {
+  providerId: LaunchableProviderId;
+  label: string;
+  /** Plano informado junto com os limites, quando houver. */
+  plan: string | null;
+  windows: QuotaWindow[];
+  /** Sem nenhuma leitura válida: motivo exibido com INDISPONÍVEL. */
+  unavailableReason: string | null;
+  notes: string[];
+}
+
+export interface QuotaResponse {
+  generatedAt: string;
+  providers: ProviderQuota[];
+}
+
 /** Mensagens do servidor em `/ws/events`. */
-export type ServerEvent = { type: "agent.run.state"; run: AgentRun };
+export type ServerEvent =
+  { type: "agent.run.state"; run: AgentRun } | { type: "quota.updated"; quota: QuotaResponse };
 
 /** Categoria de proveniência de todo dado exibido (ADR-0010, INV-03). */
 export type DataCategory = "official" | "calculated" | "estimated" | "unavailable";

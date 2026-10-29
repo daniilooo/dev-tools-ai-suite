@@ -65,3 +65,39 @@ export function installAgentFixtures(
   writeFileSync(codexSub, render("codex/0.165.0/sessions/subagent.jsonl", vars));
   return { claudeSession, claudeSubagent, codexMain, codexSub };
 }
+
+/** Codex: rollout com `rate_limits`; Claude: transcrição com limite atingido (Fase 6). */
+export function installQuotaFixtures(
+  roots: LocalSourceRoots,
+  projectPath: string,
+  { codexDay = new Date(FIXTURE_NOW), claudeSessionId = CLAUDE_SESSION_ID } = {},
+): { codexRollout: string; claudeTranscript: string } {
+  const vars = {
+    __CWD__: projectPath,
+    __SESSION__: claudeSessionId,
+    __MAIN__: CODEX_MAIN_ID,
+    __SECRET__: FIXTURE_SECRET,
+  };
+  const claudeDir = join(roots.claude, "projects", claudeProjectDirName(projectPath));
+  mkdirSync(claudeDir, { recursive: true });
+  const claudeTranscript = join(claudeDir, `${claudeSessionId}.jsonl`);
+  writeFileSync(claudeTranscript, render("claude-code/2.1.312/transcript/limit-hit.jsonl", vars));
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dayDir = join(
+    roots.codex,
+    "sessions",
+    String(codexDay.getFullYear()),
+    pad(codexDay.getMonth() + 1),
+    pad(codexDay.getDate()),
+  );
+  mkdirSync(dayDir, { recursive: true });
+  const codexRollout = join(dayDir, `rollout-2026-10-28T10-49-58-${CODEX_MAIN_ID}.jsonl`);
+  writeFileSync(codexRollout, render("codex/0.165.0/sessions/rate-limits.jsonl", vars));
+  return { codexRollout, claudeTranscript };
+}
+
+/** Entrada documentada da status line do Claude Code (2.1.312), com `rate_limits`. */
+export function statusLineInput(): unknown {
+  return JSON.parse(render("claude-code/2.1.312/statusline-input.json", { __SESSION__: CLAUDE_SESSION_ID }));
+}
