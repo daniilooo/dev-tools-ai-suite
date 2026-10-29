@@ -1,9 +1,10 @@
-import type { DoctorCheck, DoctorReport, DoctorTool } from "@devtools/shared";
+import type { DoctorCheck, DoctorReport, DoctorTool, ProviderInfo } from "@devtools/shared";
 import { existsSync } from "node:fs";
 import { permissionsOf } from "../../core/data-dir.js";
 import type { DataDirLayout } from "../../core/data-dir.js";
 import type { Db } from "../../core/database.js";
 import { runProcess } from "../../core/process-runner.js";
+import { extractVersion } from "../integrations/provider-adapter.js";
 
 const MIN_NODE = [22, 22, 3] as const;
 
@@ -15,13 +16,17 @@ interface ToolSpec {
   optional: boolean;
 }
 
+/** Ferramentas que não são provedores de IA. Os provedores vêm do módulo `providers`. */
 const TOOLS: ToolSpec[] = [
   { id: "git", label: "Git", command: "git", args: ["--version"], optional: false },
-  { id: "claude", label: "Claude Code", command: "claude", args: ["--version"], optional: true },
-  { id: "codex", label: "Codex CLI", command: "codex", args: ["--version"], optional: true },
-  { id: "ollama", label: "Ollama", command: "ollama", args: ["--version"], optional: true },
   { id: "graphify", label: "Graphify", command: "graphify", args: ["--version"], optional: true },
 ];
+
+const PROVIDER_TOOL_IDS: Record<ProviderInfo["id"], DoctorTool["id"]> = {
+  "claude-code": "claude",
+  codex: "codex",
+  ollama: "ollama",
+};
 
 /**
  * Diagnóstico da instalação. Detecta ferramentas apenas executando `--version`;
@@ -32,10 +37,27 @@ export interface PtyStatus {
   error: string | null;
 }
 
-export async function runDoctor(layout: DataDirLayout, db: Db | null, pty: PtyStatus): Promise<DoctorReport> {
+export async function runDoctor(
+  layout: DataDirLayout,
+  db: Db | null,
+  pty: PtyStatus,
+  providers: ProviderInfo[],
+): Promise<DoctorReport> {
   const checks: DoctorCheck[] = [nodeCheck(), ...dataDirChecks(layout), databaseCheck(db), ptyCheck(pty)];
-  const tools = await Promise.all(TOOLS.map(detectTool));
+  const [git, graphify] = await Promise.all(TOOLS.map(detectTool));
+  const tools = [git!, ...providers.map(providerTool), graphify!];
   return { generatedAt: new Date().toISOString(), checks, tools };
+}
+
+function providerTool(provider: ProviderInfo): DoctorTool {
+  return {
+    id: PROVIDER_TOOL_IDS[provider.id],
+    label: provider.label,
+    installed: provider.installed,
+    version: provider.version,
+    auth: provider.installed && provider.launchable ? provider.auth : null,
+    optional: true,
+  };
 }
 
 function nodeCheck(): DoctorCheck {
@@ -101,13 +123,7 @@ async function detectTool(spec: ToolSpec): Promise<DoctorTool> {
   const result = await runProcess(spec.command, spec.args, { timeoutMs: 5_000, maxOutputBytes: 4_096 });
   const installed = result.spawnError === null && !result.timedOut && result.exitCode === 0;
   const version = installed ? extractVersion(result.stdout || result.stderr) : null;
-  // Estado de autenticação via mecanismos documentados entra na Fase 4: até lá, INDISPONÍVEL (INV-03).
-  return { id: spec.id, label: spec.label, installed, version, auth: "unavailable", optional: spec.optional };
-}
-
-export function extractVersion(output: string): string | null {
-  const match = /\d+\.\d+(\.\d+)?([-.][0-9A-Za-z.]+)?/.exec(output);
-  return match ? match[0] : null;
+  return { id: spec.id, label: spec.label, installed, version, auth: null, optional: spec.optional };
 }
 
 function compareVersions(a: readonly number[], b: readonly number[]): number {

@@ -18,3 +18,6 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-28 | Merge de PR pela LLM pode ser bloqueado pela política de permissões do Claude Code; o humano faz o merge. | Fase 2 |
 | 2026-10-28 | Filhos de um shell que saiu são reparentados para o init: procurar só por PPID não os encontra. A sessão POSIX (`/proc/<pid>/stat`, campo 6) continua igual ao PID do PTY e localiza todos. | Fase 3 |
 | 2026-10-28 | Hooks `onRequest` do Fastify rodam no upgrade do `@fastify/websocket`: erro lançado vira resposta HTTP (401/403) antes do handshake. | Fase 3 |
+| 2026-10-28 | `claude auth status --json` (2.1.x) e `codex login status` (0.165.x) informam o login sem a suíte tocar em credenciais; a saída do Claude inclui e-mail e organização — descartar. | Fase 4 |
+| 2026-10-28 | O type-check de templates do Angular é mais estrito que o `tsc --noEmit`: tipos estreitados (`LaunchableProviderId`) só aparecem no `ng build`. | Fase 4 |
+| 2026-10-28 | Em E2E que abre provedores, usar binários falsos e `/bin/sh` como shell: o rc do usuário (zsh/bash) pode recolocar o binário real no PATH. | Fase 4 |

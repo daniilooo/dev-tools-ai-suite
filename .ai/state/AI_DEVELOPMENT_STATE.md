@@ -4,16 +4,28 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 3 — Integrated Terminal (concluída) |
-| Etapa atual | Aguardando autorização da Fase 4 (HG-14) |
-| Branch atual | `release` |
-| Última entrega | Terminal web (PTY + WS + xterm.js), abas, reconexão, encerramento da árvore de processos |
-| Última decisão | Terminal validado e PR #4 mergeado pelo humano (2026-10-28) |
+| Fase atual | FASE 4 — Provider Integration (em validação) |
+| Etapa atual | Implementado; PR e revisão humana |
+| Branch atual | `feature/04-providers` |
+| Última entrega | Módulo `integrations`, `/providers`, doctor com login real, abrir Claude/Codex no projeto |
+| Última decisão | Fase 4 autorizada (HG-14); D-09 e D-10 |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando (`pnpm dev:server` + `pnpm dev:web`) |
 | Bloqueios | Nenhum |
-| Próxima ação | Humano autoriza a FASE 4 — Provider Integration (HG-14) |
+| Próxima ação | PR `feature/04-providers → release`, CI verde, revisão humana |
 | Testes atuais | `pnpm test` (52 servidor + 5 web), `pnpm test:e2e` (5), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-28 (Fase 4) — Claude Code (Opus)
+
+**Contexto:** Fase 4 autorizada pelo humano após o merge da Fase 3.
+**Estado:** implementado em `feature/04-providers`; testes locais verdes (77 servidor, 5 web, 9 E2E).
+**Alterações:** `apps/server/src/modules/integrations/*` (adapters claude-code/codex/ollama, serviço, rota), doctor e CLI com login real, `launch` na criação de terminal, regra ESLint INV-02, fixtures por versão, `apps/web/src/app/features/providers/*`, botões de lançamento, `tests/e2e/providers.spec.ts` (binários falsos), hook pre-push pula push que só apaga branches.
+**Decisões:** D-09 (comando fixo digitado no shell) e D-10 (lint proíbe `fs` em `integrations`).
+**Pendências:** revisão humana e merge; dívidas TD-09 e TD-10.
+**Próximo passo:** **não iniciar a Fase 5 sem autorização (HG-14)**. A Fase 5 exige spike S-04 (hooks do Claude Code e arquivos de sessão do Codex).
+**Arquivos relevantes:** `apps/server/src/modules/integrations/provider-adapter.ts`, `claude-code.adapter.ts`, `codex.adapter.ts`, `apps/server/test/providers.test.ts`.
 
 ---
 

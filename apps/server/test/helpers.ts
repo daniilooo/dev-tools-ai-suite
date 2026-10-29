@@ -31,6 +31,7 @@ export interface TestAppOptions {
   port?: number;
   pty?: AppDeps["pty"];
   terminalOptions?: AppDeps["terminalOptions"];
+  providers?: AppDeps["providers"];
 }
 
 export async function createTestApp(
@@ -52,6 +53,7 @@ export async function createTestApp(
     logStream: { write: (chunk: string) => logs.push(chunk) },
     pty: options.pty,
     terminalOptions: options.terminalOptions,
+    providers: options.providers,
   });
   await app.server.ready();
   return {

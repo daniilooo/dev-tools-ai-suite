@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import type { DoctorReport } from "@devtools/shared";
+import type { DoctorReport, ProviderAuth } from "@devtools/shared";
 import { createWriteStream } from "node:fs";
 import { join } from "node:path";
 import { buildApp } from "./app.js";
@@ -12,6 +12,7 @@ import { ensureDataDir } from "./core/data-dir.js";
 import { openDatabase } from "./core/database.js";
 import { InstallSecret } from "./core/secret.js";
 import { runDoctor } from "./modules/system/doctor.js";
+import { ProvidersService } from "./modules/integrations/providers.service.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
 import { VERSION } from "./version.js";
 
@@ -51,7 +52,13 @@ program
     InstallSecret.loadOrCreate(layout.secretFile);
     const db = openDatabase(layout.database);
     const pty = await loadPtyBackend();
-    const report = await runDoctor(layout, db, { backend: pty.backend?.name ?? null, error: pty.error });
+    const { providers } = await new ProvidersService().list();
+    const report = await runDoctor(
+      layout,
+      db,
+      { backend: pty.backend?.name ?? null, error: pty.error },
+      providers,
+    );
     db.close();
     if (options.json) console.log(JSON.stringify(report, null, 2));
     else printDoctor(report);
@@ -134,10 +141,17 @@ function printDoctor(report: DoctorReport): void {
         ? "não encontrado (opcional)"
         : "não encontrado";
     console.log(`  ${tool.installed ? "✔" : tool.optional ? "–" : "✖"} ${tool.label}: ${state}`);
+    if (tool.auth) console.log(`      ↳ login: ${authText(tool.auth)}`);
   }
-  console.log(
-    "\nAutenticação dos provedores: INDISPONÍVEL nesta versão (verificação documentada na Fase 4).\n",
-  );
+  console.log("");
+}
+
+function authText(auth: ProviderAuth): string {
+  if (auth.state === "authenticated") {
+    return `conectado${auth.method ? ` (${auth.method}${auth.plan ? `, plano ${auth.plan}` : ""})` : ""}`;
+  }
+  if (auth.state === "unauthenticated") return "não conectado";
+  return `INDISPONÍVEL${auth.reason ? ` — ${auth.reason}` : ""}`;
 }
 
 program.parseAsync(process.argv).catch((error: unknown) => {

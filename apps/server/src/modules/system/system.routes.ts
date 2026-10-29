@@ -3,12 +3,13 @@ import type { FastifyInstance } from "fastify";
 import type { DataDirLayout } from "../../core/data-dir.js";
 import type { Db } from "../../core/database.js";
 import { VERSION } from "../../version.js";
+import type { ProvidersService } from "../integrations/providers.service.js";
 import type { TerminalManager } from "../terminal/terminal-manager.js";
 import { runDoctor } from "./doctor.js";
 
 export function registerSystemRoutes(
   app: FastifyInstance,
-  deps: { layout: DataDirLayout; db: Db; terminals: TerminalManager },
+  deps: { layout: DataDirLayout; db: Db; terminals: TerminalManager; providers: ProvidersService },
 ): void {
   app.get("/api/v1/health", async (): Promise<HealthResponse> => ({
     status: "ok",
@@ -17,7 +18,7 @@ export function registerSystemRoutes(
       core: "ok",
       projects: "ok",
       terminal: deps.terminals.backendName ? "ok" : "not_available",
-      integrations: "planned",
+      integrations: "ok",
       agents: "planned",
       quota: "planned",
       knowledge: "planned",
@@ -25,7 +26,9 @@ export function registerSystemRoutes(
     },
   }));
 
-  app.get("/api/v1/doctor", async () => runDoctor(deps.layout, deps.db, ptyStatusOf(deps.terminals)));
+  app.get("/api/v1/doctor", async () =>
+    runDoctor(deps.layout, deps.db, ptyStatusOf(deps.terminals), (await deps.providers.list()).providers),
+  );
 }
 
 function ptyStatusOf(terminals: TerminalManager) {

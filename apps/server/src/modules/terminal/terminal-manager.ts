@@ -86,7 +86,15 @@ export class TerminalManager {
     return { ...this.require(id).info };
   }
 
-  create(project: Project, size: { cols?: number; rows?: number } = {}): TerminalSession {
+  /**
+   * Abre um shell no diretório do projeto. `launch` digita um comando fixo no shell
+   * (ex.: `claude`) — o usuário vê o comando e volta ao shell quando ele terminar.
+   */
+  create(
+    project: Project,
+    size: { cols?: number; rows?: number } = {},
+    launch?: { title: string; command: string },
+  ): TerminalSession {
     const backend = this.options.backend;
     if (!backend) {
       throw new AppError(
@@ -118,7 +126,7 @@ export class TerminalManager {
     const info: TerminalSession = {
       id: randomUUID(),
       projectId: project.id,
-      title: `Terminal ${counter}`,
+      title: launch ? `${launch.title} ${counter}` : `Terminal ${counter}`,
       shell: shell.file,
       state: "disconnected",
       cols,
@@ -156,6 +164,8 @@ export class TerminalManager {
 
     pty.onData((data) => this.onOutput(session, data));
     pty.onExit(({ exitCode, signal }) => this.onExit(session, exitCode, signal ?? null));
+    // O TTY guarda a digitação antecipada até o shell ler o primeiro comando.
+    if (launch) pty.write(`${launch.command}\r`);
     // Até o navegador conectar, a sessão conta como desconectada (com retenção).
     this.scheduleRetention(session, this.options.retentionMs);
     return { ...info };

@@ -22,12 +22,14 @@ export interface RunningServer {
 export async function startServer(
   port: number,
   dataDir = mkdtempSync(join(tmpdir(), "devtools-e2e-")),
+  env: NodeJS.ProcessEnv = process.env,
 ): Promise<RunningServer> {
   const child = spawn(
     process.execPath,
     [CLI, "start", "--no-open", "--port", String(port), "--data-dir", dataDir],
     {
       stdio: ["ignore", "pipe", "pipe"],
+      env,
     },
   );
   let output = "";

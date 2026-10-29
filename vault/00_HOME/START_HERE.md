@@ -11,14 +11,14 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 ## Resposta rápida
 | Pergunta | Resposta |
 |---|---|
-| Estado atual | Fase 3 (Integrated Terminal) concluída → [[PROJECT_STATUS]] |
+| Estado atual | Fase 4 (Provider Integration) em validação → [[PROJECT_STATUS]] |
 | Versão | `v0.0.0` (nada publicado) |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | Aguardando autorização da FASE 4 — Provider Integration |
-| Última decisão | Terminal validado e Fase 3 concluída (2026-10-28) → [[DECISION_LOG]] |
-| Próxima ação | Autorização da FASE 4 — Provider Integration (HG-14) |
+| Etapa atual | FASE 4 — Provider Integration (em validação) |
+| Última decisão | Lançamento de provedor por comando fixo (D-09) → [[DECISION_LOG]] |
+| Próxima ação | Revisão e merge do PR da Fase 4 |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

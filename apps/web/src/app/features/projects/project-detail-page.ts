@@ -1,7 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import type { Project } from "@devtools/shared";
+import type { Project, ProviderInfo } from "@devtools/shared";
 import { firstValueFrom } from "rxjs";
 import { apiErrorMessage } from "../../core/api-error";
 import { ApiService } from "../../core/api.service";
@@ -24,6 +24,14 @@ import { StackChips } from "./stack-chips";
         </div>
         <div class="flex flex-wrap gap-2">
           <a [routerLink]="['/projetos', p.id, 'terminal']" class="btn btn-primary">Abrir terminal</a>
+          @for (provider of launchers(); track provider.id) {
+            <a
+              [routerLink]="['/projetos', p.id, 'terminal']"
+              [queryParams]="{ abrir: provider.id }"
+              class="btn"
+              >Abrir {{ provider.label }}</a
+            >
+          }
           <button type="button" class="btn" (click)="redetect(p.id)" [disabled]="busy()">
             Detectar stack novamente
           </button>
@@ -52,9 +60,14 @@ export class ProjectDetailPage {
   protected readonly project = signal<Project | null>(null);
   protected readonly error = signal<string | null>(null);
   protected readonly busy = signal(false);
+  /** Provedores instalados que podem ser abertos no terminal do projeto. */
+  protected readonly launchers = signal<ProviderInfo[]>([]);
 
   constructor() {
     effect(() => void this.load(this.id()));
+    firstValueFrom(this.api.providers())
+      .then(({ providers }) => this.launchers.set(providers.filter((p) => p.installed && p.launchable)))
+      .catch(() => undefined);
   }
 
   private async load(id: string): Promise<void> {

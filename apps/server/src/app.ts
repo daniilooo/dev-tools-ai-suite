@@ -20,6 +20,8 @@ import { ProjectsRepository } from "./modules/projects/projects.repository.js";
 import { registerProjectRoutes } from "./modules/projects/projects.routes.js";
 import { ProjectsService } from "./modules/projects/projects.service.js";
 import { registerSessionRoutes } from "./modules/session/session.routes.js";
+import { registerProviderRoutes } from "./modules/integrations/providers.routes.js";
+import { ProvidersService } from "./modules/integrations/providers.service.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
 import type { PtyBackendStatus } from "./modules/terminal/pty-backend.js";
@@ -40,6 +42,8 @@ export interface AppDeps {
   codes?: LaunchCodeStore;
   /** Backend de PTY (testes podem injetar um falso). Padrão: carrega a biblioteca nativa. */
   pty?: PtyBackendStatus;
+  /** Detecção de provedores (testes injetam adapters falsos). */
+  providers?: ProvidersService;
   /** Ajustes do gerenciador de terminais (retenção, limites) — usado em testes. */
   terminalOptions?: Partial<Omit<TerminalManagerOptions, "backend" | "backendError" | "repository">>;
 }
@@ -98,10 +102,12 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   server.addHook("onClose", async () => terminals.shutdown());
 
   const projects = new ProjectsService(new ProjectsRepository(deps.db));
+  const providers = deps.providers ?? new ProvidersService();
   registerSessionRoutes(server, { codes, sessions });
-  registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals });
+  registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals, providers });
+  registerProviderRoutes(server, providers);
   registerProjectRoutes(server, projects, { onRemoved: (id) => terminals.closeProject(id) });
-  registerTerminalRoutes(server, { terminals, projects });
+  registerTerminalRoutes(server, { terminals, projects, providers });
 
   const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {

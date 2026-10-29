@@ -73,6 +73,55 @@ export interface TerminalSession {
 export interface CreateTerminalRequest {
   cols?: number;
   rows?: number;
+  /** Provedor a iniciar no shell recém-aberto (somente provedores lançáveis). */
+  launch?: LaunchableProviderId;
+}
+
+export type ProviderId = "claude-code" | "codex" | "ollama";
+export type LaunchableProviderId = Extract<ProviderId, "claude-code" | "codex">;
+
+/** Nível de suporte de uma fonte de dados (INTEGRATIONS no Vault). */
+export type SupportLevel = "A" | "B" | "C";
+
+export interface ProviderCapability {
+  id: string;
+  label: string;
+  level: SupportLevel;
+  /** Fase em que a suíte passa a usar a capacidade; ausente = já em uso. */
+  phase?: number;
+}
+
+export interface ProviderAuth {
+  state: "authenticated" | "unauthenticated" | "unavailable";
+  /** Forma de login informada pelo comando oficial (ex.: "claude.ai", "ChatGPT", "API key"). */
+  method: string | null;
+  /** Plano informado pelo comando oficial, quando houver. */
+  plan: string | null;
+  category: DataCategory;
+  /** Comando oficial consultado. */
+  source: string | null;
+  fetchedAt: string;
+  /** Motivo quando `unavailable`. */
+  reason?: string;
+}
+
+export interface ProviderInfo {
+  id: ProviderId;
+  label: string;
+  installed: boolean;
+  version: string | null;
+  /** `tested` = versão coberta por testes de contrato; `untested` = funciona, com aviso. */
+  versionSupport: "tested" | "untested" | "unknown";
+  testedVersions: string;
+  auth: ProviderAuth;
+  capabilities: ProviderCapability[];
+  launchable: boolean;
+  notes: string[];
+}
+
+export interface ProvidersResponse {
+  generatedAt: string;
+  providers: ProviderInfo[];
 }
 
 /** Mensagens do navegador para o servidor em `/ws/terminal/:id`. */
@@ -111,8 +160,8 @@ export interface DoctorTool {
   label: string;
   installed: boolean;
   version: string | null;
-  /** Estado de autenticação: verificado somente por mecanismos documentados (Fase 4). */
-  auth: DataCategory;
+  /** Login do provedor via comando oficial; null quando não se aplica (git, graphify, ollama). */
+  auth: ProviderAuth | null;
   optional: boolean;
 }
 
