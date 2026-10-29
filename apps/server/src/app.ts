@@ -1,5 +1,6 @@
 import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
+import fastifyWebsocket from "@fastify/websocket";
 import type { ApiErrorBody } from "@devtools/shared";
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
@@ -20,6 +21,12 @@ import { registerProjectRoutes } from "./modules/projects/projects.routes.js";
 import { ProjectsService } from "./modules/projects/projects.service.js";
 import { registerSessionRoutes } from "./modules/session/session.routes.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
+import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
+import type { PtyBackendStatus } from "./modules/terminal/pty-backend.js";
+import { TerminalManager } from "./modules/terminal/terminal-manager.js";
+import type { TerminalManagerOptions } from "./modules/terminal/terminal-manager.js";
+import { TerminalRepository } from "./modules/terminal/terminal.repository.js";
+import { MAX_WS_MESSAGE_BYTES, registerTerminalRoutes } from "./modules/terminal/terminal.routes.js";
 
 export interface AppDeps {
   config: AppConfig;
@@ -31,11 +38,16 @@ export interface AppDeps {
   /** Diretório do dashboard compilado. Padrão: dist/public ao lado deste arquivo. */
   publicDir?: string | null;
   codes?: LaunchCodeStore;
+  /** Backend de PTY (testes podem injetar um falso). Padrão: carrega a biblioteca nativa. */
+  pty?: PtyBackendStatus;
+  /** Ajustes do gerenciador de terminais (retenção, limites) — usado em testes. */
+  terminalOptions?: Partial<Omit<TerminalManagerOptions, "backend" | "backendError" | "repository">>;
 }
 
 export interface App {
   server: FastifyInstance;
   codes: LaunchCodeStore;
+  terminals: TerminalManager;
 }
 
 export async function buildApp(deps: AppDeps): Promise<App> {
@@ -68,22 +80,35 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   });
 
   await server.register(fastifyCookie);
+  await server.register(fastifyWebsocket, { options: { maxPayload: MAX_WS_MESSAGE_BYTES } });
   registerSecurity(server, {
     port: deps.config.port,
     cliTokens: new CliTokenVerifier(deps.secret),
     sessions,
   });
 
+  const pty = deps.pty ?? (await loadPtyBackend());
+  const terminals = new TerminalManager({
+    ...deps.terminalOptions,
+    backend: pty.backend,
+    backendError: pty.error,
+    repository: new TerminalRepository(deps.db),
+  });
+  // Nenhum processo do terminal pode sobreviver ao servidor.
+  server.addHook("onClose", async () => terminals.shutdown());
+
+  const projects = new ProjectsService(new ProjectsRepository(deps.db));
   registerSessionRoutes(server, { codes, sessions });
-  registerSystemRoutes(server, { layout: deps.layout, db: deps.db });
-  registerProjectRoutes(server, new ProjectsService(new ProjectsRepository(deps.db)));
+  registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals });
+  registerProjectRoutes(server, projects, { onRemoved: (id) => terminals.closeProject(id) });
+  registerTerminalRoutes(server, { terminals, projects });
 
   const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {
     await server.register(fastifyStatic, { root: publicDir, index: ["index.html"] });
     // SPA: rotas que não são API nem arquivo devolvem o index.html.
     server.setNotFoundHandler((request, reply) => {
-      if (request.url.startsWith("/api/") || request.method !== "GET") {
+      if (request.url.startsWith("/api/") || request.url.startsWith("/ws/") || request.method !== "GET") {
         return reply.code(404).send({ error: { code: "NOT_FOUND", message: "Recurso não encontrado." } });
       }
       return reply.sendFile("index.html");
@@ -98,7 +123,7 @@ export async function buildApp(deps: AppDeps): Promise<App> {
     );
   }
 
-  return { server, codes };
+  return { server, codes, terminals };
 }
 
 /** dist/public no pacote publicado; em desenvolvimento (tsx), o build de apps/web. */

@@ -16,3 +16,5 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-28 | Angular 22 e typescript-eslint 8 exigem TypeScript `>=6.0 <6.1` — não atualizar para TS 7 ainda. | Fase 2 |
 | 2026-10-28 | O `inlineCritical` do Angular injeta `<script>` inline; incompatível com CSP `script-src 'self'`. Desligado. | Fase 2 |
 | 2026-10-28 | Merge de PR pela LLM pode ser bloqueado pela política de permissões do Claude Code; o humano faz o merge. | Fase 2 |
+| 2026-10-28 | Filhos de um shell que saiu são reparentados para o init: procurar só por PPID não os encontra. A sessão POSIX (`/proc/<pid>/stat`, campo 6) continua igual ao PID do PTY e localiza todos. | Fase 3 |
+| 2026-10-28 | Hooks `onRequest` do Fastify rodam no upgrade do `@fastify/websocket`: erro lançado vira resposta HTTP (401/403) antes do handshake. | Fase 3 |

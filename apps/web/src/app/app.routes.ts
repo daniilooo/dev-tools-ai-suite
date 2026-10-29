@@ -25,6 +25,16 @@ export const routes: Routes = [
           import("./features/projects/project-detail-page").then((m) => m.ProjectDetailPage),
       },
       {
+        path: "projetos/:id/terminal",
+        title: "Terminal — Dev Tools AI Suite",
+        loadComponent: () => import("./features/terminal/terminal-page").then((m) => m.TerminalPage),
+      },
+      {
+        path: "terminal",
+        title: "Terminal — Dev Tools AI Suite",
+        loadComponent: () => import("./features/terminal/terminal-hub-page").then((m) => m.TerminalHubPage),
+      },
+      {
         path: "diagnostico",
         title: "Diagnóstico — Dev Tools AI Suite",
         loadComponent: () => import("./features/system/doctor-page").then((m) => m.DoctorPage),

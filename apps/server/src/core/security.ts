@@ -44,6 +44,7 @@ export interface SecurityOptions {
  * - Host restrito a 127.0.0.1/localhost na porta configurada (anti DNS rebinding);
  * - Origin, quando presente, deve ser a própria origem (anti CSRF / CSWSH);
  * - toda rota /api exige sessão (cookie assinado) ou token descartável do CLI local;
+ * - todo upgrade /ws exige Origin da própria suíte e sessão do navegador;
  * - métodos com efeito colateral via cookie exigem header anti-CSRF.
  * Sem CORS: nenhum header Access-Control-* é emitido.
  */
@@ -76,6 +77,16 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
     reply.header("Referrer-Policy", "no-referrer");
     reply.header("X-Frame-Options", "DENY");
     reply.header("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+
+    if (request.url.startsWith("/ws/")) {
+      // WebSocket não passa por CORS nem por header anti-CSRF: exige Origin da própria
+      // suíte (anti cross-site WebSocket hijacking) e sessão do navegador. O CLI não abre WS.
+      if (origin === undefined) throw forbidden("Origem obrigatória para WebSocket.");
+      const session = options.sessions.verify(request.cookies[SESSION_COOKIE]);
+      if (!session) throw unauthorized();
+      request.session = session;
+      return;
+    }
 
     if (!request.url.startsWith("/api/")) return;
 

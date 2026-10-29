@@ -12,6 +12,7 @@ import { ensureDataDir } from "./core/data-dir.js";
 import { openDatabase } from "./core/database.js";
 import { InstallSecret } from "./core/secret.js";
 import { runDoctor } from "./modules/system/doctor.js";
+import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
 import { VERSION } from "./version.js";
 
 interface StartOptions {
@@ -49,7 +50,8 @@ program
     const layout = ensureDataDir(config.dataDir);
     InstallSecret.loadOrCreate(layout.secretFile);
     const db = openDatabase(layout.database);
-    const report = await runDoctor(layout, db);
+    const pty = await loadPtyBackend();
+    const report = await runDoctor(layout, db, { backend: pty.backend?.name ?? null, error: pty.error });
     db.close();
     if (options.json) console.log(JSON.stringify(report, null, 2));
     else printDoctor(report);

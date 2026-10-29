@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@xterm/xterm/css/xterm.css";
 
 /* Design tokens — tema escuro padrão (ADR-0003), inspiração VS Code / Linear. */
 :root,

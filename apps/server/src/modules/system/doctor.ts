@@ -27,8 +27,13 @@ const TOOLS: ToolSpec[] = [
  * Diagnóstico da instalação. Detecta ferramentas apenas executando `--version`;
  * nunca lê arquivos de configuração ou credenciais dos provedores (INV-02).
  */
-export async function runDoctor(layout: DataDirLayout, db: Db | null): Promise<DoctorReport> {
-  const checks: DoctorCheck[] = [nodeCheck(), ...dataDirChecks(layout), databaseCheck(db)];
+export interface PtyStatus {
+  backend: string | null;
+  error: string | null;
+}
+
+export async function runDoctor(layout: DataDirLayout, db: Db | null, pty: PtyStatus): Promise<DoctorReport> {
+  const checks: DoctorCheck[] = [nodeCheck(), ...dataDirChecks(layout), databaseCheck(db), ptyCheck(pty)];
   const tools = await Promise.all(TOOLS.map(detectTool));
   return { generatedAt: new Date().toISOString(), checks, tools };
 }
@@ -77,6 +82,19 @@ function databaseCheck(db: Db | null): DoctorCheck {
   } catch (error) {
     return { id: "database", label: "Banco SQLite", status: "error", detail: (error as Error).message };
   }
+}
+
+function ptyCheck(pty: PtyStatus): DoctorCheck {
+  if (pty.backend) {
+    return { id: "pty", label: "Terminal (PTY)", status: "ok", detail: `backend ${pty.backend}` };
+  }
+  return {
+    id: "pty",
+    label: "Terminal (PTY)",
+    status: "error",
+    detail: pty.error ?? "biblioteca de PTY não carregou",
+    hint: "Reinstale a suíte. Se persistir, instale build-essential e python3 e rode `npm install -g node-pty`.",
+  };
 }
 
 async function detectTool(spec: ToolSpec): Promise<DoctorTool> {

@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildApp } from "../src/app.js";
-import type { App } from "../src/app.js";
+import type { App, AppDeps } from "../src/app.js";
 import { loadConfig } from "../src/core/config.js";
 import { ensureDataDir } from "../src/core/data-dir.js";
 import type { DataDirLayout } from "../src/core/data-dir.js";
@@ -27,8 +27,18 @@ export function tempDir(prefix = "devtools-test-"): string {
   return mkdtempSync(join(tmpdir(), prefix));
 }
 
-export async function createTestApp(dataDir = tempDir(), cleanup = true): Promise<TestContext> {
-  const config = loadConfig({}, { port: PORT, dataDir });
+export interface TestAppOptions {
+  port?: number;
+  pty?: AppDeps["pty"];
+  terminalOptions?: AppDeps["terminalOptions"];
+}
+
+export async function createTestApp(
+  dataDir = tempDir(),
+  cleanup = true,
+  options: TestAppOptions = {},
+): Promise<TestContext> {
+  const config = loadConfig({}, { port: options.port ?? PORT, dataDir });
   const layout = ensureDataDir(config.dataDir);
   const secret = InstallSecret.loadOrCreate(layout.secretFile);
   const db = openDatabase(layout.database);
@@ -40,6 +50,8 @@ export async function createTestApp(dataDir = tempDir(), cleanup = true): Promis
     db,
     publicDir: null,
     logStream: { write: (chunk: string) => logs.push(chunk) },
+    pty: options.pty,
+    terminalOptions: options.terminalOptions,
   });
   await app.server.ready();
   return {
@@ -58,12 +70,12 @@ export async function createTestApp(dataDir = tempDir(), cleanup = true): Promis
 }
 
 /** Autentica via código de uso único e devolve cookie + token anti-CSRF. */
-export async function login(ctx: TestContext): Promise<{ cookie: string; csrf: string }> {
+export async function login(ctx: TestContext, host = HOST): Promise<{ cookie: string; csrf: string }> {
   const code = ctx.codes.issue();
   const response = await ctx.server.inject({
     method: "POST",
     url: "/api/v1/session/exchange",
-    headers: { host: HOST, origin: ORIGIN },
+    headers: { host, origin: `http://${host}` },
     payload: { code: code.token },
   });
   if (response.statusCode !== 200) throw new Error(`login falhou: ${response.statusCode}`);

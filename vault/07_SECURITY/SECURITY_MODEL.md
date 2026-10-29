@@ -15,7 +15,7 @@ tags: [seguranca]
 | Ameaça | Mitigação | Referência |
 |---|---|---|
 | Página web maliciosa chama API local (CSRF) | cookie `SameSite=Strict`, token anti-CSRF, validação de `Origin` | ADR-0007 |
-| Cross-site WebSocket hijacking | validação de `Origin` + sessão no upgrade | ADR-0007 |
+| Cross-site WebSocket hijacking | `Origin` **obrigatória** e igual à da suíte + cookie de sessão no upgrade; token do CLI não abre WS; conexão fecha quando a sessão expira | ADR-0007 |
 | DNS rebinding | validação de `Host` contra allowlist local | ADR-0007 |
 | Exposição na rede | bind `127.0.0.1`; mudança exige HG-12 | RN-01 |
 | Segredo vazado em URL/log/bundle | código efêmero em fragmento; redator de logs | ADR-0007 |
@@ -25,6 +25,9 @@ tags: [seguranca]
 | Envio de código para fora | embeddings locais; externos só com opt-in (HG-13) | INV-04 |
 | Leitura de credenciais de provedores | allowlist de caminhos lidos por adapter | INV-02 |
 | Elevação de privilégio | sem `sudo`; processos com o usuário atual | G-03 |
+| Processos do terminal sobrevivendo à sessão | encerramento da árvore (SIGHUP → SIGKILL) ao fechar, ao sair do shell, ao remover projeto e ao desligar o servidor | ADR-0004 |
+| Esgotamento de recursos pelo terminal | máximo de 32 terminais, buffer de 256 KiB, mensagem WS ≤ 64 KiB, cliente lento desconectado | Fase 3 |
+| Vazamento de configuração da suíte para o shell | variáveis `DEVTOOLS_*` removidas do ambiente do PTY; saída do terminal não vai para logs nem disco | RN-02 |
 | Dependência comprometida | lockfile, `pnpm audit` no CI, revisão de deps nativas (HG-07) | CI |
 
 ## Fora de escopo do MVP

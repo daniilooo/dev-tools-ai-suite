@@ -22,9 +22,12 @@ import { StackChips } from "./stack-chips";
           <h1 class="text-xl font-semibold">{{ p.name }}</h1>
           <div class="font-mono text-xs break-all text-muted">{{ p.path }}</div>
         </div>
-        <button type="button" class="btn" (click)="redetect(p.id)" [disabled]="busy()">
-          Detectar stack novamente
-        </button>
+        <div class="flex flex-wrap gap-2">
+          <a [routerLink]="['/projetos', p.id, 'terminal']" class="btn btn-primary">Abrir terminal</a>
+          <button type="button" class="btn" (click)="redetect(p.id)" [disabled]="busy()">
+            Detectar stack novamente
+          </button>
+        </div>
       </header>
       <section class="grid gap-3 md:grid-cols-2">
         <div class="card p-4">
@@ -37,7 +40,7 @@ import { StackChips } from "./stack-chips";
           <div class="text-muted">Atualizado em {{ p.updatedAt | date: "dd/MM/yyyy HH:mm" }}</div>
         </div>
         <div class="card p-4 text-sm text-muted md:col-span-2">
-          Terminal, agentes e conhecimento deste projeto ficam disponíveis a partir das fases 3, 5 e 7.
+          Agentes e conhecimento deste projeto ficam disponíveis a partir das fases 5 e 7.
         </div>
       </section>
     }

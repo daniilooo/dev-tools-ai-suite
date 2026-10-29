@@ -16,7 +16,7 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 0 | Intake e Discovery | — | Concluído | 100% |
 | 1 | Bootstrap | — | Concluído | 100% |
 | 2 | Foundation | P0 | Concluído | 100% |
-| 3 | Integrated Terminal (SUG03) | P0 | Não iniciado | 0% |
+| 3 | Integrated Terminal (SUG03) | P0 | Em validação | 85% |
 | 4 | Provider Integration | P0 | Não iniciado | 0% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Não iniciado | 0% |
@@ -92,17 +92,24 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-03 (deps nativas), R-07 (tempo de setup de tooling).
 
 ## FASE 3 — Integrated Terminal / SUG03 (P0)
-**Status:** Não iniciado
+**Status:** Em validação — implementação na branch `feature/03-terminal`; falta validação humana com `claude`/`codex`, CI verde e merge
 - **Objetivo:** terminal real no navegador, estável e seguro.
 - **Escopo:** `node-pty` + `xterm.js` · WS `/ws/terminal` autenticado · múltiplas abas · resize · reconexão com buffer · `cwd` do projeto · encerramento limpo de árvores de processo · retenção de sessões desconectadas.
-- **Entregáveis:** terminal funcional no dashboard; testes de integração e E2E.
+- **Entregáveis:**
+  - [x] Módulo `terminal`: `PtyBackend` híbrido (ADR-0012), `TerminalManager`, buffer de reconexão, migração 2 (`terminal_sessions`)
+  - [x] REST `/projects/:id/terminals` e `DELETE /terminals/:id`; WS `/ws/terminal/:id` autenticado
+  - [x] Encerramento da árvore de processos (descendentes + sessão POSIX) ao fechar, ao sair do shell, ao remover o projeto e ao desligar o servidor
+  - [x] Dashboard: abas por projeto, aba ativa na URL, reconexão automática com backoff, resize, temas, links clicáveis
+  - [x] `devtools doctor` e `/health` informam o backend de PTY
+  - [x] Testes: 16 de integração/unidade com PTY real + 2 E2E
 - **Dependências:** Fase 2.
 - **Critérios de aceite:**
-  - [ ] `vim`, `htop`, `claude`, `codex` funcionam interativamente.
-  - [ ] Recarregar a página reconecta à mesma sessão com saída recente.
-  - [ ] WS sem sessão/Origin inválida é recusado (teste).
-  - [ ] Sessões de projetos diferentes isoladas.
-  - [ ] Nenhum processo órfão após encerrar sessão/servidor.
+  - [ ] `vim`, `htop`, `claude`, `codex` funcionam interativamente — `htop`, `vi` e `less` verificados no navegador; `claude`/`codex` aguardam validação humana.
+  - [x] Recarregar a página reconecta à mesma sessão com saída recente (`terminal.test.ts` + E2E).
+  - [x] WS sem sessão/Origin inválida é recusado (`terminal.test.ts`: 401 sem sessão ou cookie forjado, 403 sem Origin ou com Origin externa).
+  - [x] Sessões de projetos diferentes isoladas (`terminal.test.ts`).
+  - [x] Nenhum processo órfão após encerrar sessão/servidor (`terminal.test.ts`: fechar aba, `exit`, remover projeto, desligar servidor).
+- **Decisões da fase:** retenção de sessão desconectada **8 h** (agente segue trabalhando com o navegador fechado); sessão encerrada fica listada 10 min; buffer de reconexão 256 KiB por terminal; máximo de 32 terminais; cliente lento (>4 MiB pendentes) é desconectado e reconecta com replay.
 - **DoD:** E2E do terminal no CI; revisão de segurança aprovada (HG-06).
 - **Riscos:** comportamento de PTY no CI; consumo de memória do buffer.
 
