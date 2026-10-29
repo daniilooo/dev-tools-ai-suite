@@ -14,6 +14,8 @@ export interface ProviderAdapter {
   readonly label: string;
   /** Comando digitado no shell para iniciar o provedor interativo; null = não lançável. */
   readonly launchCommand: string | null;
+  /** Flag oficial para fixar o id da sessão ao lançar (liga o terminal à transcrição). */
+  readonly sessionIdFlag?: string;
   detect(context: DetectContext): Promise<ProviderInfo>;
 }
 

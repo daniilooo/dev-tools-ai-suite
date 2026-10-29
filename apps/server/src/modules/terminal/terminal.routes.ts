@@ -26,13 +26,8 @@ export function registerTerminalRoutes(
       const project = projects.get(request.params.id);
       const body = request.body ?? {};
       // Só comandos fixos de provedores conhecidos: o navegador nunca escolhe o texto executado.
-      const launch =
-        body.launch === undefined
-          ? undefined
-          : {
-              title: LAUNCH_TITLES[body.launch] ?? "Terminal",
-              command: providers.launchCommand(String(body.launch)),
-            };
+      const spec = body.launch === undefined ? undefined : providers.launchSpec(String(body.launch));
+      const launch = spec && { ...spec, title: LAUNCH_TITLES[spec.providerId] ?? "Terminal" };
       const session = terminals.create(
         project,
         {

@@ -1,4 +1,10 @@
-import type { Project, TerminalCloseCode, TerminalServerMessage, TerminalSession } from "@devtools/shared";
+import type {
+  LaunchableProviderId,
+  Project,
+  TerminalCloseCode,
+  TerminalServerMessage,
+  TerminalSession,
+} from "@devtools/shared";
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
 import { AppError, badRequest, notFound } from "../../core/errors.js";
@@ -61,6 +67,14 @@ interface LiveSession {
 export class TerminalManager {
   private readonly sessions = new Map<string, LiveSession>();
   private readonly titleCounters = new Map<string, number>();
+  /** Provedores abertos pela suíte: liga a execução do agente ao terminal (Agent Monitor). */
+  private readonly launches: {
+    terminalId: string;
+    projectId: string;
+    providerId: LaunchableProviderId;
+    externalId: string | null;
+    at: number;
+  }[] = [];
   private readonly options: TerminalManagerOptions & typeof DEFAULTS;
 
   constructor(options: TerminalManagerOptions) {
@@ -93,7 +107,12 @@ export class TerminalManager {
   create(
     project: Project,
     size: { cols?: number; rows?: number } = {},
-    launch?: { title: string; command: string },
+    launch?: {
+      title: string;
+      command: string;
+      providerId?: LaunchableProviderId;
+      externalId?: string | null;
+    },
   ): TerminalSession {
     const backend = this.options.backend;
     if (!backend) {
@@ -165,10 +184,46 @@ export class TerminalManager {
     pty.onData((data) => this.onOutput(session, data));
     pty.onExit(({ exitCode, signal }) => this.onExit(session, exitCode, signal ?? null));
     // O TTY guarda a digitação antecipada até o shell ler o primeiro comando.
-    if (launch) pty.write(`${launch.command}\r`);
+    if (launch) {
+      pty.write(`${launch.command}\r`);
+      if (launch.providerId) {
+        this.launches.push({
+          terminalId: info.id,
+          projectId: project.id,
+          providerId: launch.providerId,
+          externalId: launch.externalId ?? null,
+          at: Date.now(),
+        });
+        if (this.launches.length > 200) this.launches.shift();
+      }
+    }
     // Até o navegador conectar, a sessão conta como desconectada (com retenção).
     this.scheduleRetention(session, this.options.retentionMs);
     return { ...info };
+  }
+
+  /**
+   * Terminal em que um agente foi aberto: pelo id de sessão fixado no lançamento ou,
+   * sem ele (Codex), pela sessão criada até 60 s após o lançamento no mesmo projeto.
+   */
+  terminalFor(
+    providerId: LaunchableProviderId,
+    projectId: string,
+    externalId: string,
+    startedAt: string,
+  ): string | null {
+    const exact = this.launches.find((l) => l.externalId === externalId);
+    if (exact) return exact.terminalId;
+    const started = Date.parse(startedAt);
+    const candidates = this.launches.filter(
+      (l) =>
+        l.providerId === providerId &&
+        l.projectId === projectId &&
+        l.externalId === null &&
+        started >= l.at - 2_000 &&
+        started <= l.at + 60_000,
+    );
+    return candidates.length === 1 ? candidates[0]!.terminalId : null;
   }
 
   attach(id: string, client: TerminalClient): void {

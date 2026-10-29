@@ -19,10 +19,10 @@ export function registerSystemRoutes(
       projects: "ok",
       terminal: deps.terminals.backendName ? "ok" : "not_available",
       integrations: "ok",
-      agents: "planned",
+      agents: "ok",
       quota: "planned",
       knowledge: "planned",
-      telemetry: "planned",
+      telemetry: "ok",
     },
   }));
 
