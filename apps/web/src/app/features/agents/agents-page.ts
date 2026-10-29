@@ -114,12 +114,7 @@ const STATE_ORDER: AgentRunState[] = ["running", "waiting", "detected", "failed"
                 </div>
                 <div class="flex items-center gap-2">
                   @if (run.terminalId) {
-                    <a
-                      class="btn"
-                      [routerLink]="['/projetos', run.projectId, 'terminal']"
-                      [queryParams]="{ t: run.terminalId }"
-                      >Ver terminal</a
-                    >
+                    <a class="btn" [routerLink]="['/agentes', run.id, 'terminal']">Ver terminal</a>
                   }
                   <dt-agent-state-chip [state]="run.state" />
                 </div>

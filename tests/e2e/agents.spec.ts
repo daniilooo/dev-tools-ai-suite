@@ -77,3 +77,40 @@ test("monitor de agentes mostra sessões, subagentes, telemetria e atualiza ao v
   );
   await expect(claude.getByTestId("agent-state").first()).toHaveText("executando", { timeout: 10_000 });
 });
+
+test("ver terminal abre só o terminal do agente, sem as abas do projeto", async ({ page }) => {
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-agterm-")));
+  await page.goto(`${server.base}/#code=${await server.launchToken()}`);
+  await page.getByLabel("Caminho absoluto").fill(dir);
+  await page.getByLabel("Nome (opcional)").fill("proj-agente-terminal");
+  await page.getByRole("button", { name: "Adicionar projeto" }).click();
+  await page.getByRole("link", { name: "proj-agente-terminal" }).click();
+
+  // Abre também um terminal comum, que não deve aparecer na tela do agente.
+  await page.getByRole("link", { name: "Abrir terminal" }).click();
+  await expect(page.getByRole("tab", { name: "Terminal 1" })).toBeVisible();
+  await page.getByRole("button", { name: "Abrir Claude Code neste projeto" }).click();
+  await expect(page.locator('[role="tabpanel"]:not(.invisible) .xterm-rows')).toContainText(
+    "claude-falso-interativo",
+  );
+
+  await page.getByRole("link", { name: "Agentes" }).click();
+  await page.locator("select").selectOption({ label: "proj-agente-terminal" });
+  const run = page.locator("article").first();
+  await run.getByRole("link", { name: "Ver terminal" }).click({ timeout: 10_000 });
+
+  await expect(page).toHaveURL(/\/agentes\/claude-code(:|%3A)[0-9a-f-]{36}\/terminal$/);
+  await expect(page.getByRole("tablist")).toHaveCount(0);
+  await expect(page.locator(".xterm-rows")).toHaveCount(1);
+  await expect(page.locator(".xterm-rows")).toContainText("claude-falso-interativo");
+  await expect(page.getByTestId("agent-state")).toBeVisible();
+
+  // O terminal é interativo: segue no shell do projeto depois do provedor.
+  await page.locator(".xterm").click();
+  await page.keyboard.type("echo terminal-do-agente");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".xterm-rows")).toContainText("terminal-do-agente");
+
+  await page.getByRole("link", { name: "← Agentes" }).click();
+  await expect(page).toHaveURL(/\/agentes\?projeto=/);
+});

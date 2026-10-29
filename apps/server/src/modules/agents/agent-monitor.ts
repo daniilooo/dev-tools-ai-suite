@@ -104,6 +104,8 @@ export class AgentMonitor {
       snapshot.externalId,
       snapshot.kind === "subagent" ? snapshot.parentExternalId : null,
     );
+    const previous = this.last.get(id);
+    const previousRun = previous ? (JSON.parse(previous) as AgentRun) : this.options.repository.get(id);
     const run: AgentRun = {
       id,
       projectId,
@@ -121,6 +123,7 @@ export class AgentMonitor {
       endedAt: state === "completed" || state === "failed" ? snapshot.lastEventAt : null,
       tokens: snapshot.tokens ? { ...snapshot.tokens } : null,
       toolCalls: { ...snapshot.toolCalls },
+      // Os lançamentos ficam em memória: após reiniciar, mantém o vínculo já persistido.
       terminalId:
         snapshot.kind === "agent"
           ? (this.options.terminals?.terminalFor(
@@ -128,16 +131,17 @@ export class AgentMonitor {
               projectId,
               snapshot.externalId,
               snapshot.startedAt,
-            ) ?? null)
+            ) ??
+            previousRun?.terminalId ??
+            null)
           : null,
       source: SOURCES[providerId],
       error: snapshot.error,
     };
 
     const fingerprint = JSON.stringify(run);
-    const previous = this.last.get(id);
     if (previous === fingerprint) return;
-    const previousState = previous ? (JSON.parse(previous) as AgentRun).state : null;
+    const previousState = previous ? previousRun!.state : null;
     this.last.set(id, fingerprint);
 
     this.options.repository.upsert(run);

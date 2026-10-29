@@ -5,6 +5,17 @@ import { join } from "node:path";
 const FIXTURES = join(import.meta.dirname, "../../../apps/server/test/fixtures");
 
 /**
+ * Com `--session-id`, o Claude falso grava uma transcrição mínima onde o real gravaria
+ * (`$CLAUDE_CONFIG_DIR/projects/<cwd codificado>/<id>.jsonl`), para o Agent Monitor achá-la.
+ */
+const FAKE_CLAUDE_SESSION = [
+  'dir="$CLAUDE_CONFIG_DIR/projects/$(printf %s "$PWD" | sed "s/[^A-Za-z0-9]/-/g")"',
+  'mkdir -p "$dir"',
+  'printf \'{"type":"user","cwd":"%s","version":"2.1.312","timestamp":"%s","message":{"role":"user","content":"oi"}}\\n\' "$PWD" "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" > "$dir/$2.jsonl"',
+  'echo "claude-falso-interativo"',
+].join("; ");
+
+/**
  * Binários falsos de `claude` e `codex` que respondem com as fixtures oficiais.
  * Sem argumentos ou com `--session-id <uuid>` (modo interativo) só imprimem um marcador.
  * Devolve um ambiente com PATH restrito e `/bin/sh` como shell — o rc do usuário não pode
@@ -29,7 +40,7 @@ export function fakeProvidersEnv(): NodeJS.ProcessEnv {
   };
   script(
     "claude",
-    `  "--version") cat "${FIXTURES}/claude-code/2.1.312/version.txt";;\n  "auth status --json") cat "${FIXTURES}/claude-code/2.1.312/auth-status.json";;\n  "--session-id "*) echo "claude-falso-interativo";;`,
+    `  "--version") cat "${FIXTURES}/claude-code/2.1.312/version.txt";;\n  "auth status --json") cat "${FIXTURES}/claude-code/2.1.312/auth-status.json";;\n  "--session-id "*) ${FAKE_CLAUDE_SESSION};;`,
   );
   script(
     "codex",

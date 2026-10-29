@@ -144,6 +144,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Vínculo sessão ↔ terminal: `claude --session-id <uuid>`; Codex por janela de tempo
   - [x] Telemetria básica: duração, tokens (entrada, saída, cache lido/gravado — calculado), chamadas de ferramenta por nome, modelo e versão
   - [x] Tela **Agentes** (seletor de projeto, estados com explicação, subagentes, fonte e nível, atualização ao vivo) e card no detalhe do projeto
+  - [x] "Ver terminal" abre só o terminal do agente (`/agentes/:runId/terminal`), com estado ao vivo; vínculo preservado após reinício do servidor
   - [x] Testes: 23 de servidor (allowlist, tail, parsers, monitor, rotas, WS), 3 de formatação no dashboard e 1 E2E
 - **Dependências:** Fase 4.
 - **Critérios de aceite:**

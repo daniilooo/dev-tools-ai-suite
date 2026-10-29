@@ -166,6 +166,36 @@ describe("AgentMonitor", () => {
     expect(dump).toContain("[REDIGIDO]");
   });
 
+  it("mantém o vínculo com o terminal depois de reiniciar (lançamentos ficam só em memória)", () => {
+    const linked = new AgentMonitor({
+      sources: new AgentSources(new LocalSourceFiles(roots), () => now),
+      projects: new ProjectsService(new ProjectsRepository(db)),
+      repository,
+      terminals: {
+        terminalFor: (_p, _pr, externalId) => (externalId === CLAUDE_SESSION_ID ? "term-1" : null),
+      },
+      now: () => now,
+    });
+    linked.tick();
+    expect(linked.get(`claude-code:${CLAUDE_SESSION_ID}`).terminalId).toBe("term-1");
+
+    // Novo processo: sem lançamentos em memória, com mudança de estado publicada.
+    const restarted = new AgentMonitor({
+      sources: new AgentSources(new LocalSourceFiles(roots), () => now),
+      projects: new ProjectsService(new ProjectsRepository(db)),
+      repository,
+      terminals: { terminalFor: () => null },
+      now: () => now,
+    });
+    const published: ServerEvent[] = [];
+    restarted.subscribe((event) => published.push(event));
+    now = Date.parse("2026-10-28T10:40:00.000Z");
+    restarted.tick();
+    const event = published.find((e) => e.run.id === `claude-code:${CLAUDE_SESSION_ID}`)!;
+    expect(event.run).toMatchObject({ state: "unknown", terminalId: "term-1" });
+    expect(restarted.get(`codex:${CODEX_MAIN_ID}`).terminalId).toBeNull();
+  });
+
   it("isola falhas da varredura sem derrubar o servidor", () => {
     const errors: unknown[] = [];
     const broken = new AgentMonitor({

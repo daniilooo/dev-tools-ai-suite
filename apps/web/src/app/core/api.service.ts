@@ -66,4 +66,8 @@ export class ApiService {
   agentRuns(projectId: string): Observable<AgentRunDetail[]> {
     return this.http.get<AgentRunDetail[]>(`/api/v1/projects/${encodeURIComponent(projectId)}/agents/runs`);
   }
+
+  agentRun(id: string): Observable<AgentRunDetail> {
+    return this.http.get<AgentRunDetail>(`/api/v1/agents/runs/${encodeURIComponent(id)}`);
+  }
 }

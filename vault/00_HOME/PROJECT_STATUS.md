@@ -17,7 +17,7 @@ atualizado: 2026-10-28
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
 | Próxima ação | Revisão humana e merge do PR da Fase 5 |
-| Testes atuais | 100 servidor + 8 web + 10 E2E, todos passando localmente |
+| Testes atuais | 102 servidor + 8 web + 11 E2E, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |

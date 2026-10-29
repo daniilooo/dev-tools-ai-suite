@@ -12,7 +12,7 @@
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando (`pnpm dev:server` + `pnpm dev:web`) |
 | Bloqueios | Nenhum |
 | Próxima ação | PR `feature/05-agent-monitor → release`, CI verde, revisão humana |
-| Testes atuais | `pnpm test` (100 servidor + 8 web), `pnpm test:e2e` (10), `validate:bootstrap` |
+| Testes atuais | `pnpm test` (102 servidor + 8 web), `pnpm test:e2e` (11), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
 
 ---
@@ -20,7 +20,7 @@
 ## HANDOFF — 2026-10-28 (Fase 5) — Claude Code (Opus)
 
 **Contexto:** Fase 5 autorizada pelo humano após o merge da Fase 4 (PR #6).
-**Estado:** implementado em `feature/05-agent-monitor`; testes locais verdes (100 servidor, 8 web, 10 E2E).
+**Estado:** implementado em `feature/05-agent-monitor`; testes locais verdes (102 servidor, 8 web, 11 E2E).
 **Alterações:** `apps/server/src/modules/integrations/sources/*` (allowlist, leitura incremental, parsers Claude/Codex, descoberta), `apps/server/src/modules/agents/*` (monitor, repositório, rotas, `/ws/events`), migração 3, `--session-id` no lançamento do Claude, fixtures de transcrição, `apps/web/src/app/features/agents/*`, `core/server-events.service.ts`, card no detalhe do projeto, `tests/e2e/agents.spec.ts`; E2E isolado de `~/.claude`/`~/.codex`.
 **Decisões:** ADR-0013 (transcrições nível B; hooks adiados), D-12 (frescor 5/30 min), D-13 (`--session-id`).
 **Pendências:** revisão humana e merge; dívidas TD-11 a TD-14.
