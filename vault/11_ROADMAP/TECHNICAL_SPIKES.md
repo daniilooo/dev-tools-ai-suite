@@ -9,8 +9,8 @@ Spikes têm **timebox** e produzem uma resposta + recomendação (não código d
 | ID | Pergunta | Timebox | Fase | Saída |
 |---|---|---|---|---|
 | S-01 | `node-pty` instala sem toolchain em Linux limpo via npm? Qual driver SQLite (`node:sqlite` vs `better-sqlite3`)? Impacto em Windows/macOS? | 1 dia | 2 (início) | recomendação + HG-07 |
-| S-02 | Interface do Graphify: instalação, comandos, formato de saída, versões, tempo em repo médio; viabilidade do plano B tree-sitter | 1 dia | 7 | ✅ concluído — aguarda HG-07 |
-| S-03 | Benchmark `sqlite-vec` vs LanceDB + modelo de embeddings ONNX (tamanho, RAM, latência, qualidade) na máquina de referência | 1–2 dias | 7 | ✅ concluído — aguarda HG-07 |
+| S-02 | Interface do Graphify: instalação, comandos, formato de saída, versões, tempo em repo médio; viabilidade do plano B tree-sitter | 1 dia | 7 | ✅ concluído — HG-07 aprovado (D-20) |
+| S-03 | Benchmark `sqlite-vec` vs LanceDB + modelo de embeddings ONNX (tamanho, RAM, latência, qualidade) na máquina de referência | 1–2 dias | 7 | ✅ concluído — HG-07 aprovado (D-20) |
 | S-04 | Quais eventos de agentes/subagentes os hooks e transcripts do Claude Code 2.1.x e as sessões do Codex 0.16x fornecem? Nível A/B/C de cada | 1 dia | 5 (início) | ✅ concluído — [[ADR-0013-fontes-agent-monitor]] |
 | S-05 | Existe saída oficial consumível de uso/limites para Claude Code e Codex nos planos atuais? | 0,5 dia | 6 (início) | ✅ concluído — [[ADR-0014-fontes-quota-monitor]] |
 
@@ -49,7 +49,7 @@ Verificado em Claude Code 2.1.312 e Codex 0.165.0 (só a estrutura das chaves; f
 Hipótese H-05 confirmada em parte: há fonte oficial para o Codex (registrada localmente) e para o Claude Code (status line), mas a do Claude exige configurar a status line. O humano escolheu passá-la com `--settings` só nas sessões abertas pela suíte (D-15). Leitura das fontes reais da máquina de referência: ~40 ms por varredura.
 Decisão: [[ADR-0014-fontes-quota-monitor]].
 
-### S-02 e S-03 — concluídos em 2026-10-29 (aguardam HG-07)
+### S-02 e S-03 — concluídos em 2026-10-29 (HG-07 aprovado, D-20)
 
 Executados com autorização do humano, em diretórios isolados (scratchpad), sem tocar no produto nem no repositório medido. Máquina de referência: 4 núcleos, sem GPU. Repositório medido: `jinsei` (Angular + Spring Boot, repositórios aninhados), 2.090 arquivos e 7.154 trechos gerados pelo indexador da suíte (já redigidos).
 

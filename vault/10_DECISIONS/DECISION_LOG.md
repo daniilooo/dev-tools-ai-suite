@@ -39,3 +39,4 @@ tags: [decisoes]
 | 2026-10-29 | D-17 | Fase 7 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-29 | D-18 | Busca textual FTS5 (SQLite embutido) como base do conhecimento, um índice por projeto em `indexes/`; semântica entra depois dos spikes | Proposto pela LLM | [[ADR-0006-rag-local]] |
 | 2026-10-29 | D-19 | Repositórios git aninhados (até 3 níveis) entram no índice com o próprio `.gitignore`, mesmo que a raiz os ignore | Proposto pela LLM | [[INDEXING_EXCLUSIONS]] |
+| 2026-10-29 | D-20 | HG-07: `sqlite-vec` como `VectorStore`; busca semântica opcional por projeto via Ollama local ou Transformers.js sob demanda; Graphify como ferramenta externa opcional | Aceito (gate HG-07) | [[ADR-0006-rag-local]] |

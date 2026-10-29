@@ -178,7 +178,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 
 ## FASE 7 — Knowledge: RAG + Grafo (P1)
-**Status:** Em andamento — parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos, recomendação aguarda HG-07
+**Status:** Em andamento — parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; HG-07 aprovado (D-20)
 - **Objetivo:** indexar projetos localmente e responder consultas com referências verificáveis.
 - **Escopo:** spikes **S-02** (Graphify) e **S-03** (vetores + embeddings) · `EmbeddingProvider` (ONNX, Ollama) · `VectorStore` · exclusões · chunking · consulta com referências · remover/reconstruir índice · `CodeGraphProvider`.
 - **Entregáveis:**
@@ -189,11 +189,11 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Spike S-02 (Graphify) — útil para impacto e dependências; ferramenta externa opcional ([[TECHNICAL_SPIKES]])
   - [x] Spike S-03 (sqlite-vec × LanceDB + embeddings ONNX) — `sqlite-vec` recomendado; embeddings caras, opcionais ([[TECHNICAL_SPIKES]])
   - [ ] `EmbeddingProvider` + `VectorStore` (busca semântica) e `CodeGraphProvider`
-  - [ ] ADR-0006 **Aceito**
+  - [x] ADR-0006 **Aceito** (HG-07, D-20)
 - **Resultado parcial (2026-10-29):** repositório Angular + Spring Boot real da máquina de referência (`jinsei`, com repositórios aninhados): 2.090 arquivos, 7.197 trechos em 7,2 s, índice de 28 MB, ~120 MB de RAM, consultas em < 5 ms. 123 testes no servidor, 13 no dashboard e 13 E2E.
 - **Dependências:** Fase 2 (pode correr em paralelo a 3–6).
 - **Critérios de aceite:**
-  - [ ] Pelo menos um mecanismo de embeddings local validado (S-03 validou ONNX local; adoção aguarda HG-07).
+  - [ ] Pelo menos um mecanismo de embeddings local validado (S-03 validou ONNX local; adoção aprovada no HG-07, D-20).
   - [x] Respostas citam arquivo e linhas existentes (`knowledge.test.ts`, E2E).
   - [x] Arquivos sensíveis nunca indexados (teste com `.env`, `secrets/`, `.pem` e segredo no código redigido).
   - [x] Nenhuma chamada de rede externa durante indexação (teste com `fetch` e `Socket.connect` vigiados).

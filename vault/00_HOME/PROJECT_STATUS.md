@@ -9,14 +9,14 @@ atualizado: 2026-10-29
 |---|---|
 | Fase atual | **FASE 7 — Knowledge: RAG + Grafo** |
 | Status da fase | Em andamento |
-| Etapa | Parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; recomendação aguarda HG-07 |
+| Etapa | Parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; HG-07 aprovado (D-20) |
 | Branch atual | `docs/07-spikes-s02-s03` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
 | Última entrega | Conhecimento, parte 1: índice textual local por projeto e consulta com arquivo e linhas |
-| Última decisão | Fase 7 autorizada (D-17); busca textual FTS5 como base (D-18) |
+| Última decisão | HG-07 aprovado: sqlite-vec, embeddings opcionais e Graphify externo (D-20) |
 | Tarefas em andamento | Nenhuma |
-| Bloqueios | HG-07: adoção de `sqlite-vec`, embeddings opcionais e Graphify externo |
-| Próxima ação | Decisão HG-07 sobre a recomendação dos spikes ([[TECHNICAL_SPIKES]]) |
+| Bloqueios | Nenhum |
+| Próxima ação | Implementar `VectorStore` (sqlite-vec), `EmbeddingProvider` e `CodeGraphProvider` (D-20) |
 | Testes atuais | 123 servidor + 13 web + 13 E2E, todos passando localmente |
 
 ## Progresso por fase
