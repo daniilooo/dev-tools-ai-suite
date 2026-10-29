@@ -32,7 +32,7 @@ tags: [seguranca]
 | Elevação de privilégio | sem `sudo`; processos com o usuário atual | G-03 |
 | Processos do terminal sobrevivendo à sessão | encerramento da árvore (SIGHUP → SIGKILL) ao fechar, ao sair do shell, ao remover projeto e ao desligar o servidor | ADR-0004 |
 | Esgotamento de recursos pelo terminal | máximo de 32 terminais, buffer de 256 KiB, mensagem WS ≤ 64 KiB, cliente lento desconectado | Fase 3 |
-| Vazamento de configuração da suíte para o shell | variáveis `DEVTOOLS_*` removidas do ambiente do PTY; saída do terminal não vai para logs nem disco | RN-02 |
+| Vazamento de configuração da suíte para o shell | variáveis `DEVTOOLS_*` e a identidade/token de uma sessão do Claude Code que tenha iniciado o servidor removidas do ambiente do PTY; saída do terminal não vai para logs nem disco | RN-02 |
 | Dependência comprometida | lockfile, `pnpm audit` no CI, revisão de deps nativas (HG-07) | CI |
 
 ## Fora de escopo do MVP

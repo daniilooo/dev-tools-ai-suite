@@ -46,6 +46,30 @@ describe("parseClientMessage", () => {
 });
 
 describe("terminalEnv", () => {
+  it("remove a identidade de uma sessão do Claude Code que tenha iniciado o servidor", () => {
+    const env = terminalEnv({
+      PATH: "/usr/bin",
+      CLAUDECODE: "1",
+      CLAUDE_PID: "123",
+      CLAUDE_EFFORT: "high",
+      CLAUDE_CODE_ENTRYPOINT: "cli",
+      CLAUDE_CODE_EXECPATH: "/x/claude",
+      CLAUDE_CODE_CHILD_SESSION: "1",
+      CLAUDE_CODE_SESSION_ID: "abc",
+      CLAUDE_CODE_SESSION_ATTENDED: "1",
+      CLAUDE_CODE_BRIDGE_SESSION_ID: "def",
+      CLAUDE_CODE_MESSAGING_SOCKET: "/tmp/s",
+      CLAUDE_CODE_MESSAGING_TOKEN: "segredo",
+      CLAUDE_CONFIG_DIR: "/home/x/.claude",
+      CLAUDE_CODE_USE_BEDROCK: "1",
+    });
+    expect(
+      Object.keys(env)
+        .filter((k) => k.startsWith("CLAUDE"))
+        .sort(),
+    ).toEqual(["CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CONFIG_DIR"]);
+  });
+
   it("remove variáveis DEVTOOLS_* e define o tipo do terminal", () => {
     const env = terminalEnv({ PATH: "/usr/bin", DEVTOOLS_PORT: "4317", HOME: "/home/x", VAZIO: undefined });
     expect(env).toEqual({

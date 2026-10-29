@@ -386,13 +386,23 @@ export function defaultShell(): { file: string; args: string[] } {
 }
 
 /**
- * Ambiente do shell: o do usuário, sem as variáveis de configuração da suíte.
+ * Variáveis que um Claude Code em execução injeta nos processos filhos. Se a suíte foi
+ * iniciada de dentro de uma sessão do Claude, o Claude aberto no terminal herdaria a
+ * identidade dessa sessão (vira "sessão filha", sem transcrição própria) e o token do
+ * canal de mensagens dela. Configurações do usuário (`CLAUDE_CONFIG_DIR`, provedores) ficam.
+ */
+const INHERITED_AGENT_SESSION =
+  /^(CLAUDECODE|CLAUDE_PID|CLAUDE_EFFORT|CLAUDE_CODE_(ENTRYPOINT|EXECPATH|CHILD_SESSION|SESSION_\w+|BRIDGE_\w+|MESSAGING_\w+))$/;
+
+/**
+ * Ambiente do shell: o do usuário, sem as variáveis de configuração da suíte nem a
+ * identidade de uma sessão de agente que tenha iniciado o servidor.
  * O segredo de instalação vive só em arquivo e nunca entra no ambiente.
  */
 export function terminalEnv(base: NodeJS.ProcessEnv): Record<string, string> {
   const env: Record<string, string> = {};
   for (const [key, value] of Object.entries(base)) {
-    if (value === undefined || key.startsWith("DEVTOOLS_")) continue;
+    if (value === undefined || key.startsWith("DEVTOOLS_") || INHERITED_AGENT_SESSION.test(key)) continue;
     env[key] = value;
   }
   env.TERM = "xterm-256color";
