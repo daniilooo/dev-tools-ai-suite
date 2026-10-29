@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# pre-commit — rápido e determinístico (< 10 s). Ver .ai/hooks/HOOKS.md
+set -euo pipefail
+bash scripts/check-secrets.sh --staged
+
+has_script() { [[ -f package.json ]] && node -e "process.exit(require('./package.json').scripts?.['$1']?0:1)"; }
+
+mapfile -t files < <(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js|mjs|cjs|json|html|scss|css|md|yaml|yml)$' || true)
+if [[ ${#files[@]} -gt 0 ]] && [[ -x node_modules/.bin/prettier ]]; then
+  node_modules/.bin/prettier --check "${files[@]}"
+fi
+mapfile -t tsfiles < <(printf '%s\n' "${files[@]}" | grep -E '\.(ts|js|mjs|cjs)$' || true)
+if [[ ${#tsfiles[@]} -gt 0 ]] && [[ -x node_modules/.bin/eslint ]]; then
+  node_modules/.bin/eslint "${tsfiles[@]}"
+fi
