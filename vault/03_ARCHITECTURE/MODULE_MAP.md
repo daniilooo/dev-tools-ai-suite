@@ -8,8 +8,8 @@ tags: [arquitetura, modulos]
 |---|---|---|---|
 | `core` | config, diretório de dados, segredo/sessão, middleware de auth, validação Origin/Host, `ProcessRunner`, redator de segredos, logger, migrações SQLite | — | depender de outros módulos |
 | `projects` | cadastro, detecção de stack, isolamento, `.devtools/config.yaml` opcional (RN-05) | core | escrever em projeto sem autorização |
-| `terminal` | ciclo de vida PTY, abas, buffer de reconexão, WS `/ws/terminal` | core, projects | rodar sem sessão autenticada |
-| `integrations` | registro de `ProviderAdapter`s, detecção (`doctor`), lançamento de CLIs | core | ler credenciais (INV-02) |
+| `terminal` | ciclo de vida PTY, abas, buffer de reconexão, WS `/ws/terminal` | core, projects, integrations (só o comando de lançamento) | rodar sem sessão autenticada |
+| `integrations` | registro de `ProviderAdapter`s, detecção (`/providers`, `doctor`), comando de lançamento de CLIs | core | ler arquivos — `fs` bloqueado por lint (INV-02) |
 | `agents` | normalizar e persistir `AgentRun`/`SubagentRun`/`AgentEvent`, publicar eventos | core, integrations | inventar estado (INV-03) |
 | `quota` | agendar leituras, `QuotaReading` com categoria/frescor | core, integrations | usar API não documentada (RN-03) |
 | `knowledge` | indexação, exclusões, RAG, grafo de código | core, projects | enviar conteúdo para fora (INV-04) |

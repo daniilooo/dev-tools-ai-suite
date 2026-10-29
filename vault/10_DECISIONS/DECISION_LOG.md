@@ -25,3 +25,6 @@ tags: [decisoes]
 | 2026-10-28 | D-05 | Fase 2 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-28 | D-06 | Fase 3 autorizada pelo humano (HG-14), com ambiente de desenvolvimento rodando para acompanhamento | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-28 | D-07 | Terminal desconectado fica vivo por 8 h (agentes seguem com o navegador fechado); revisável | Aceito (PR #4 aprovado) | [[STATE_MACHINES]] |
+| 2026-10-28 | D-08 | Fase 4 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
+| 2026-10-28 | D-09 | Lançar provedor = digitar comando fixo no shell do projeto (o usuário volta ao shell ao sair) | Proposto pela LLM | [[INTEGRATIONS]] |
+| 2026-10-28 | D-10 | Módulo de integrações proibido de ler arquivos por lint; leitores nível B ficam isolados com allowlist | Proposto pela LLM | [[INTEGRATIONS]] |

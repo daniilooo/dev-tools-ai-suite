@@ -17,7 +17,7 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 1 | Bootstrap | — | Concluído | 100% |
 | 2 | Foundation | P0 | Concluído | 100% |
 | 3 | Integrated Terminal (SUG03) | P0 | Concluído | 100% |
-| 4 | Provider Integration | P0 | Não iniciado | 0% |
+| 4 | Provider Integration | P0 | Em validação | 90% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Não iniciado | 0% |
 | 7 | Knowledge (RAG + Grafo) | P1 | Não iniciado | 0% |
@@ -114,15 +114,22 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** comportamento de PTY no CI; consumo de memória do buffer.
 
 ## FASE 4 — Provider Integration (P0)
-**Status:** Não iniciado
+**Status:** Em validação — implementação na branch `feature/04-providers`; falta CI, revisão humana e merge
 - **Objetivo:** detectar e iniciar Claude Code e Codex pela plataforma.
 - **Escopo:** `ProviderAdapter` (claude-code, codex, ollama-detecção) · versões e capacidades · estado de autenticação via mecanismos documentados · atalhos "Abrir Claude/Codex neste projeto" no terminal · tela de provedores.
-- **Entregáveis:** `/providers`; `doctor` completo; botões de lançamento.
+- **Entregáveis:**
+  - [x] Módulo `integrations`: `ProviderAdapter` para `claude-code`, `codex` e `ollama` (detecção), cache de 60 s, falha isolada por adapter
+  - [x] Login via comandos oficiais: `claude auth status --json` (só `loggedIn`, `authMethod`, `subscriptionType`) e `codex login status`; Ollama via API local documentada
+  - [x] `GET /api/v1/providers` (`?refresh=1`); `doctor` (CLI e dashboard) com login real
+  - [x] Tela **Provedores**; botões "Abrir Claude Code/Codex" no projeto e na barra de abas do terminal
+  - [x] ESLint proíbe `fs`/SQLite no módulo `integrations` (INV-02)
+  - [x] Testes de contrato com fixtures anonimizadas por versão (`apps/server/test/fixtures/<provedor>/<versão>/`)
 - **Dependências:** Fase 3.
 - **Critérios de aceite:**
-  - [ ] Ferramenta ausente → indicada como ausente, sem erro.
-  - [ ] Nenhum arquivo de credencial lido (teste com allowlist).
-  - [ ] Claude Code e Codex iniciam no `cwd` do projeto.
+  - [x] Ferramenta ausente → indicada como ausente, sem erro (`providers.test.ts`, E2E com Ollama ausente).
+  - [x] Nenhum arquivo de credencial lido (`providers.test.ts`: allowlist de comandos executados + arquivos-isca de credencial ausentes da resposta; regra de lint).
+  - [x] Claude Code e Codex iniciam no `cwd` do projeto (`terminal.test.ts` + E2E `providers.spec.ts`).
+- **Decisões da fase:** o lançamento digita um comando **fixo** (`claude`/`codex`) no shell do projeto — o navegador só escolhe o provedor, nunca o texto; ao sair do provedor, o usuário continua no shell. Versões testadas: Claude Code 2.1.x, Codex 0.165.x, Ollama 0.40.x; outras versões funcionam com aviso.
 - **DoD:** testes de contrato por versão; docs de integração atualizadas.
 - **Riscos:** mudanças de CLI entre versões.
 

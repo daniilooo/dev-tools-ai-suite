@@ -23,7 +23,9 @@ tags: [seguranca]
 | Injeção de comando em processos externos | `spawn` com array, sem shell | Convenções |
 | Vazamento de segredos em transcrições/índices | redator + [[INDEXING_EXCLUSIONS]] | RN-02/RN-04 |
 | Envio de código para fora | embeddings locais; externos só com opt-in (HG-13) | INV-04 |
-| Leitura de credenciais de provedores | allowlist de caminhos lidos por adapter | INV-02 |
+| Leitura de credenciais de provedores | adapters só executam comandos oficiais; `fs` bloqueado por lint no módulo `integrations`; teste com arquivos-isca e allowlist de comandos | INV-02 |
+| Navegador escolhendo o comando executado | `launch` aceita só ids de provedor; o texto digitado é fixo no servidor | Fase 4 |
+| Dados pessoais da conta do provedor | e-mail e organização descartados da saída de `claude auth status` | RN-02 |
 | Elevação de privilégio | sem `sudo`; processos com o usuário atual | G-03 |
 | Processos do terminal sobrevivendo à sessão | encerramento da árvore (SIGHUP → SIGKILL) ao fechar, ao sair do shell, ao remover projeto e ao desligar o servidor | ADR-0004 |
 | Esgotamento de recursos pelo terminal | máximo de 32 terminais, buffer de 256 KiB, mensagem WS ≤ 64 KiB, cliente lento desconectado | Fase 3 |
