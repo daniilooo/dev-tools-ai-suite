@@ -28,6 +28,23 @@ const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    description: "cria tabela de sessões de terminal",
+    up: `
+      CREATE TABLE terminal_sessions (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        title TEXT NOT NULL,
+        shell TEXT NOT NULL,
+        state TEXT NOT NULL,
+        exit_code INTEGER,
+        started_at TEXT NOT NULL,
+        ended_at TEXT
+      );
+      CREATE INDEX idx_terminal_sessions_project ON terminal_sessions(project_id);
+    `,
+  },
 ];
 
 export function openDatabase(file: string): Db {

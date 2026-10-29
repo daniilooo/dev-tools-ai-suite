@@ -2,7 +2,11 @@ import type { CreateProjectRequest } from "@devtools/shared";
 import type { FastifyInstance } from "fastify";
 import type { ProjectsService } from "./projects.service.js";
 
-export function registerProjectRoutes(app: FastifyInstance, service: ProjectsService): void {
+export function registerProjectRoutes(
+  app: FastifyInstance,
+  service: ProjectsService,
+  hooks: { onRemoved?: (id: string) => Promise<void> } = {},
+): void {
   app.get("/api/v1/projects", async () => service.list());
 
   app.get<{ Params: { id: string } }>("/api/v1/projects/:id", async (request) =>
@@ -24,6 +28,7 @@ export function registerProjectRoutes(app: FastifyInstance, service: ProjectsSer
 
   app.delete<{ Params: { id: string } }>("/api/v1/projects/:id", async (request, reply) => {
     service.remove(request.params.id);
+    await hooks.onRemoved?.(request.params.id);
     return reply.code(204).send();
   });
 }
