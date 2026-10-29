@@ -7,6 +7,8 @@ import type { RunningServer } from "./support/server";
 
 const PORT = 4410;
 let server: RunningServer;
+/** Durante o reinício proposital do servidor, a reconexão do `/ws/events` é recusada: esperado. */
+let restarting = false;
 
 test.beforeAll(async () => {
   server = await startServer(PORT);
@@ -18,7 +20,9 @@ test.beforeEach(async ({ page }, testInfo) => {
   const problems: string[] = [];
   page.on("console", (message) => {
     // 401/403 são recusas de autorização esperadas nos testes; CSP ("Refused to ...") e erros de JS não.
-    if (message.type() === "error" && !/status of 40[13]/.test(message.text())) problems.push(message.text());
+    if (message.type() !== "error" || /status of 40[13]/.test(message.text())) return;
+    if (restarting && /ERR_CONNECTION_REFUSED/.test(message.text())) return;
+    problems.push(message.text());
   });
   page.on("pageerror", (error) => problems.push(error.message));
   testInfo.annotations.push({ type: "console", description: "monitorado" });
@@ -79,10 +83,12 @@ test("jornada: abrir pelo link, cadastrar projeto, recarregar e reiniciar o serv
 
   // Reinicia o servidor no mesmo diretório de dados: sessão assinada e projeto persistem.
   const dataDir = server.dataDir;
+  restarting = true;
   await server.stop();
   server = await startServer(PORT, dataDir);
   await page.reload();
   await expect(page.getByRole("listitem").filter({ hasText: "app-e2e" })).toBeVisible();
+  restarting = false;
 
   await page.getByRole("link", { name: "app-e2e" }).click();
   await expect(page.getByRole("heading", { name: "app-e2e" })).toBeVisible();
