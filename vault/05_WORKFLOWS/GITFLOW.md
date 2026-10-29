@@ -37,5 +37,5 @@ gitGraph
 | Alterar proteção de branches, segredos ou permissões do GitHub | Somente com aprovação humana |
 | Excluir branches remotas protegidas | Não |
 
-## Pendência
-Configurar proteção de `main` e `release` no GitHub (gate humano HG-11) — previsto na Fase 2.
+## Proteção de branches (aplicada em 2026-10-28, HG-11)
+`main` e `release`: PR obrigatório (0 aprovações — mantenedor único), check **Validação** obrigatório, conversas resolvidas, sem force-push, sem exclusão. Administradores podem contornar em emergência (`enforce_admins: false`).
