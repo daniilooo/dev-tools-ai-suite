@@ -27,3 +27,6 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-28 | A primeira linha de um rollout do Codex (`session_meta`) inclui as instruções base e pode passar de centenas de KB: ler com limite e descartar o texto. | Fase 5 |
 | 2026-10-28 | Fixtures com segredos de teste devem montá-los em tempo de execução: o scanner de segredos do pre-commit bloquearia o arquivo. | Fase 5 |
 | 2026-10-28 | Um Claude Code iniciado com o ambiente de outra sessão do Claude (`CLAUDECODE`, `CLAUDE_CODE_SESSION_ID`, `CLAUDE_CODE_CHILD_SESSION`…) vira sessão filha e não grava transcrição própria. O shell do terminal da suíte remove essas variáveis (e o token do canal de mensagens). | Fase 5 |
+| 2026-10-29 | O Codex grava `rate_limits` (% usado e renovação das janelas de 5 h e 7 dias) em cada `token_count` do rollout; alguns registros vêm com janelas nulas e não devem apagar a última leitura válida. | Fase 6 |
+| 2026-10-29 | O % de uso do Claude Code só chega à status line (`rate_limits`); `claude --settings <arquivo>` permite configurá-la só nas sessões abertas pela suíte, sem tocar no `settings.json` do usuário. | Fase 6 |
+| 2026-10-29 | Node 22.18+ executa `.ts` sem flag (remoção de tipos): um script autocontido, só com imports `node:`, roda igual em desenvolvimento e compilado. | Fase 6 |

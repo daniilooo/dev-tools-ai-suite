@@ -1,23 +1,23 @@
 ---
 tags: [home, status]
-atualizado: 2026-10-28
+atualizado: 2026-10-29
 ---
 
 # Status do Projeto
 
 | Campo | Valor |
 |---|---|
-| Fase atual | **FASE 5 — Agent Monitor + Telemetria (SUG01)** |
+| Fase atual | **FASE 6 — AI Quota Monitor (SUG02)** |
 | Status da fase | Em validação |
 | Etapa | Implementado; PR para `release` e revisão humana |
-| Branch atual | `feature/05-agent-monitor` |
+| Branch atual | `feature/06-quota-monitor` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Agent Monitor: sessões e subagentes do Claude Code e do Codex, estados, tokens, ferramentas, atualização ao vivo |
-| Última decisão | Fase 5 autorizada (D-11); fontes do monitor (ADR-0013) |
+| Última entrega | Quota Monitor: janelas de 5 h e semanal do Claude Code (status line da suíte) e do Codex (sessões locais), com fonte, horário, categoria e frescor |
+| Última decisão | Fase 6 autorizada (D-14); fontes das cotas (ADR-0014, D-15) |
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | Revisão humana e merge do PR da Fase 5 |
-| Testes atuais | 102 servidor + 8 web + 11 E2E, todos passando localmente |
+| Próxima ação | Revisão humana e merge do PR da Fase 6 |
+| Testes atuais | 115 servidor + 11 web + 12 E2E, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |
@@ -27,8 +27,9 @@ atualizado: 2026-10-28
 | 2 — Foundation | Concluído |
 | 3 — Integrated Terminal | Concluído |
 | 4 — Provider Integration | Concluído |
-| 5 — Agent Monitor + Telemetria | Em validação |
-| 6 a 9 | Não iniciado |
+| 5 — Agent Monitor + Telemetria | Concluído |
+| 6 — AI Quota Monitor | Em validação |
+| 7 a 9 | Não iniciado |
 
 ## Hipóteses abertas
 - **H-01:** sem prazo fixo; roadmap guiado por fases, não por datas. Dedicação semanal não informada. → [[INTAKE_RECORD]]

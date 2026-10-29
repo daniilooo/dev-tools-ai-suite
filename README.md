@@ -2,7 +2,7 @@
 
 Camada **local-first** de integração, observabilidade e conhecimento para desenvolvimento assistido por IA. Reúne Claude Code, Codex e modelos locais em um dashboard web que roda na sua máquina, com terminal real, monitor de agentes, monitor de cotas, RAG local e observabilidade, sem substituir nenhum desses assistentes.
 
-> **Status:** Fase 5 (Agent Monitor + Telemetria) em validação: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto e monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados. Cotas e conhecimento chegam nas próximas fases. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
+> **Status:** Fase 6 (AI Quota Monitor) em validação: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto, monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados, e monitor de cotas (janelas de 5 h e semanal, com fonte e frescor). Conhecimento (RAG) chega na próxima fase. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
 
 ## Produto
 

@@ -11,7 +11,7 @@ tags: [arquitetura, modulos]
 | `terminal` | ciclo de vida PTY, abas, buffer de reconexão, WS `/ws/terminal` | core, projects, integrations (só o comando de lançamento) | rodar sem sessão autenticada |
 | `integrations` | registro de `ProviderAdapter`s, detecção (`/providers`, `doctor`), comando de lançamento de CLIs | core | ler arquivos — `fs` bloqueado por lint (INV-02) |
 | `agents` | normalizar e persistir `AgentRun`/`SubagentRun`/`AgentEvent`, publicar eventos | core, integrations | inventar estado (INV-03) |
-| `quota` | agendar leituras, `QuotaReading` com categoria/frescor | core, integrations | usar API não documentada (RN-03) |
+| `quota` | status line da suíte para o Claude (`--settings`), releitura a cada 5 s, `QuotaResponse` com categoria/frescor, `GET /quota` | core, integrations | usar API não documentada (RN-03); alterar arquivos do Claude Code (INV-05) |
 | `knowledge` | indexação, exclusões, RAG, grafo de código | core, projects | enviar conteúdo para fora (INV-04) |
 | `telemetry` | sessões, métricas, tokens quando disponíveis | core | — |
 
