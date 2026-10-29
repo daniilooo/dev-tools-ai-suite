@@ -1,6 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
-import type { CreateProjectRequest, DoctorReport, HealthResponse, Project } from "@devtools/shared";
+import type {
+  CreateProjectRequest,
+  CreateTerminalRequest,
+  DoctorReport,
+  HealthResponse,
+  Project,
+  TerminalSession,
+} from "@devtools/shared";
 import type { Observable } from "rxjs";
 
 @Injectable({ providedIn: "root" })
@@ -33,5 +40,20 @@ export class ApiService {
 
   deleteProject(id: string): Observable<void> {
     return this.http.delete<void>(`/api/v1/projects/${encodeURIComponent(id)}`);
+  }
+
+  terminals(projectId: string): Observable<TerminalSession[]> {
+    return this.http.get<TerminalSession[]>(`/api/v1/projects/${encodeURIComponent(projectId)}/terminals`);
+  }
+
+  createTerminal(projectId: string, body: CreateTerminalRequest): Observable<TerminalSession> {
+    return this.http.post<TerminalSession>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/terminals`,
+      body,
+    );
+  }
+
+  closeTerminal(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/v1/terminals/${encodeURIComponent(id)}`);
   }
 }

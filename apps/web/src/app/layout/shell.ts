@@ -84,7 +84,7 @@ export class Shell {
 
   protected readonly nav: NavItem[] = [
     { label: "Projetos", route: "/projetos" },
-    { label: "Terminal", phase: "Fase 3" },
+    { label: "Terminal", route: "/terminal" },
     { label: "Agentes", phase: "Fase 5" },
     { label: "Cotas", phase: "Fase 6" },
     { label: "Conhecimento", phase: "Fase 7" },
