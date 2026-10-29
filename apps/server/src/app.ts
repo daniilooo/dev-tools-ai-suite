@@ -33,6 +33,8 @@ import { prepareClaudeStatusLine, readClaudeStatusLine } from "./modules/quota/c
 import { QuotaMonitor } from "./modules/quota/quota-monitor.js";
 import { registerQuotaRoutes } from "./modules/quota/quota.routes.js";
 import { registerEventRoutes } from "./modules/system/events.routes.js";
+import { KnowledgeService } from "./modules/knowledge/knowledge.service.js";
+import { registerKnowledgeRoutes } from "./modules/knowledge/knowledge.routes.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
 import type { PtyBackendStatus } from "./modules/terminal/pty-backend.js";
@@ -71,6 +73,7 @@ export interface App {
   terminals: TerminalManager;
   agents: AgentMonitor;
   quota: QuotaMonitor;
+  knowledge: KnowledgeService;
 }
 
 export async function buildApp(deps: AppDeps): Promise<App> {
@@ -125,7 +128,15 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   registerSessionRoutes(server, { codes, sessions });
   registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals, providers });
   registerProviderRoutes(server, providers);
-  registerProjectRoutes(server, projects, { onRemoved: (id) => terminals.closeProject(id) });
+  const knowledge = new KnowledgeService(deps.db, projects, deps.layout.indexes);
+  registerProjectRoutes(server, projects, {
+    onRemoved: async (id) => {
+      await terminals.closeProject(id);
+      await knowledge.remove(id, { checkProject: false });
+    },
+  });
+  registerKnowledgeRoutes(server, knowledge);
+  server.addHook("onClose", async () => knowledge.idle());
   registerTerminalRoutes(server, { terminals, projects, providers });
 
   const agents = new AgentMonitor({
@@ -175,7 +186,7 @@ export async function buildApp(deps: AppDeps): Promise<App> {
     );
   }
 
-  return { server, codes, terminals, agents, quota };
+  return { server, codes, terminals, agents, quota, knowledge };
 }
 
 /** dist/public no pacote publicado; em desenvolvimento (tsx), o build de apps/web. */

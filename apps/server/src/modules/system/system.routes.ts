@@ -21,7 +21,8 @@ export function registerSystemRoutes(
       integrations: "ok",
       agents: "ok",
       quota: "ok",
-      knowledge: "planned",
+      // Busca textual pronta; semântica aguarda embeddings locais (S-03).
+      knowledge: "degraded",
       telemetry: "ok",
     },
   }));

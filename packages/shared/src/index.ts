@@ -261,3 +261,51 @@ export interface DoctorReport {
   checks: DoctorCheck[];
   tools: DoctorTool[];
 }
+
+/** Estado do índice de conhecimento de um projeto (STATE_MACHINES). */
+export type KnowledgeIndexState = "not_indexed" | "indexing" | "indexed" | "outdated" | "failed";
+
+/** Arquivos deixados de fora da indexação, por motivo (INDEXING_EXCLUSIONS). */
+export interface KnowledgeSkipped {
+  sensitive: number;
+  noise: number;
+  large: number;
+  binary: number;
+}
+
+export interface KnowledgeStatus {
+  projectId: string;
+  state: KnowledgeIndexState;
+  files: number;
+  chunks: number;
+  skipped: KnowledgeSkipped;
+  indexedAt: string | null;
+  durationMs: number | null;
+  /** Arquivos alterados, novos ou removidos desde a indexação (só em `outdated`). */
+  changedFiles: number;
+  error: string | null;
+  /** Busca textual sempre disponível com índice; semântica depende de embeddings locais. */
+  semantic: { available: boolean; reason: string | null };
+}
+
+export interface KnowledgeHit {
+  /** Caminho relativo à raiz do projeto. */
+  filePath: string;
+  lineStart: number;
+  lineEnd: number;
+  /** Trecho com os termos encontrados entre `«` e `»`. */
+  snippet: string;
+  /** O arquivo mudou ou sumiu desde a indexação: as linhas podem não corresponder mais. */
+  stale: boolean;
+}
+
+export interface KnowledgeQueryRequest {
+  query: string;
+  limit?: number;
+}
+
+export interface KnowledgeQueryResponse {
+  query: string;
+  mode: "lexical";
+  hits: KnowledgeHit[];
+}
