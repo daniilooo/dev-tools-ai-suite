@@ -1,0 +1,38 @@
+# Token Saver local logs and settings
+/.token-saver/
+
+# Plugin/skill local, mantido fora do versionamento (decisão do bootstrap)
+/.claude/skills/monitor-do-contexto-local/
+/.claude/settings.local.json
+
+# Dependências e builds
+node_modules/
+dist/
+build/
+coverage/
+.angular/
+*.tsbuildinfo
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dados locais da suíte quando executada no repositório
+.devtools-data/
+
+# Obsidian — estado de workspace por máquina
+vault/.obsidian/workspace*.json
+vault/.obsidian/cache
+
+# Testes
+playwright-report/
+test-results/
+
+# SO / editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
