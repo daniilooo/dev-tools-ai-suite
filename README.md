@@ -2,7 +2,7 @@
 
 Camada **local-first** de integração, observabilidade e conhecimento para desenvolvimento assistido por IA. Reúne Claude Code, Codex e modelos locais em um dashboard web que roda na sua máquina, com terminal real, monitor de agentes, monitor de cotas, RAG local e observabilidade, sem substituir nenhum desses assistentes.
 
-> **Status:** Fase 1 (Bootstrap) concluída e em validação. Ainda não há código de produto nem pacote publicado. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
+> **Status:** Fase 2 (Foundation) em validação: servidor local seguro, cadastro de projetos, diagnóstico e dashboard. Terminal, agentes, cotas e conhecimento chegam nas próximas fases. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
 
 ## Produto
 
@@ -18,21 +18,31 @@ Princípios: tudo roda local por padrão, nenhuma credencial dos provedores é t
 
 ## Como executar
 
-Ainda não disponível (Fase 2). Interface planejada:
-
-```bash
-npm install -g devtools-ai-suite   # ainda não publicado
-devtools start                     # inicia em 127.0.0.1 e abre o dashboard
-devtools doctor                    # diagnóstico
-```
-
-Para desenvolvimento (Node 22 e pnpm):
+O pacote ainda não foi publicado no npm. Para rodar a partir do código, use Node 22.22.3 ou superior e pnpm:
 
 ```bash
 git clone git@github.com:daniilooo/dev-tools-ai-suite.git
 cd dev-tools-ai-suite && git switch release
-git config core.hooksPath .githooks
-pnpm validate:bootstrap
+pnpm install
+pnpm build
+pnpm start          # = devtools start: sobe em 127.0.0.1:4317 e abre o dashboard
+```
+
+- O navegador abre já autenticado. Se não abrir, acesse `http://127.0.0.1:4317` e digite o **código curto** mostrado no terminal. Ele vale uma vez e expira em 60 s.
+- Para gerar um novo código, rode `pnpm start` de novo. Se a suíte já estiver rodando, ele apenas emite outro código.
+- Para o diagnóstico, use `node apps/server/dist/cli.js doctor`.
+- Os dados ficam em `~/.dev-tools-ai-suite/` (diretório 0700, segredo 0600).
+
+Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`.
+
+### Desenvolvimento
+
+```bash
+git config core.hooksPath .githooks   # hooks pre-commit e pre-push
+pnpm dev:web                          # recompila o dashboard a cada alteração
+pnpm dev:server                       # servidor com recarga automática (sem abrir o navegador)
+pnpm lint && pnpm typecheck && pnpm test
+pnpm test:e2e                         # requer `pnpm build` e `pnpm exec playwright install chromium`
 ```
 
 ## Onde está a documentação

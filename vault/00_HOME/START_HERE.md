@@ -11,14 +11,14 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 ## Resposta rápida
 | Pergunta | Resposta |
 |---|---|
-| Estado atual | Bootstrap concluído, em validação → [[PROJECT_STATUS]] |
+| Estado atual | Fase 2 (Foundation) implementada, em validação → [[PROJECT_STATUS]] |
 | Versão | `v0.0.0` (nada publicado) |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 1 — Bootstrap (em validação) |
-| Última decisão | Bootstrap aprovado pelo humano (2026-10-28) → [[DECISION_LOG]] |
-| Próxima ação | Revisão humana do PR do bootstrap; depois autorização da FASE 2 — Foundation |
+| Etapa atual | FASE 2 — Foundation (em validação) |
+| Última decisão | ADR-0007 e ADR-0012 aceitos (2026-10-28) → [[DECISION_LOG]] |
+| Próxima ação | Merge dos PRs, CI verde e proteção de branches; depois autorização da FASE 3 — Integrated Terminal |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

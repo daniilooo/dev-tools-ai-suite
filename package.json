@@ -8,12 +8,34 @@
     "type": "git",
     "url": "git+https://github.com/daniilooo/dev-tools-ai-suite.git"
   },
+  "type": "module",
   "packageManager": "pnpm@12.11.2",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.22.3"
   },
   "scripts": {
-    "validate:bootstrap": "bash scripts/validate-bootstrap.sh",
-    "check:secrets": "bash scripts/check-secrets.sh"
+    "build": "pnpm --filter @devtools/web build && pnpm --filter devtools-ai-suite build",
+    "dev:web": "pnpm --filter @devtools/web watch",
+    "dev:server": "pnpm --filter devtools-ai-suite dev",
+    "start": "node apps/server/dist/cli.js start",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:secrets": "bash scripts/check-secrets.sh",
+    "validate:bootstrap": "bash scripts/validate-bootstrap.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/node": "22.20.5",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
   }
 }

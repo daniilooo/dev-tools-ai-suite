@@ -1,0 +1,11 @@
+pnpm-lock.yaml
+**/dist/
+**/.angular/
+coverage/
+playwright-report/
+test-results/
+vault/
+.ai/
+docs/
+LICENSE
+*.md

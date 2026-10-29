@@ -1,0 +1,16 @@
+{
+  "name": "@devtools/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Contratos TypeScript compartilhados (somente tipos — apagados em tempo de compilação).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  }
+}

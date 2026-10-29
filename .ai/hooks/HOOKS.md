@@ -14,7 +14,7 @@ git config core.hooksPath .githooks
 | CI (PR) | Pull Request | GitHub Actions: install → lint → typecheck → unit → integration → build → security → E2E | gate técnico de merge | < 15 min | Sim |
 | pre-release | antes de publicar | `pnpm pack` + instalação limpa + `devtools doctor` | validar pacote | 5 min | Sim + gate humano |
 
-Até a Fase 2 os scripts `pnpm` não existem; os hooks detectam isso e executam apenas o que está disponível (comportamento documentado nos próprios scripts).
+Desde a Fase 2 os scripts `pnpm` (`typecheck`, `test`, `build`) e os binários `prettier`/`eslint` existem: os hooks executam tudo. Se `node_modules` não estiver instalado, os hooks executam apenas o que estiver disponível.
 
 ## Hooks de ferramentas de IA
 Hooks do Claude Code (`.claude/settings.json`) **não** são usados no desenvolvimento deste repositório no momento. O produto, por sua vez, poderá instalar hooks nos projetos do usuário — sempre seguindo o procedimento seguro de `vault/02_BUSINESS/BUSINESS_RULES.md` (RN-05).
