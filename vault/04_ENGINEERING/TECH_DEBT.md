@@ -20,5 +20,7 @@ tags: [engenharia, divida]
 | TD-12 | Sessão principal nunca vira `Concluído`: transcrições não registram o fim (fica `Aguardando` → `Desconhecido`) | Fase 5 | Baixo | Hooks do Claude Code com opt-in (pós-MVP, RN-05) |
 | TD-13 | Histórico de `agent_runs` sem limpeza automática; descoberta limitada a 30 dias | Fase 5 | Baixo | Política de retenção na Fase 8 |
 | TD-14 | Vínculo terminal ↔ Codex por janela de tempo (sem flag de id de sessão no Codex 0.165) | Fase 5 | Baixo | Trocar por flag oficial quando existir |
+| TD-15 | Nas sessões do Claude abertas pela suíte, a status line da suíte substitui uma status line própria do usuário | Fase 6 | Baixo | `DEVTOOLS_CLAUDE_STATUSLINE=off`; avaliar encadear a status line do usuário (pós-MVP) |
+| TD-16 | Cotas lidas por varredura (5 s), sem histórico persistido de leituras | Fase 6 | Baixo | Persistir histórico se surgir necessidade de gráfico de consumo (pós-MVP) |
 
 Registrar aqui atalhos conscientes tomados para entregar o MVP, com plano de pagamento.

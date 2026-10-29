@@ -11,6 +11,11 @@ export interface AppConfig {
   port: number;
   dataDir: string;
   logLevel: LogLevel;
+  /**
+   * Status line da suíte nas sessões do Claude Code abertas por ela (fonte das cotas).
+   * `DEVTOOLS_CLAUDE_STATUSLINE=off` desliga.
+   */
+  claudeStatusLine: boolean;
 }
 
 export interface ConfigOverrides {
@@ -34,7 +39,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, overrides: Conf
   const dataDir = expandHome(overrides.dataDir ?? env.DEVTOOLS_DATA_DIR ?? "~/.dev-tools-ai-suite");
   const logLevel = parseLogLevel(env.DEVTOOLS_LOG_LEVEL);
 
-  return { host: "127.0.0.1", port, dataDir, logLevel };
+  const claudeStatusLine = env.DEVTOOLS_CLAUDE_STATUSLINE !== "off";
+
+  return { host: "127.0.0.1", port, dataDir, logLevel, claudeStatusLine };
 }
 
 function parsePort(raw: string | undefined): number {

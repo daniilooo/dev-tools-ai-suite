@@ -26,6 +26,8 @@ export class ProvidersService {
   private readonly context: DetectContext;
   private cache: { at: number; value: ProvidersResponse } | null = null;
   private inFlight: Promise<ProvidersResponse> | null = null;
+  /** Argumentos fixos da suíte acrescentados ao lançamento (ex.: status line do Claude). */
+  private readonly launchArgs = new Map<string, string>();
 
   constructor(options: ProvidersServiceOptions = {}) {
     this.adapters = options.adapters ?? DEFAULT_ADAPTERS;
@@ -54,10 +56,16 @@ export class ProvidersService {
       throw badRequest("Provedor inválido para iniciar no terminal.", { id });
     }
     const externalId = adapter.sessionIdFlag ? randomUUID() : null;
-    const command = externalId
-      ? `${adapter.launchCommand} ${adapter.sessionIdFlag} ${externalId}`
-      : adapter.launchCommand;
-    return { providerId: id, command, externalId };
+    const parts = [adapter.launchCommand];
+    if (externalId) parts.push(adapter.sessionIdFlag!, externalId);
+    const extra = this.launchArgs.get(id);
+    if (extra) parts.push(extra);
+    return { providerId: id, command: parts.join(" "), externalId };
+  }
+
+  /** Define argumentos montados pelo servidor (nunca vindos do navegador), já escapados. */
+  setLaunchArgs(id: LaunchableProviderId, args: string): void {
+    this.launchArgs.set(id, args);
   }
 
   isLaunchable(id: string): id is LaunchableProviderId {

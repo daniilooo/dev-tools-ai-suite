@@ -97,7 +97,7 @@ code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.85
 </div>
 
 <script>
-const UPDATED = "2026-10-28";
+const UPDATED = "2026-10-29";
 const STATUS = {
   "Não iniciado": "--st-none",
   "Em andamento": "--st-progress",
@@ -135,18 +135,18 @@ const PHASES = [
    deps:["Fase 3"],
    criteria:[["Ferramenta ausente indicada sem erro",1],["Nenhum arquivo de credencial lido",1],["CLIs iniciam no cwd do projeto",1]],
    risks:["Mudanças de CLI entre versões","TD-09 PATH do servidor x shell"],blockers:[]},
-  {n:5,name:"Agent Monitor + Telemetria (SUG01)",prio:"P1",status:"Em validação",progress:90,
+  {n:5,name:"Agent Monitor + Telemetria (SUG01)",prio:"P1",status:"Concluído",progress:100,
    goal:"Ver agentes e subagentes trabalhando, com histórico.",
    deliverables:[["Spike S-04 (fontes de eventos) e ADR-0013",1],["AgentRun / SubagentRun / AgentEvent",1],["Painel em tempo real + histórico",1],["Telemetria básica",1]],
    deps:["Fase 4"],
    criteria:[["Distingue agente com terminal de subagente só com eventos",1],["Sem evento → INDISPONÍVEL, nunca inferido",1],["Payloads redigidos",1],["Fixtures de contrato por versão",1]],
-   risks:["R-01 formatos instáveis","TD-12 sessão principal sem evento de fim"],blockers:["Revisão humana e merge do PR"]},
-  {n:6,name:"AI Quota Monitor (SUG02)",prio:"P1",status:"Não iniciado",progress:0,
+   risks:["R-01 formatos instáveis","TD-12 sessão principal sem evento de fim"],blockers:[]},
+  {n:6,name:"AI Quota Monitor (SUG02)",prio:"P1",status:"Em validação",progress:90,
    goal:"Mostrar limites e renovações com honestidade sobre a origem do dado.",
-   deliverables:[["Spike S-05 (fontes de uso/limites)",0],["QuotaReading com categoria e frescor",0],["Painel compacto",0]],
+   deliverables:[["Spike S-05 (fontes de uso/limites) e ADR-0014",1],["Status line da suíte no Claude (--settings, sem alterar arquivos do Claude)",1],["Leituras com categoria, frescor e fonte; /quota e quota.updated",1],["Tela Cotas + resumo na barra lateral",1]],
    deps:["Fase 4"],
-   criteria:[["Fonte, horário, categoria e frescor em todo valor",0],["Indisponível → INDISPONÍVEL com motivo",0],["Sem API não documentada ou scraping",0]],
-   risks:["R-02 pouca informação oficial"],blockers:[]},
+   criteria:[["Fonte, horário, categoria e frescor em todo valor",1],["Indisponível → INDISPONÍVEL com motivo",1],["Sem API não documentada ou scraping",1]],
+   risks:["R-02 pouca informação oficial","TD-15 status line da suíte substitui a do usuário nas sessões abertas pela suíte"],blockers:["Revisão humana e merge do PR"]},
   {n:7,name:"Knowledge: RAG + Grafo",prio:"P1",status:"Não iniciado",progress:0,
    goal:"Indexar projetos localmente e responder com referências verificáveis.",
    deliverables:[["Spikes S-02 (Graphify) e S-03 (vetores/embeddings)",0],["EmbeddingProvider ONNX + Ollama",0],["VectorStore + exclusões + consulta",0],["CodeGraphProvider",0],["ADR-0006 aceito",0]],

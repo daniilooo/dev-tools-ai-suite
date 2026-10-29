@@ -28,4 +28,4 @@ Ubuntu 24.04 · ~20 GB RAM · CPU sem GPU · Node v22.23.3 · pnpm 12.11.2 · gi
 | H-02 | Porta padrão `4317`. | Fase 2 |
 | H-03 | Nome do pacote npm `devtools-ai-suite` disponível. | Antes da primeira publicação |
 | H-04 | Hooks e transcripts do Claude Code e sessões do Codex fornecem eventos suficientes para o Agent Monitor. | Spike S-04 |
-| H-05 | Há saída oficial consumível de uso/limites para os planos atuais. | Spike S-05 |
+| H-05 | Há saída oficial consumível de uso/limites para os planos atuais. | Spike S-05 — ✅ confirmada em parte: Codex (sessões locais) e Claude Code (status line da suíte) → [[ADR-0014-fontes-quota-monitor]] |

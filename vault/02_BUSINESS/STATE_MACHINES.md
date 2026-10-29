@@ -62,6 +62,16 @@ stateDiagram-v2
 ```
 Cada leitura carrega `categoria ∈ {oficial, calculado, estimado}`; `indisponível` é estado, não valor.
 
+Cotas (Fase 6, D-16) — frescor de cada janela (`QuotaFreshness`):
+| Estado | Valor | Condição |
+|---|---|---|
+| Fresco | `fresh` ("atualizado") | medida há até 15 min e renovação ainda no futuro |
+| Obsoleto | `stale` ("pode ter mudado") | medida há mais de 15 min |
+| Renovada | `reset` ("janela renovada") | a renovação passou depois da medida: o percentual medido não é mostrado |
+| Indisponível | `unavailableReason` | nenhuma leitura nos últimos 8 dias, fonte desligada ou com falha |
+
+Limite atingido registrado em transcrição deixa de aparecer quando a janela renova. Implementação: `freshnessOf` em `apps/server/src/modules/quota/quota-monitor.ts`.
+
 ## Indexação de projeto
 ```mermaid
 stateDiagram-v2

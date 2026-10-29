@@ -1,6 +1,6 @@
 ---
 tags: [roadmap]
-atualizado: 2026-10-28
+atualizado: 2026-10-29
 ---
 
 # Plano de Desenvolvimento
@@ -18,8 +18,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 2 | Foundation | P0 | Concluído | 100% |
 | 3 | Integrated Terminal (SUG03) | P0 | Concluído | 100% |
 | 4 | Provider Integration | P0 | Concluído | 100% |
-| 5 | Agent Monitor + Telemetria (SUG01) | P1 | Em validação | 90% |
-| 6 | AI Quota Monitor (SUG02) | P1 | Não iniciado | 0% |
+| 5 | Agent Monitor + Telemetria (SUG01) | P1 | Concluído | 100% |
+| 6 | AI Quota Monitor (SUG02) | P1 | Em validação | 90% |
 | 7 | Knowledge (RAG + Grafo) | P1 | Não iniciado | 0% |
 | 8 | Hardening e Validação | — | Não iniciado | 0% |
 | 9 | MVP Release | — | Não iniciado | 0% |
@@ -134,7 +134,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** mudanças de CLI entre versões.
 
 ## FASE 5 — Agent Monitor + Telemetria básica / SUG01 (P1)
-**Status:** Em validação — implementação na branch `feature/05-agent-monitor`; falta CI, revisão humana e merge
+**Status:** Concluído — PR #7 aprovado e mergeado em `release` em 2026-10-29 (merge `0a05ff1`)
 - **Objetivo:** ver agentes e subagentes trabalhando, com histórico.
 - **Escopo:** spike **S-04** (fontes de eventos) · normalização em `AgentEvent` · `AgentRun`/`SubagentRun` · estados conforme [[STATE_MACHINES]] · `/ws/events` · histórico · telemetria básica (duração, tokens quando disponíveis).
 - **Entregáveis:**
@@ -158,15 +158,22 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-01 (formatos instáveis); possível necessidade de instalar hooks no projeto (RN-05, autorização).
 
 ## FASE 6 — AI Quota Monitor / SUG02 (P1)
-**Status:** Não iniciado
+**Status:** Em validação — implementação na branch `feature/06-quota-monitor`; falta CI, revisão humana e merge
 - **Objetivo:** mostrar limites e renovações com honestidade sobre a origem do dado.
 - **Escopo:** spike **S-05** (fontes de uso/limites) · `QuotaReading` com categoria e frescor · agendamento periódico · UI compacta.
-- **Entregáveis:** painel de cotas Claude Code e Codex.
+- **Entregáveis:**
+  - [x] Spike S-05 e [[ADR-0014-fontes-quota-monitor]]: Codex pelas sessões locais (nível B); Claude Code pela status line da suíte (nível A, escolha do humano — D-15) e pelo limite atingido nas transcrições (nível B)
+  - [x] Status line da suíte (`apps/server/src/statusline.ts`) passada com `claude --settings` só nas sessões abertas pela suíte; grava só `rate_limits` em `<dados>/quota/`; `DEVTOOLS_CLAUDE_STATUSLINE=off` desliga
+  - [x] `QuotaSources` (último 1 MiB dos arquivos da allowlist) e módulo `quota`: `QuotaMonitor` (5 s), `GET /api/v1/quota`, evento `quota.updated` em `/ws/events`
+  - [x] Tela **Cotas** (janelas com barra, renovação, frescor, categoria, horário e fonte) e resumo compacto na barra lateral, ao vivo
+  - [x] Testes: 13 de servidor (status line real executada, leitores, frescor, lançamento, rota e WS), 3 de formatação no dashboard e 1 E2E
 - **Dependências:** Fase 4.
 - **Critérios de aceite:**
-  - [ ] Todo valor exibe fonte, horário, categoria e frescor.
-  - [ ] Fonte indisponível → `INDISPONÍVEL` com motivo.
-  - [ ] Nenhuma API não documentada ou scraping.
+  - [x] Todo valor exibe fonte, horário, categoria e frescor (`quota.test.ts`, E2E `quota.spec.ts`).
+  - [x] Fonte indisponível → `INDISPONÍVEL` com motivo (sem leitura, status line desligada, chave de API; janela renovada não mostra o percentual antigo).
+  - [x] Nenhuma API não documentada ou scraping: só a status line documentada, flag oficial `--settings` e arquivos locais da allowlist; nenhum arquivo do Claude Code criado ou alterado (teste e E2E).
+- **Resultado local (2026-10-29):** 115 testes no servidor, 11 no dashboard e 12 E2E passando; leitura das fontes reais da máquina de referência em ~40 ms.
+- **Decisões da fase:** D-14 (fase autorizada), D-15 (status line via `--settings`), D-16 (leituras não persistidas; frescor de 15 min).
 - **DoD:** dados verificáveis ou indisponibilidade explícita (DoD MVP item 7).
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 

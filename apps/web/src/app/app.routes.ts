@@ -50,6 +50,11 @@ export const routes: Routes = [
         loadComponent: () => import("./features/agents/agent-terminal-page").then((m) => m.AgentTerminalPage),
       },
       {
+        path: "cotas",
+        title: "Cotas — Dev Tools AI Suite",
+        loadComponent: () => import("./features/quota/quota-page").then((m) => m.QuotaPage),
+      },
+      {
         path: "diagnostico",
         title: "Diagnóstico — Dev Tools AI Suite",
         loadComponent: () => import("./features/system/doctor-page").then((m) => m.DoctorPage),

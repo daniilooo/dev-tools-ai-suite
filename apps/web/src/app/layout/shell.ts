@@ -5,6 +5,7 @@ import { catchError, of } from "rxjs";
 import { ApiService } from "../core/api.service";
 import { AuthService } from "../core/auth.service";
 import { ThemeService } from "../core/theme.service";
+import { QuotaSummary } from "../features/quota/quota-summary";
 
 interface NavItem {
   label: string;
@@ -14,7 +15,7 @@ interface NavItem {
 
 @Component({
   selector: "dt-shell",
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, QuotaSummary],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex min-h-full flex-col md:flex-row">
@@ -54,7 +55,10 @@ interface NavItem {
             }
           }
         </nav>
-        <div class="mt-auto flex gap-2 border-t border-border p-3">
+        <div class="mt-auto hidden px-2 pb-2 md:block">
+          <dt-quota-summary />
+        </div>
+        <div class="flex gap-2 border-t border-border p-3">
           <button
             type="button"
             class="btn flex-1 justify-center"
@@ -87,7 +91,7 @@ export class Shell {
     { label: "Terminal", route: "/terminal" },
     { label: "Provedores", route: "/provedores" },
     { label: "Agentes", route: "/agentes" },
-    { label: "Cotas", phase: "Fase 6" },
+    { label: "Cotas", route: "/cotas" },
     { label: "Conhecimento", phase: "Fase 7" },
     { label: "Diagnóstico", route: "/diagnostico" },
   ];

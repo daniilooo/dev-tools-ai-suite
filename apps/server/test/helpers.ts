@@ -34,6 +34,8 @@ export interface TestAppOptions {
   providers?: AppDeps["providers"];
   agentSourceRoots?: AppDeps["agentSourceRoots"];
   agentScanIntervalMs?: AppDeps["agentScanIntervalMs"];
+  /** Variáveis lidas pela configuração (ex.: DEVTOOLS_CLAUDE_STATUSLINE). */
+  env?: NodeJS.ProcessEnv;
 }
 
 export async function createTestApp(
@@ -41,7 +43,7 @@ export async function createTestApp(
   cleanup = true,
   options: TestAppOptions = {},
 ): Promise<TestContext> {
-  const config = loadConfig({}, { port: options.port ?? PORT, dataDir });
+  const config = loadConfig(options.env ?? {}, { port: options.port ?? PORT, dataDir });
   const layout = ensureDataDir(config.dataDir);
   const secret = InstallSecret.loadOrCreate(layout.secretFile);
   const db = openDatabase(layout.database);
@@ -62,6 +64,7 @@ export async function createTestApp(
       codex: join(dataDir, "no-codex"),
     },
     agentScanIntervalMs: options.agentScanIntervalMs ?? 0,
+    quotaScanIntervalMs: 0,
   });
   await app.server.ready();
   return {

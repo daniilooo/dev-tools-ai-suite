@@ -27,6 +27,8 @@ tags: [seguranca]
 | Leitura indevida de arquivos pelo Agent Monitor | allowlist de padrões de transcrição/sessão relativa às raízes; links simbólicos recusados; caminho real dentro da raiz; credenciais e configs nunca casam (teste com arquivos-isca e `..`) | ADR-0013 |
 | Conteúdo de conversas persistido | só metadados (horários, modelo, tokens, nomes de ferramentas); títulos e descrições redigidos e truncados; teste garante que prompts, saídas e segredos das fixtures não chegam ao banco | ADR-0013, RN-02 |
 | Estado de agente inventado | estado derivado só de eventos com limite de frescor; sem evidência → `unknown` | INV-03 |
+| Cota ou renovação inventada | só valores informados pelo provedor, com fonte, horário e frescor; janela renovada não mostra o percentual antigo; sem leitura → `INDISPONÍVEL` com motivo | INV-03, ADR-0014 |
+| Status line da suíte executada pelo Claude Code | configuração só via `--settings` nas sessões abertas pela suíte (nenhum arquivo do Claude alterado); arquivo 0600 em diretório 0700; o script grava só `rate_limits`, descarta caminhos, custo e sessão (teste); desligável por `DEVTOOLS_CLAUDE_STATUSLINE=off` | INV-05, ADR-0014 |
 | Navegador escolhendo o comando executado | `launch` aceita só ids de provedor; o texto digitado é fixo no servidor | Fase 4 |
 | Dados pessoais da conta do provedor | e-mail e organização descartados da saída de `claude auth status` | RN-02 |
 | Elevação de privilégio | sem `sudo`; processos com o usuário atual | G-03 |

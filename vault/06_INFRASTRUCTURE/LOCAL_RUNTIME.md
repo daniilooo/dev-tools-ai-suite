@@ -13,7 +13,7 @@ Tudo roda na máquina do desenvolvedor, em um processo Node:
 | PTYs | processos filhos via `node-pty` |
 | SQLite | arquivo em `~/.dev-tools-ai-suite/` |
 | Coletor de eventos | dentro do backend (leitura de hooks/arquivos) |
-| Monitor de cotas | agendador interno |
+| Monitor de cotas | agendador interno (5 s); status line da suíte (`statusline.js`) executada pelo Claude Code nas sessões abertas pela suíte, gravando em `~/.dev-tools-ai-suite/quota/` (`DEVTOOLS_CLAUDE_STATUSLINE=off` desliga) |
 | RAG/vetores | biblioteca embutida; embeddings ONNX in-process ou Ollama via HTTP local |
 | Graphify | processo externo opcional |
 
