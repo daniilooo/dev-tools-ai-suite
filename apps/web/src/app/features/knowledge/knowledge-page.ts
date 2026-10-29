@@ -10,24 +10,33 @@ import {
   signal,
 } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import type { KnowledgeQueryResponse, KnowledgeStatus, Project } from "@devtools/shared";
+import type { KnowledgeQueryMode, KnowledgeQueryResponse, KnowledgeStatus, Project } from "@devtools/shared";
 import { firstValueFrom } from "rxjs";
 import { apiErrorMessage } from "../../core/api-error";
 import { ApiService } from "../../core/api.service";
 import { formatMs, INDEX_STATE_DOT, INDEX_STATE_LABEL, snippetParts } from "./knowledge-format";
+import { KnowledgeGraph } from "./knowledge-graph";
+import { KnowledgeSemantic } from "./knowledge-semantic";
+
+const MODE_LABEL: Record<KnowledgeQueryMode, string> = {
+  lexical: "busca textual",
+  semantic: "busca semântica",
+  hybrid: "busca híbrida (textual + semântica)",
+};
 
 /** Conhecimento local (RAG): índice do projeto e consulta com arquivo e linhas. */
 @Component({
   selector: "dt-knowledge-page",
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, KnowledgeGraph, KnowledgeSemantic],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
         <h1 class="text-xl font-semibold">Conhecimento</h1>
         <p class="max-w-3xl text-sm text-muted">
-          Índice local do projeto para consultas com referência a arquivo e linhas. Nada sai da máquina;
-          segredos, dependências e arquivos ignorados pelo git ficam de fora.
+          Índice local do projeto para consultas com referência a arquivo e linhas, busca semântica opcional e
+          grafo de código. Nada sai da máquina; segredos, dependências e arquivos ignorados pelo git ficam de
+          fora.
         </p>
       </div>
       @if (projects().length > 0) {
@@ -99,9 +108,6 @@ import { formatMs, INDEX_STATE_DOT, INDEX_STATE_LABEL, snippetParts } from "./kn
             {{ s.skipped.binary }} binários.
           </p>
         }
-        @if (s.semantic.reason) {
-          <p class="mt-1 text-xs text-muted">{{ s.semantic.reason }}</p>
-        }
       </section>
 
       @if (s.state === "indexed" || s.state === "outdated") {
@@ -114,14 +120,26 @@ import { formatMs, INDEX_STATE_DOT, INDEX_STATE_LABEL, snippetParts } from "./kn
             [value]="query()"
             (input)="query.set($any($event.target).value)"
           />
+          @if (semanticUsable()) {
+            <select
+              class="rounded-md border border-border bg-surface px-2 py-1.5 text-sm"
+              aria-label="Tipo de busca"
+              [value]="mode()"
+              (change)="mode.set($any($event.target).value)"
+            >
+              <option value="hybrid">Híbrida</option>
+              <option value="lexical">Textual</option>
+              <option value="semantic">Semântica</option>
+            </select>
+          }
           <button type="submit" class="btn" [disabled]="!query().trim()">Buscar</button>
         </form>
       }
 
       @if (result(); as r) {
         <p class="mb-2 text-xs text-muted">
-          {{ r.hits.length }} {{ r.hits.length === 1 ? "trecho" : "trechos" }} para "{{ r.query }}" · busca
-          textual
+          {{ r.hits.length }} {{ r.hits.length === 1 ? "trecho" : "trechos" }} para "{{ r.query }}" ·
+          {{ modeLabel[r.mode] }}
         </p>
         <ul class="space-y-2">
           @for (hit of r.hits; track hit.filePath + hit.lineStart) {
@@ -130,6 +148,11 @@ import { formatMs, INDEX_STATE_DOT, INDEX_STATE_LABEL, snippetParts } from "./kn
                 <span class="font-mono text-sm text-accent"
                   >{{ hit.filePath }}:{{ hit.lineStart }}–{{ hit.lineEnd }}</span
                 >
+                @if (r.mode === "hybrid") {
+                  @for (m of hit.matchedBy; track m) {
+                    <span class="chip text-xs">{{ m === "lexical" ? "textual" : "semântica" }}</span>
+                  }
+                }
                 @if (hit.stale) {
                   <span class="chip text-warn" title="O arquivo mudou desde a indexação"
                     >pode estar desatualizado</span
@@ -150,6 +173,15 @@ import { formatMs, INDEX_STATE_DOT, INDEX_STATE_LABEL, snippetParts } from "./kn
           }
         </ul>
       }
+
+      <div class="mt-6">
+        <dt-knowledge-semantic
+          [projectId]="s.projectId"
+          [status]="s"
+          (changed)="apply(s.projectId, $event)"
+        />
+        <dt-knowledge-graph [projectId]="s.projectId" [status]="s" (changed)="refresh(s.projectId, $event)" />
+      </div>
     }
   `,
 })
@@ -165,12 +197,16 @@ export class KnowledgePage {
   protected readonly status = signal<KnowledgeStatus | null>(null);
   protected readonly result = signal<KnowledgeQueryResponse | null>(null);
   protected readonly query = signal("");
+  protected readonly mode = signal<KnowledgeQueryMode>("hybrid");
+  protected readonly modeLabel = MODE_LABEL;
   protected readonly error = signal<string | null>(null);
   protected readonly label = INDEX_STATE_LABEL;
   protected readonly dot = INDEX_STATE_DOT;
   protected readonly parts = snippetParts;
   protected readonly ms = formatMs;
   private poll: ReturnType<typeof setTimeout> | null = null;
+
+  protected readonly semanticUsable = computed(() => (this.status()?.semantic.embedded ?? 0) > 0);
 
   protected readonly selectedId = computed(() => {
     const list = this.projects();
@@ -211,7 +247,10 @@ export class KnowledgePage {
     const id = this.selectedId();
     const text = this.query().trim();
     if (!id || !text) return;
-    await this.run(async () => this.result.set(await firstValueFrom(this.api.queryKnowledge(id, text))));
+    const mode = this.semanticUsable() ? this.mode() : "lexical";
+    await this.run(async () =>
+      this.result.set(await firstValueFrom(this.api.queryKnowledge(id, text, mode))),
+    );
   }
 
   private async loadProjects(): Promise<void> {
@@ -223,12 +262,22 @@ export class KnowledgePage {
     await this.run(async () => this.apply(id, await firstValueFrom(this.api.knowledge(id))));
   }
 
-  /** Enquanto indexa, acompanha o estado a cada segundo. */
-  private apply(id: string, status: KnowledgeStatus): void {
+  /** Enquanto indexa, calcula vetores ou gera o grafo, acompanha o estado a cada segundo. */
+  protected apply(id: string, status: KnowledgeStatus): void {
     if (this.selectedId() !== id) return;
     this.status.set(status);
     this.stopPolling();
-    if (status.state === "indexing") this.poll = setTimeout(() => void this.loadStatus(id), 1000);
+    const busy =
+      status.state === "indexing" ||
+      status.semantic.state === "indexing" ||
+      status.graph.state === "building";
+    if (busy) this.poll = setTimeout(() => void this.loadStatus(id), 1000);
+  }
+
+  /** Componentes filhos mandam o estado novo, ou null para recarregar. */
+  protected refresh(id: string, status: KnowledgeStatus | null): void {
+    if (status) this.apply(id, status);
+    else void this.loadStatus(id);
   }
 
   private stopPolling(): void {

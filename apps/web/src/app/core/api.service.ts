@@ -2,15 +2,19 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import type {
   AgentRunDetail,
+  CodeGraphQueryResponse,
   CreateProjectRequest,
   CreateTerminalRequest,
   DoctorReport,
   HealthResponse,
+  KnowledgeQueryMode,
   KnowledgeQueryResponse,
+  KnowledgeSemanticRequest,
   KnowledgeStatus,
   Project,
   ProvidersResponse,
   QuotaResponse,
+  SemanticProviderInfo,
   TerminalSession,
 } from "@devtools/shared";
 import type { Observable } from "rxjs";
@@ -89,10 +93,43 @@ export class ApiService {
     return this.http.delete<void>(`/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/index`);
   }
 
-  queryKnowledge(projectId: string, query: string): Observable<KnowledgeQueryResponse> {
+  queryKnowledge(
+    projectId: string,
+    query: string,
+    mode?: KnowledgeQueryMode,
+  ): Observable<KnowledgeQueryResponse> {
     return this.http.post<KnowledgeQueryResponse>(
       `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/query`,
-      { query },
+      { query, mode },
+    );
+  }
+
+  semanticProviders(): Observable<SemanticProviderInfo[]> {
+    return this.http.get<SemanticProviderInfo[]>("/api/v1/knowledge/semantic/providers");
+  }
+
+  configureSemantic(projectId: string, request: KnowledgeSemanticRequest): Observable<KnowledgeStatus> {
+    return this.http.put<KnowledgeStatus>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/semantic`,
+      request,
+    );
+  }
+
+  buildGraph(projectId: string): Observable<KnowledgeStatus> {
+    return this.http.post<KnowledgeStatus>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/graph`,
+      {},
+    );
+  }
+
+  removeGraph(projectId: string): Observable<void> {
+    return this.http.delete<void>(`/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/graph`);
+  }
+
+  queryGraph(projectId: string, symbol: string, depth = 2): Observable<CodeGraphQueryResponse> {
+    return this.http.post<CodeGraphQueryResponse>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/graph/query`,
+      { symbol, depth },
     );
   }
 
