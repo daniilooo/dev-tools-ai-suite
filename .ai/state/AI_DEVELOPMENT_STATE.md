@@ -5,15 +5,25 @@
 | Campo | Valor |
 |---|---|
 | Fase atual | FASE 7 — Knowledge: RAG + Grafo (em andamento) |
-| Etapa atual | Parte 1 (índice textual) pronta; spikes S-02/S-03 bloqueados |
-| Branch atual | `feature/07-knowledge` |
+| Etapa atual | Parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; recomendação aguarda HG-07 |
+| Branch atual | `docs/07-spikes-s02-s03` |
 | Última entrega | Módulo `knowledge` (FTS5 por projeto), rotas `/knowledge`, tela Conhecimento |
 | Última decisão | D-17 (fase autorizada), D-18 (FTS5 como base), D-19 (repositórios aninhados) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
-| Bloqueios | Instalar `graphifyy` (pip) e `sqlite-vec`/LanceDB/Transformers.js + modelo (npm/HF) foi recusado pelo modo automático: precisa de permissão do humano |
-| Próxima ação | Humano permite os spikes (diretório isolado); depois HG-07 para a dependência escolhida |
+| Bloqueios | HG-07: humano decide `sqlite-vec`, embeddings opcionais (Ollama/Transformers.js) e Graphify externo |
+| Próxima ação | Decisão HG-07 sobre a recomendação em TECHNICAL_SPIKES; depois implementar `VectorStore`/`EmbeddingProvider`/`CodeGraphProvider` |
 | Testes atuais | `pnpm test` (123 servidor + 13 web), `pnpm test:e2e` (13), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 7, spikes S-02/S-03) — Claude Code (Opus)
+
+**Contexto:** PR #9 (parte 1) aprovado e integrado na `release`. O humano autorizou os spikes em diretório isolado.
+**Estado:** spikes executados no scratchpad com o `jinsei`; nada instalado no produto. Resultados em `vault/11_ROADMAP/TECHNICAL_SPIKES.md`.
+**Achados:** `sqlite-vec` (188 KB, consulta 9–15 ms) vence LanceDB (1,1 GB, mesmos resultados). Embeddings ONNX locais: runtime de 548 MB, 1,3–1,5 GB de RAM, 21 min para o `jinsei` com MiniLM (ruim em PT-BR); o multilíngue é ~2× mais lento. Graphify `--code-only` é preciso em `explain`/`affected`, ruidoso em busca livre, e ignora repositórios aninhados se seguir o `.gitignore` da raiz.
+**Recomendação (HG-07):** `sqlite-vec`; busca semântica opcional por projeto com Ollama local ou Transformers.js instalado sob demanda; Graphify como ferramenta externa opcional com `--out` no diretório de dados.
+**Próximo passo:** aguardar a decisão HG-07. **Não iniciar a Fase 8 sem autorização.**
 
 ---
 

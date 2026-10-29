@@ -1,7 +1,7 @@
 ---
 id: ADR-0006
 titulo: RAG local com EmbeddingProvider, VectorStore e CodeGraphProvider
-status: Proposto (pendente spikes S-02 e S-03)
+status: Proposto (spikes S-02 e S-03 concluídos; aguarda HG-07)
 data: 2026-10-28
 decisores: humano (Intake B2/B3) + Architect
 tags: [adr]
