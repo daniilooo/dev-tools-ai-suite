@@ -15,7 +15,7 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 |---|---|---|---|---|
 | 0 | Intake e Discovery | — | Concluído | 100% |
 | 1 | Bootstrap | — | Em validação | 90% |
-| 2 | Foundation | P0 | Não iniciado | 0% |
+| 2 | Foundation | P0 | Em validação | 90% |
 | 3 | Integrated Terminal (SUG03) | P0 | Não iniciado | 0% |
 | 4 | Provider Integration | P0 | Não iniciado | 0% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
@@ -64,19 +64,30 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** documentação excessiva → mitigado pela regra de documentação mínima útil.
 
 ## FASE 2 — Foundation (P0)
-**Status:** Não iniciado
+**Status:** Em validação — implementação concluída na branch `feature/02-foundation`; falta CI verde no GitHub, revisão humana do PR e proteção de branches (HG-11)
 - **Objetivo:** aplicação instalável e segura que sobe, autentica, abre o dashboard e gerencia projetos.
 - **Escopo:** tooling (TS strict, ESLint, Prettier, Vitest, Playwright) · CI GitHub Actions · proteção de branches (HG-11) · `apps/server` Fastify com `core` (config, diretório de dados, segredo, sessão — ADR-0007, logger, redator, `ProcessRunner`, migrações SQLite) · `apps/web` Angular shell + design system base + temas · módulo `projects` · CLI `devtools start` / `devtools doctor` (detecção básica).
 - **Fora do escopo:** terminal, agentes, cotas, RAG.
-- **Entregáveis:** monorepo compilando; CI verde; dashboard autenticado listando/cadastrando projetos; `doctor` funcional.
+- **Entregáveis:**
+  - [x] Spike S-01 e ADR-0012 aceito (HG-07)
+  - [x] ADR-0007 aceito (HG-05/06) e implementado
+  - [x] Tooling: TypeScript 6 strict, ESLint, Prettier, Vitest, Playwright
+  - [x] `core`: config, diretório de dados, segredo, sessões, Host/Origin/CSRF, CSP, redator, `ProcessRunner`, SQLite + migrações
+  - [x] Módulos `session`, `projects`, `system` (health, doctor)
+  - [x] CLI `devtools start` / `devtools doctor`
+  - [x] Dashboard Angular: acesso, projetos, detalhe, diagnóstico, temas claro/escuro, layout responsivo
+  - [x] Workflow de CI (`.github/workflows/ci.yml`)
+  - [ ] CI verde no GitHub
+  - [ ] Proteção de `main` e `release` (HG-11 — autorizado para depois do CI)
 - **Dependências:** Fase 1; spike **S-01** (node-pty/prebuilds e driver SQLite) no início da fase.
 - **Critérios de aceite:**
-  - [ ] Servidor só aceita conexões em `127.0.0.1`.
-  - [ ] Requisições sem sessão → 401; `Origin`/`Host` inválidos → 403 (testes de integração).
-  - [ ] Segredo com permissão 0600; ausente de logs, URLs e bundle (teste automatizado).
-  - [ ] Cadastro de projeto persiste após reinício.
-  - [ ] Core inicia sem Ollama/Graphify.
-  - [ ] CI executa lint, typecheck, unit, integration, build e E2E smoke.
+  - [x] Servidor só aceita conexões em `127.0.0.1` (teste `server.test.ts` + `config.test.ts`).
+  - [x] Requisições sem sessão → 401; `Origin`/`Host` inválidos → 403 (`security.test.ts`).
+  - [x] Segredo com permissão 0600; ausente de logs, URLs e bundle (`secret.test.ts`, `security.test.ts`, E2E).
+  - [x] Cadastro de projeto persiste após reinício (`projects.test.ts` + E2E com reinício real).
+  - [x] Core inicia sem Ollama/Graphify (`server.test.ts`; Graphify ausente na máquina de referência).
+  - [ ] CI executa lint, typecheck, unit, integration, build e E2E — workflow pronto e validado localmente; aguardando primeira execução no GitHub.
+- **Resultado local (2026-10-28):** 52 testes no servidor, 5 no dashboard e 5 E2E passando; `pnpm audit --prod` sem vulnerabilidades; pacote npm instalado globalmente em prefixo isolado e executado sem compilação.
 - **DoD:** critérios atendidos, revisão de segurança sem bloqueantes, ADR-0007 **Aceito** (HG-05/06), docs atualizadas.
 - **Riscos:** R-03 (deps nativas), R-07 (tempo de setup de tooling).
 

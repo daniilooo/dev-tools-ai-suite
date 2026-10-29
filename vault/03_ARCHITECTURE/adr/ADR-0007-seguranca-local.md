@@ -26,7 +26,10 @@ Opção 1, com a opção 2 como fallback (quando o navegador não puder ser aber
 - CORS desabilitado (sem `Access-Control-Allow-Origin`).
 - Cookie de sessão + header anti-CSRF (double submit) em métodos não idempotentes.
 - Rate limit na troca de código.
-- Segredo e sessões rotacionáveis (`devtools auth rotate`).
+- Segredo e sessões rotacionáveis (`devtools auth rotate` — ainda não implementado; remover o arquivo `secret` invalida todas as sessões).
+- **CLI → servidor:** o segredo bruto nunca trafega. O CLI envia `Authorization: DevtoolsCli <timestamp>.<nonce>.<HMAC>`, válido por 30 s e uma única vez (anti-replay). Se outro processo ocupar a porta, recebe apenas um token descartável. *(Achado da revisão de segurança da Fase 2.)*
+- **Content-Security-Policy** restritiva (`script-src 'self'`, `frame-ancestors 'none'`), com `inlineCritical` do Angular desligado para não exigir script inline.
+- Sessões **sem estado**, assinadas por HMAC do segredo (validade 7 dias), sobrevivem ao reinício do servidor.
 
 ## Consequências
 - + Nenhum segredo de longa duração em URL, log ou bundle.
