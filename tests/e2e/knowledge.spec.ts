@@ -92,6 +92,9 @@ test("indexa o projeto e consulta com arquivo e linhas, sem segredos", async ({ 
 
 test("liga a busca semântica e analisa o impacto pelo grafo", async ({ page }) => {
   await addProject(page, "proj-semantico");
+  // Ao recarregar com ?projeto=, o seletor mostra o projeto certo (não o primeiro da lista).
+  await page.reload();
+  await expect(page.locator("select").first().locator("option:checked")).toHaveText("proj-semantico");
   await page.getByRole("button", { name: "Indexar projeto" }).click();
   await expect(page.getByTestId("index-state")).toHaveText("indexado", { timeout: 15_000 });
 
