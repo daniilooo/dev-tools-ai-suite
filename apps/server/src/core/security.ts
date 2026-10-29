@@ -1,0 +1,94 @@
+import type { FastifyInstance, FastifyRequest } from "fastify";
+import { forbidden, unauthorized } from "./errors.js";
+import type { InstallSecret } from "./secret.js";
+import type { Session, SessionManager } from "./sessions.js";
+import { SESSION_COOKIE } from "./sessions.js";
+import { safeEqual } from "./secret.js";
+
+const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+export const CSRF_HEADER = "x-csrf-token";
+
+/** Rotas de API acessíveis sem sessão. */
+const PUBLIC_API_ROUTES = new Set(["POST /api/v1/session/exchange"]);
+
+declare module "fastify" {
+  interface FastifyRequest {
+    session: Session | null;
+    /** true quando autenticado pelo CLI local via segredo de instalação. */
+    viaInstallSecret: boolean;
+  }
+}
+
+export interface SecurityOptions {
+  port: number;
+  secret: InstallSecret;
+  sessions: SessionManager;
+}
+
+/**
+ * Proteções do servidor local (ADR-0007):
+ * - Host restrito a 127.0.0.1/localhost na porta configurada (anti DNS rebinding);
+ * - Origin, quando presente, deve ser a própria origem (anti CSRF / CSWSH);
+ * - toda rota /api exige sessão (cookie assinado) ou Bearer do CLI local;
+ * - métodos com efeito colateral via cookie exigem header anti-CSRF.
+ * Sem CORS: nenhum header Access-Control-* é emitido.
+ */
+export function registerSecurity(app: FastifyInstance, options: SecurityOptions): void {
+  const allowedHosts = new Set([`127.0.0.1:${options.port}`, `localhost:${options.port}`]);
+  const allowedOrigins = new Set([...allowedHosts].map((host) => `http://${host}`));
+
+  app.decorateRequest("session", null);
+  app.decorateRequest("viaInstallSecret", false);
+
+  app.addHook("onRequest", async (request, reply) => {
+    const host = request.headers.host;
+    if (!host || !allowedHosts.has(host.toLowerCase())) {
+      throw forbidden("Host não permitido.");
+    }
+
+    const origin = request.headers.origin;
+    if (origin !== undefined && !allowedOrigins.has(origin.toLowerCase())) {
+      throw forbidden("Origem não permitida.");
+    }
+    if (
+      origin === undefined &&
+      UNSAFE_METHODS.has(request.method) &&
+      request.headers["sec-fetch-site"] === "cross-site"
+    ) {
+      throw forbidden("Origem não permitida.");
+    }
+
+    reply.header("X-Content-Type-Options", "nosniff");
+    reply.header("Referrer-Policy", "no-referrer");
+    reply.header("X-Frame-Options", "DENY");
+
+    if (!request.url.startsWith("/api/")) return;
+
+    const routeKey = `${request.method} ${request.url.split("?")[0]}`;
+    if (PUBLIC_API_ROUTES.has(routeKey)) return;
+
+    const bearer = bearerToken(request);
+    if (bearer !== null) {
+      if (!options.secret.matchesBearer(bearer)) throw unauthorized();
+      request.viaInstallSecret = true;
+      return;
+    }
+
+    const session = options.sessions.verify(request.cookies[SESSION_COOKIE]);
+    if (!session) throw unauthorized();
+    request.session = session;
+
+    if (UNSAFE_METHODS.has(request.method)) {
+      const token = request.headers[CSRF_HEADER];
+      if (typeof token !== "string" || !safeEqual(token, session.csrfToken)) {
+        throw forbidden("Token anti-CSRF ausente ou inválido.");
+      }
+    }
+  });
+}
+
+function bearerToken(request: FastifyRequest): string | null {
+  const header = request.headers.authorization;
+  if (typeof header !== "string" || !header.startsWith("Bearer ")) return null;
+  return header.slice("Bearer ".length).trim();
+}

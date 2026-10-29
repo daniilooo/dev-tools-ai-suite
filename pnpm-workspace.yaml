@@ -1,3 +1,11 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# Dependências com scripts de instalação permitidos (binários nativos — ADR-0012, HG-07).
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  lmdb: true
+  "@parcel/watcher": true
+  msgpackr-extract: true

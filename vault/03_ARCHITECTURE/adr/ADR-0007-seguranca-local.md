@@ -1,7 +1,7 @@
 ---
 id: ADR-0007
 titulo: Segurança local — bind, segredo de instalação e sessão do navegador
-status: Proposto (validação na Fase 2 com Security Engineer + gate humano)
+status: Aceito (HG-05/HG-06 aprovados em 2026-10-28)
 data: 2026-10-28
 decisores: humano (Intake B2) + Architect
 tags: [adr, seguranca]
