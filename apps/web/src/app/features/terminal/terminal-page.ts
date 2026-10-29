@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
-import type { Project, TerminalSession } from "@devtools/shared";
+import type { LaunchableProviderId, Project, ProviderInfo, TerminalSession } from "@devtools/shared";
 import { firstValueFrom } from "rxjs";
 import { apiErrorMessage } from "../../core/api-error";
 import { ApiService } from "../../core/api.service";
@@ -90,6 +90,18 @@ const STATE_LABEL: Record<ConnectionState, string> = {
         >
           + Novo
         </button>
+        @for (p of launchers(); track p.id) {
+          <button
+            type="button"
+            class="shrink-0 px-3 text-sm text-muted hover:bg-surface-2 hover:text-text disabled:opacity-50"
+            (click)="create(p.id)"
+            [disabled]="busy()"
+            [attr.aria-label]="'Abrir ' + p.label + ' neste projeto'"
+            [title]="'Abrir ' + p.label + ' no diretório do projeto'"
+          >
+            + {{ shortName[p.id] }}
+          </button>
+        }
       </div>
 
       <div class="relative min-h-0 flex-1 bg-bg p-2">
@@ -124,6 +136,8 @@ export class TerminalPage {
   readonly id = input.required<string>();
   /** Aba ativa vinda da URL. */
   readonly t = input<string | undefined>();
+  /** Provedor a abrir ao entrar na página (`?abrir=claude-code`), vindo do detalhe do projeto. */
+  readonly abrir = input<string | undefined>();
 
   protected readonly project = signal<Project | null>(null);
   protected readonly tabs = signal<Tab[]>([]);
@@ -131,6 +145,9 @@ export class TerminalPage {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly stateLabel = STATE_LABEL;
+  /** Provedores instalados que podem ser abertos no terminal. */
+  protected readonly launchers = signal<(ProviderInfo & { id: LaunchableProviderId })[]>([]);
+  protected readonly shortName: Record<string, string> = { "claude-code": "Claude", codex: "Codex" };
 
   protected readonly activeId = computed(() => {
     const tabs = this.tabs();
@@ -151,24 +168,39 @@ export class TerminalPage {
       this.project.set(project);
       this.tabs.set(sessions.map((session) => ({ session, connection: "connecting" })));
       this.loaded.set(true);
+      void this.loadLaunchers();
+      const launch = this.abrir();
+      if (launch === "claude-code" || launch === "codex") await this.create(launch);
       // Primeiro acesso: abre um terminal automaticamente.
-      if (sessions.length === 0) await this.create();
+      else if (sessions.length === 0) await this.create();
     } catch (error) {
       this.error.set(apiErrorMessage(error));
       this.loaded.set(true);
     }
   }
 
-  protected select(id: string): void {
-    void this.router.navigate([], { queryParams: { t: id }, replaceUrl: true });
+  private async loadLaunchers(): Promise<void> {
+    try {
+      const { providers } = await firstValueFrom(this.api.providers());
+      this.launchers.set(providers.filter(isLaunchable));
+    } catch {
+      // sem a lista, só o terminal comum fica disponível
+    }
   }
 
-  protected async create(): Promise<void> {
+  protected select(id: string): void {
+    // Remove `abrir` da URL: recarregar a página não deve abrir outro provedor.
+    void this.router.navigate([], { queryParams: { t: id, abrir: null }, replaceUrl: true });
+  }
+
+  protected async create(launch?: LaunchableProviderId): Promise<void> {
     if (this.busy()) return;
     this.busy.set(true);
     this.error.set(null);
     try {
-      const session = await firstValueFrom(this.api.createTerminal(this.id(), { cols: 120, rows: 32 }));
+      const session = await firstValueFrom(
+        this.api.createTerminal(this.id(), { cols: 120, rows: 32, launch }),
+      );
       this.tabs.update((tabs) => [...tabs, { session, connection: "connecting" }]);
       this.select(session.id);
     } catch (error) {
@@ -201,4 +233,10 @@ export class TerminalPage {
 /** Fechar uma aba mata os processos dela: pede confirmação. */
 function confirmClose(title: string): boolean {
   return window.confirm(`Encerrar ${title}? Os processos em execução nele serão finalizados.`);
+}
+
+function isLaunchable(provider: ProviderInfo): provider is ProviderInfo & { id: LaunchableProviderId } {
+  return (
+    provider.installed && provider.launchable && (provider.id === "claude-code" || provider.id === "codex")
+  );
 }

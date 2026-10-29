@@ -1,13 +1,14 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import type { DoctorReport, DoctorStatus, DoctorTool } from "@devtools/shared";
+import type { DoctorReport, DoctorStatus } from "@devtools/shared";
 import { firstValueFrom } from "rxjs";
 import { apiErrorMessage } from "../../core/api-error";
 import { ApiService } from "../../core/api.service";
+import { AuthChip } from "../providers/auth-chip";
 
 @Component({
   selector: "dt-doctor-page",
-  imports: [DatePipe],
+  imports: [DatePipe, AuthChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
@@ -66,13 +67,8 @@ import { ApiService } from "../../core/api.service";
                     }}
                   </div>
                 </div>
-                @if (providers.has(tool.id)) {
-                  <span
-                    class="chip"
-                    title="Verificação de autenticação por mecanismos documentados chega na Fase 4"
-                  >
-                    autenticação: INDISPONÍVEL
-                  </span>
+                @if (tool.auth) {
+                  <dt-auth-chip [auth]="tool.auth" />
                 }
               </li>
             }
@@ -88,8 +84,6 @@ export class DoctorPage {
   protected readonly report = signal<DoctorReport | null>(null);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
-  /** Provedores de IA com autenticação própria (verificada a partir da Fase 4). */
-  protected readonly providers = new Set<DoctorTool["id"]>(["claude", "codex"]);
   protected readonly dot: Record<DoctorStatus, string> = {
     ok: "bg-ok",
     warning: "bg-warn",

@@ -6,6 +6,7 @@ import type {
   DoctorReport,
   HealthResponse,
   Project,
+  ProvidersResponse,
   TerminalSession,
 } from "@devtools/shared";
 import type { Observable } from "rxjs";
@@ -55,5 +56,9 @@ export class ApiService {
 
   closeTerminal(id: string): Observable<void> {
     return this.http.delete<void>(`/api/v1/terminals/${encodeURIComponent(id)}`);
+  }
+
+  providers(refresh = false): Observable<ProvidersResponse> {
+    return this.http.get<ProvidersResponse>("/api/v1/providers", { params: refresh ? { refresh: "1" } : {} });
   }
 }
