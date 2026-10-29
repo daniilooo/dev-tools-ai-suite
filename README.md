@@ -2,7 +2,7 @@
 
 Camada **local-first** de integração, observabilidade e conhecimento para desenvolvimento assistido por IA. Reúne Claude Code, Codex e modelos locais em um dashboard web que roda na sua máquina, com terminal real, monitor de agentes, monitor de cotas, RAG local e observabilidade, sem substituir nenhum desses assistentes.
 
-> **Status:** Fase 3 (Integrated Terminal) em validação: servidor local seguro, cadastro de projetos, diagnóstico, dashboard e terminal real no navegador, com abas e reconexão. Agentes, cotas e conhecimento chegam nas próximas fases. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
+> **Status:** Fase 3 (Integrated Terminal) concluída: servidor local seguro, cadastro de projetos, diagnóstico, dashboard e terminal real no navegador, com abas e reconexão. Agentes, cotas e conhecimento chegam nas próximas fases. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
 
 ## Produto
 

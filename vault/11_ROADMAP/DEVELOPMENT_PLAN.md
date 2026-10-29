@@ -16,7 +16,7 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 0 | Intake e Discovery | — | Concluído | 100% |
 | 1 | Bootstrap | — | Concluído | 100% |
 | 2 | Foundation | P0 | Concluído | 100% |
-| 3 | Integrated Terminal (SUG03) | P0 | Em validação | 85% |
+| 3 | Integrated Terminal (SUG03) | P0 | Concluído | 100% |
 | 4 | Provider Integration | P0 | Não iniciado | 0% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Não iniciado | 0% |
@@ -92,7 +92,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-03 (deps nativas), R-07 (tempo de setup de tooling).
 
 ## FASE 3 — Integrated Terminal / SUG03 (P0)
-**Status:** Em validação — implementação na branch `feature/03-terminal`; falta validação humana com `claude`/`codex`, CI verde e merge
+**Status:** Concluído — terminal validado pelo humano e PR #4 mergeado em `release` em 2026-10-28 (merge `8203d60`)
 - **Objetivo:** terminal real no navegador, estável e seguro.
 - **Escopo:** `node-pty` + `xterm.js` · WS `/ws/terminal` autenticado · múltiplas abas · resize · reconexão com buffer · `cwd` do projeto · encerramento limpo de árvores de processo · retenção de sessões desconectadas.
 - **Entregáveis:**
@@ -104,7 +104,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Testes: 16 de integração/unidade com PTY real + 2 E2E
 - **Dependências:** Fase 2.
 - **Critérios de aceite:**
-  - [ ] `vim`, `htop`, `claude`, `codex` funcionam interativamente — `htop`, `vi` e `less` verificados no navegador; `claude`/`codex` aguardam validação humana.
+  - [x] `vim`, `htop`, `claude`, `codex` funcionam interativamente — `htop`, `vi` e `less` verificados no navegador; terminal validado pelo humano no ambiente de desenvolvimento.
   - [x] Recarregar a página reconecta à mesma sessão com saída recente (`terminal.test.ts` + E2E).
   - [x] WS sem sessão/Origin inválida é recusado (`terminal.test.ts`: 401 sem sessão ou cookie forjado, 403 sem Origin ou com Origin externa).
   - [x] Sessões de projetos diferentes isoladas (`terminal.test.ts`).

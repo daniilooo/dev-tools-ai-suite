@@ -24,4 +24,4 @@ tags: [decisoes]
 | 2026-10-28 | D-04 | Bootstrap aprovado; Fase 2 exige nova autorização | Aceito (gate) | [[PROJECT_STATUS]] |
 | 2026-10-28 | D-05 | Fase 2 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-28 | D-06 | Fase 3 autorizada pelo humano (HG-14), com ambiente de desenvolvimento rodando para acompanhamento | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
-| 2026-10-28 | D-07 | Terminal desconectado fica vivo por 8 h (agentes seguem com o navegador fechado); revisável | Proposto pela LLM | [[STATE_MACHINES]] |
+| 2026-10-28 | D-07 | Terminal desconectado fica vivo por 8 h (agentes seguem com o navegador fechado); revisável | Aceito (PR #4 aprovado) | [[STATE_MACHINES]] |

@@ -4,14 +4,14 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 3 — Integrated Terminal (em validação) |
-| Etapa atual | Terminal implementado; validação humana e PR |
-| Branch atual | `feature/03-terminal` |
+| Fase atual | FASE 3 — Integrated Terminal (concluída) |
+| Etapa atual | Aguardando autorização da Fase 4 (HG-14) |
+| Branch atual | `release` |
 | Última entrega | Terminal web (PTY + WS + xterm.js), abas, reconexão, encerramento da árvore de processos |
-| Última decisão | Fase 3 autorizada (HG-14); retenção 8 h |
-| Tarefas em andamento | Validação humana com `claude`/`codex`; ambiente de dev rodando (`pnpm dev:server` + `pnpm dev:web`) |
+| Última decisão | Terminal validado e PR #4 mergeado pelo humano (2026-10-28) |
+| Tarefas em andamento | Nenhuma; ambiente de dev rodando (`pnpm dev:server` + `pnpm dev:web`) |
 | Bloqueios | Nenhum |
-| Próxima ação | PR `feature/03-terminal → release`, CI verde, revisão humana (HG-06) |
+| Próxima ação | Humano autoriza a FASE 4 — Provider Integration (HG-14) |
 | Testes atuais | `pnpm test` (52 servidor + 5 web), `pnpm test:e2e` (5), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
 
@@ -23,7 +23,7 @@
 **Estado:** terminal implementado em `feature/03-terminal`; testes locais verdes (68 servidor, 5 web, 7 E2E).
 **Alterações:** `apps/server/src/modules/terminal/*` (backend PTY, gerenciador, rotas REST/WS, repositório), `core/process-tree.ts`, migração 2, hook de segurança para `/ws/`, `apps/web/src/app/features/terminal/*`, `tests/e2e/terminal.spec.ts`.
 **Decisões:** retenção 8 h; sessão POSIX para achar processos órfãos; `Origin` obrigatória no upgrade WS; variáveis `DEVTOOLS_*` fora do ambiente do shell.
-**Pendências:** validação humana de `claude`/`codex`; CI; revisão de segurança humana (HG-06); dívidas TD-06 a TD-08.
+**Pendências:** dívidas TD-06 a TD-08. Terminal validado pelo humano, CI verde e PR #4 mergeado.
 **Próximo passo:** PR para `release`; **não iniciar a Fase 4 sem autorização (HG-14)**.
 **Arquivos relevantes:** `apps/server/src/modules/terminal/terminal-manager.ts`, `apps/server/src/core/security.ts`, `apps/server/src/core/process-tree.ts`, `apps/web/src/app/features/terminal/terminal-view.ts`.
 
