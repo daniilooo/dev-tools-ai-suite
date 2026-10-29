@@ -55,6 +55,11 @@ export const routes: Routes = [
         loadComponent: () => import("./features/quota/quota-page").then((m) => m.QuotaPage),
       },
       {
+        path: "conhecimento",
+        title: "Conhecimento — Dev Tools AI Suite",
+        loadComponent: () => import("./features/knowledge/knowledge-page").then((m) => m.KnowledgePage),
+      },
+      {
         path: "diagnostico",
         title: "Diagnóstico — Dev Tools AI Suite",
         loadComponent: () => import("./features/system/doctor-page").then((m) => m.DoctorPage),
