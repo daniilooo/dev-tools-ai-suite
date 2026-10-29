@@ -4,16 +4,28 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 7 — Knowledge: RAG + Grafo (em andamento) |
-| Etapa atual | Parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; HG-07 aprovado (D-20) |
-| Branch atual | `docs/07-spikes-s02-s03` |
-| Última entrega | Módulo `knowledge` (FTS5 por projeto), rotas `/knowledge`, tela Conhecimento |
-| Última decisão | D-17 (fase autorizada), D-18 (FTS5 como base), D-19 (repositórios aninhados) |
+| Fase atual | FASE 7 — Knowledge: RAG + Grafo (em validação) |
+| Etapa atual | Parte 2 (busca semântica, vetores e grafo) pronta; aguarda revisão do PR |
+| Branch atual | `feature/07-semantic-graph` |
+| Última entrega | `VectorStore` (sqlite-vec), `EmbeddingProvider` (Ollama loopback, Transformers.js sob demanda), busca híbrida, `CodeGraphProvider` (Graphify), cartões na tela Conhecimento |
+| Última decisão | D-20 (HG-07) e D-21 (modelos padrão) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
 | Bloqueios | Nenhum |
-| Próxima ação | HG-07 aprovado (D-20): implementar `VectorStore`/`EmbeddingProvider`/`CodeGraphProvider` |
-| Testes atuais | `pnpm test` (123 servidor + 13 web), `pnpm test:e2e` (13), `validate:bootstrap` |
+| Próxima ação | Humano revisa o PR da parte 2; Fase 8 só com autorização (HG-14) |
+| Testes atuais | `pnpm test` (132 servidor + 15 web), `pnpm test:e2e` (14), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 7, parte 2) — Claude Code (Opus)
+
+**Contexto:** HG-07 aprovado pelo humano (D-20, ADR-0006 Aceito). Implementação em `feature/07-semantic-graph`, a partir de `docs/07-spikes-s02-s03` (PR #10).
+**Estado:** pronto; testes locais verdes (132 servidor, 15 web, 14 E2E). Validação com ferramentas reais no `srm-credit-engine` (Transformers.js + `multilingual-e5-small`, Graphify 0.9.97).
+**Alterações:** `modules/knowledge/{vector-store,embeddings,semantic.service,code-graph,code-graph.service}.ts`, consulta híbrida e novas rotas em `knowledge.service.ts`/`knowledge.routes.ts`, migração 5, `config.knowledge` (`DEVTOOLS_OLLAMA_URL` só loopback, modelos, `DEVTOOLS_GRAPHIFY_BIN`), `runProcess` com `signal`, layout `graphs/addons/models`; web `knowledge-semantic.ts`, `knowledge-graph.ts`; E2E com Ollama e Graphify falsos (`tests/e2e/support/fake-knowledge.ts`).
+**Decisões:** D-21 (modelos padrão).
+**Pendências:** TD-19 (embeddings lentos na CPU), TD-20 (Graphify/Transformers.js fora do doctor). O teste de reinício do `foundation.spec.ts` passou a tolerar a recusa esperada do `/ws/events` durante o reinício (falhou uma vez sob carga).
+**Próximo passo:** revisão humana dos PRs #10 e da parte 2. **Não iniciar a Fase 8 sem autorização.**
+**Arquivos relevantes:** `apps/server/src/modules/knowledge/semantic.service.ts`, `code-graph.service.ts`, `code-graph.ts`, `embeddings.ts`, `vector-store.ts`, `apps/web/src/app/features/knowledge/knowledge-semantic.ts`, `knowledge-graph.ts`.
 
 ---
 

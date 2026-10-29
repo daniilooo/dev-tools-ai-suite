@@ -2,7 +2,7 @@
 
 Camada **local-first** de integração, observabilidade e conhecimento para desenvolvimento assistido por IA. Reúne Claude Code, Codex e modelos locais em um dashboard web que roda na sua máquina, com terminal real, monitor de agentes, monitor de cotas, RAG local e observabilidade, sem substituir nenhum desses assistentes.
 
-> **Status:** Fase 7 (Conhecimento) em andamento: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto, monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados, monitor de cotas (janelas de 5 h e semanal, com fonte e frescor) e índice local do projeto com consulta por arquivo e linhas. Busca semântica (embeddings locais) e grafo de código vêm a seguir. Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
+> **Status:** Fase 7 (Conhecimento) em validação: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto, monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados, monitor de cotas (janelas de 5 h e semanal, com fonte e frescor) e conhecimento local do projeto: busca textual por arquivo e linhas, busca semântica opcional (embeddings locais) e grafo de código (Graphify). Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
 
 ## Produto
 
@@ -34,6 +34,16 @@ pnpm start          # = devtools start: sobe em 127.0.0.1:4317 e abre o dashboar
 - Os dados ficam em `~/.dev-tools-ai-suite/` (diretório 0700, segredo 0600).
 
 Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`.
+
+### Conhecimento (opcional)
+
+A busca textual funciona sem instalar nada. A busca semântica e o grafo de código usam ferramentas que você instala; nada é baixado nem enviado sem a sua ação:
+
+- **Busca semântica com Ollama:** `ollama pull embeddinggemma` (o Ollama precisa estar em `127.0.0.1`). Outro modelo: `DEVTOOLS_OLLAMA_EMBED_MODEL`.
+- **Busca semântica sem Ollama:** `npm install --prefix ~/.dev-tools-ai-suite/addons @huggingface/transformers@4.3.2` (≈560 MB). O modelo multilíngue (≈130 MB) só é baixado depois que você confirma na tela.
+- **Grafo de código:** `pipx install graphifyy` (ou `pip install graphifyy`), com `graphify` no PATH ou em `DEVTOOLS_GRAPHIFY_BIN`. Roda só com análise do código, sem IA e sem gravar nada no projeto.
+
+Depois, na tela **Conhecimento**, indexe o projeto e ligue a busca semântica ou gere o grafo.
 
 ### Desenvolvimento
 

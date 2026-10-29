@@ -178,7 +178,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 
 ## FASE 7 — Knowledge: RAG + Grafo (P1)
-**Status:** Em andamento — parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; HG-07 aprovado (D-20)
+**Status:** Em validação — parte 1 integrada (PR #9); parte 2 (busca semântica, vetores e grafo) em `feature/07-semantic-graph`, aguardando revisão do PR
 - **Objetivo:** indexar projetos localmente e responder consultas com referências verificáveis.
 - **Escopo:** spikes **S-02** (Graphify) e **S-03** (vetores + embeddings) · `EmbeddingProvider` (ONNX, Ollama) · `VectorStore` · exclusões · chunking · consulta com referências · remover/reconstruir índice · `CodeGraphProvider`.
 - **Entregáveis:**
@@ -188,17 +188,22 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Tela **Conhecimento** (indexar, estado, exclusões por motivo, consulta com destaque)
   - [x] Spike S-02 (Graphify) — útil para impacto e dependências; ferramenta externa opcional ([[TECHNICAL_SPIKES]])
   - [x] Spike S-03 (sqlite-vec × LanceDB + embeddings ONNX) — `sqlite-vec` recomendado; embeddings caras, opcionais ([[TECHNICAL_SPIKES]])
-  - [ ] `EmbeddingProvider` + `VectorStore` (busca semântica) e `CodeGraphProvider`
+  - [x] `VectorStore` com `sqlite-vec` (`indexes/<projeto>.vec.db`, 0600), vetores reaproveitados por hash do trecho
+  - [x] `EmbeddingProvider`: Ollama local (só loopback) e Transformers.js instalado sob demanda, com consentimento para baixar o modelo
+  - [x] Busca semântica ligada por projeto, em segundo plano, com progresso; consulta textual, semântica ou híbrida (RRF)
+  - [x] `CodeGraphProvider` com Graphify externo (`--code-only`, por repositório, saída no diretório de dados): dependentes, dependências e impacto com arquivo e linha
+  - [x] Tela Conhecimento: cartões de busca semântica e grafo de código, seletor do tipo de busca
   - [x] ADR-0006 **Aceito** (HG-07, D-20)
 - **Resultado parcial (2026-10-29):** repositório Angular + Spring Boot real da máquina de referência (`jinsei`, com repositórios aninhados): 2.090 arquivos, 7.197 trechos em 7,2 s, índice de 28 MB, ~120 MB de RAM, consultas em < 5 ms. 123 testes no servidor, 13 no dashboard e 13 E2E.
+- **Resultado da parte 2 (2026-10-29):** `srm-credit-engine` real (Angular + Spring Boot, 248 arquivos, 663 trechos) com Transformers.js + `multilingual-e5-small` e Graphify 0.9.97 de verdade: vetores em ~9 min com a máquina sob carga de outra sessão (~0,56 s por trecho isolado), grafo com 951 símbolos em 34 s. A pergunta em português "como é calculada a taxa de câmbio na simulação de preço" achou `pricing-simulation.component.ts` pela semântica, enquanto a textual não achou nada. 132 testes no servidor, 15 no dashboard e 14 E2E.
 - **Dependências:** Fase 2 (pode correr em paralelo a 3–6).
 - **Critérios de aceite:**
-  - [ ] Pelo menos um mecanismo de embeddings local validado (S-03 validou ONNX local; adoção aprovada no HG-07, D-20).
+  - [x] Pelo menos um mecanismo de embeddings local validado (Transformers.js + `multilingual-e5-small` no `srm-credit-engine`; Ollama coberto por teste com servidor falso em loopback).
   - [x] Respostas citam arquivo e linhas existentes (`knowledge.test.ts`, E2E).
   - [x] Arquivos sensíveis nunca indexados (teste com `.env`, `secrets/`, `.pem` e segredo no código redigido).
   - [x] Nenhuma chamada de rede externa durante indexação (teste com `fetch` e `Socket.connect` vigiados).
   - [x] Índices isolados por projeto; remoção funciona.
-- **Decisões da fase:** D-17 (fase autorizada), D-18 (busca textual FTS5 como base), D-19 (repositórios aninhados entram no índice).
+- **Decisões da fase:** D-17 (fase autorizada), D-18 (busca textual FTS5 como base), D-19 (repositórios aninhados entram no índice), D-20 (HG-07: `sqlite-vec`, embeddings opcionais, Graphify externo), D-21 (modelos padrão).
 - **DoD:** indexação de um repositório Angular + Spring Boot real em tempo aceitável na máquina de referência.
 - **Riscos:** R-04 (Graphify/Python), R-05 (CPU/RAM).
 

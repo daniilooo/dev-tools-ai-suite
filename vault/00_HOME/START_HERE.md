@@ -16,9 +16,9 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 7 — índice textual integrado; spikes concluídos e HG-07 aprovado (D-20) |
+| Etapa atual | FASE 7 — busca semântica, vetores e grafo prontos; em validação |
 | Última decisão | HG-07 aprovado: sqlite-vec, embeddings opcionais e Graphify externo (D-20) → [[DECISION_LOG]] |
-| Próxima ação | Implementar busca semântica e grafo de código (D-20) |
+| Próxima ação | Revisar o PR da parte 2 da Fase 7 |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

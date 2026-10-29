@@ -33,3 +33,6 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-29 | O SQLite do `better-sqlite3` já traz FTS5: busca textual com BM25, destaque e remoção de acentos sem dependência nova. Desligar diário e `fsync` no índice temporário deixou a indexação ~5× mais rápida. | Fase 7 |
 | 2026-10-29 | Projetos "guarda-chuva" ignoram no `.gitignore` os repositórios de backend/frontend versionados à parte: `git ls-files` sozinho deixaria o código fora do índice. | Fase 7 |
 | 2026-10-29 | O modo automático do Claude Code bloqueia instalar pacotes externos (pip/npm) mesmo em diretório isolado: spikes que exigem instalação precisam de permissão explícita do humano. | Fase 7 |
+| 2026-10-29 | O Graphify grava `edges` sem agrupamento (`--no-cluster`) e `links` com agrupamento; o adaptador aceita os dois. Por padrão grava `graphify-out/` dentro do projeto, então `--out` é obrigatório. | Fase 7 |
+| 2026-10-29 | Embeddings na CPU sofrem muito com outra carga na máquina (a primeira medição real foi 30× mais lenta com builds Java de outra sessão rodando): medir isolado antes de concluir que o código está lento. | Fase 7 |
+| 2026-10-29 | Busca textual com todos os termos obrigatórios não acha nada para perguntas longas em linguagem natural; a semântica e a híbrida cobrem esse caso. | Fase 7 |

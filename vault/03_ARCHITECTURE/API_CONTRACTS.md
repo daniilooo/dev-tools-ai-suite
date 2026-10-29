@@ -27,10 +27,15 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 | GET | `/projects/:id/agents/runs` | ✅ execuções do projeto (`AgentRunDetail[]`, sessões principais com `subagents`), mais recentes primeiro, até 100 | 5 |
 | GET | `/agents/runs/:id` | ✅ uma execução com subagentes; 404 se não existir | 5 |
 | GET | `/quota` | ✅ `QuotaResponse`: por provedor, janelas com % usado (ou limite atingido), renovação, frescor (`fresh`/`stale`/`reset`), categoria, horário da medida e fonte com nível; `unavailableReason` quando não há leitura | 6 |
-| GET | `/projects/:id/knowledge` | ✅ `KnowledgeStatus`: estado (`not_indexed`/`indexing`/`indexed`/`outdated`/`failed`), arquivos, trechos, excluídos por motivo, horário, duração, arquivos mudados, disponibilidade da busca semântica | 7 |
+| GET | `/projects/:id/knowledge` | ✅ `KnowledgeStatus`: estado (`not_indexed`/`indexing`/`indexed`/`outdated`/`failed`), arquivos, trechos, excluídos por motivo, horário, duração, arquivos mudados; `semantic` (ligada, mecanismo, modelo, estado `off`/`indexing`/`ready`/`failed`, vetores prontos/total, motivo de indisponibilidade) e `graph` (disponível, estado `not_built`/`building`/`built`/`failed`, símbolos, relações, repositórios) | 7 |
 | POST | `/projects/:id/knowledge/index` | ✅ (re)indexar em segundo plano → 202 com o estado | 7 |
 | DELETE | `/projects/:id/knowledge/index` | ✅ remover índice (o código não é tocado) → 204 | 7 |
-| POST | `/projects/:id/knowledge/query` | ✅ `{ query, limit? }` → `{ mode: "lexical", hits: [{ filePath, lineStart, lineEnd, snippet, stale }] }`; 409 sem índice, 400 consulta vazia | 7 |
+| POST | `/projects/:id/knowledge/query` | ✅ `{ query, limit?, mode? }` (`lexical`/`semantic`/`hybrid`; padrão híbrida quando há vetores) → `{ mode, hits: [{ filePath, lineStart, lineEnd, snippet, stale, matchedBy }] }`; híbrida junta as duas buscas por Reciprocal Rank Fusion; 409 sem índice ou sem vetores, 400 consulta vazia | 7 |
+| GET | `/knowledge/semantic/providers` | ✅ mecanismos de embeddings (`ollama`, `transformers`) com modelo, disponibilidade, motivo e se baixam o modelo | 7 |
+| PUT | `/projects/:id/knowledge/semantic` | ✅ `{ enabled, provider?, consentModelDownload? }` liga (cálculo em segundo plano) ou desliga e apaga os vetores; 400 sem consentimento para baixar o modelo; 409 sem índice textual ou mecanismo indisponível | 7 |
+| POST | `/projects/:id/knowledge/graph` | ✅ gera o grafo com o Graphify externo em segundo plano → 202; 409 sem Graphify ou fora do git | 7 |
+| DELETE | `/projects/:id/knowledge/graph` | ✅ remove o grafo → 204 | 7 |
+| POST | `/projects/:id/knowledge/graph/query` | ✅ `{ symbol, depth? }` (nome ou id; profundidade 1–4) → `{ node, candidates, dependencies, dependents, impact }` com arquivo e linha; 409 sem grafo | 7 |
 
 ## WebSocket
 | Canal | Direção | Mensagens |
