@@ -86,7 +86,7 @@ export class Shell {
     { label: "Projetos", route: "/projetos" },
     { label: "Terminal", route: "/terminal" },
     { label: "Provedores", route: "/provedores" },
-    { label: "Agentes", phase: "Fase 5" },
+    { label: "Agentes", route: "/agentes" },
     { label: "Cotas", phase: "Fase 6" },
     { label: "Conhecimento", phase: "Fase 7" },
     { label: "Diagnóstico", route: "/diagnostico" },

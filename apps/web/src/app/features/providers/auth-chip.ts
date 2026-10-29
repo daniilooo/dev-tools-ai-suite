@@ -1,11 +1,9 @@
-import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import type { ProviderAuth } from "@devtools/shared";
 
 /** Estado de login de um provedor, sempre com a origem do dado (RN-03). */
 @Component({
   selector: "dt-auth-chip",
-  imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span class="chip gap-1.5" [title]="tooltip()">

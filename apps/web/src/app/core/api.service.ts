@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import type {
+  AgentRunDetail,
   CreateProjectRequest,
   CreateTerminalRequest,
   DoctorReport,
@@ -60,5 +61,9 @@ export class ApiService {
 
   providers(refresh = false): Observable<ProvidersResponse> {
     return this.http.get<ProvidersResponse>("/api/v1/providers", { params: refresh ? { refresh: "1" } : {} });
+  }
+
+  agentRuns(projectId: string): Observable<AgentRunDetail[]> {
+    return this.http.get<AgentRunDetail[]>(`/api/v1/projects/${encodeURIComponent(projectId)}/agents/runs`);
   }
 }
