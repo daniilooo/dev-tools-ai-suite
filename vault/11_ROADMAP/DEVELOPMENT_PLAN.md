@@ -14,8 +14,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | Fase | Nome | Prioridade | Status | Progresso |
 |---|---|---|---|---|
 | 0 | Intake e Discovery | — | Concluído | 100% |
-| 1 | Bootstrap | — | Em validação | 90% |
-| 2 | Foundation | P0 | Em validação | 95% |
+| 1 | Bootstrap | — | Concluído | 100% |
+| 2 | Foundation | P0 | Concluído | 100% |
 | 3 | Integrated Terminal (SUG03) | P0 | Não iniciado | 0% |
 | 4 | Provider Integration | P0 | Não iniciado | 0% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
@@ -46,7 +46,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** spikes técnicos pendentes → migrados para as fases 2, 5, 6 e 7.
 
 ## FASE 1 — Bootstrap
-**Status:** Em validação
+**Status:** Concluído (PR #1 mergeado em `release` em 2026-10-28)
 - **Objetivo:** fundação documental e operacional para desenvolvimento multi-LLM.
 - **Escopo:** Vault, `.ai/`, adapters, agentes, contratos, skills, hooks, GitFlow, roadmap, HTMLs, manual, README, esqueleto do monorepo. **Sem código de produto.**
 - **Entregáveis:**
@@ -57,14 +57,14 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] `docs/development-plan.html` e `docs/ai-development-system.html`
   - [x] [[AI_DEVELOPMENT_MANUAL]] e README
   - [x] ADR-0001 a ADR-0011
-  - [ ] PR `feature/00-bootstrap → release` aprovado e mergeado
+  - [x] PR `feature/00-bootstrap → release` aprovado e mergeado (#1)
 - **Dependências:** Fase 0.
-- **Critérios de aceite:** [x] `scripts/validate-bootstrap.sh` passa · [ ] revisão humana do PR.
+- **Critérios de aceite:** [x] `scripts/validate-bootstrap.sh` passa · [x] revisão humana do PR.
 - **DoD:** PR mergeado em `release`; status e handoff atualizados.
 - **Riscos:** documentação excessiva → mitigado pela regra de documentação mínima útil.
 
 ## FASE 2 — Foundation (P0)
-**Status:** Em validação — CI verde no GitHub e proteção de branches aplicada; falta revisão humana e merge do PR #2
+**Status:** Concluído — PR #2 aprovado e mergeado em `release` em 2026-10-28 (merge `4d56b3d`)
 - **Objetivo:** aplicação instalável e segura que sobe, autentica, abre o dashboard e gerencia projetos.
 - **Escopo:** tooling (TS strict, ESLint, Prettier, Vitest, Playwright) · CI GitHub Actions · proteção de branches (HG-11) · `apps/server` Fastify com `core` (config, diretório de dados, segredo, sessão — ADR-0007, logger, redator, `ProcessRunner`, migrações SQLite) · `apps/web` Angular shell + design system base + temas · módulo `projects` · CLI `devtools start` / `devtools doctor` (detecção básica).
 - **Fora do escopo:** terminal, agentes, cotas, RAG.

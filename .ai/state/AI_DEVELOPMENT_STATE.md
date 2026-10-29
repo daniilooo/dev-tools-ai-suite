@@ -4,14 +4,14 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 2 — Foundation (em validação) |
-| Etapa atual | PR #2 com CI verde, aguardando revisão e merge humano |
-| Branch atual | `feature/02-foundation` (empilhada sobre `feature/00-bootstrap`) |
+| Fase atual | FASE 2 — Foundation (concluída) |
+| Etapa atual | Aguardando autorização da Fase 3 (HG-14) |
+| Branch atual | `release` |
 | Última entrega | Foundation: core seguro, projetos, CLI `devtools`, dashboard Angular, CI |
-| Última decisão | ADR-0007 e ADR-0012 aceitos; HG-11 autorizado após o CI existir |
-| Tarefas em andamento | Primeira execução do CI; revisão dos PRs |
+| Última decisão | PR #2 aprovado e mergeado pelo humano (2026-10-28) |
+| Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | Humano fecha o PR #1 (sem CI, bloqueado pela proteção; conteúdo já está no #2) e faz merge do PR #2 |
+| Próxima ação | Humano autoriza a FASE 3 — Integrated Terminal (HG-14) |
 | Testes atuais | `pnpm test` (52 servidor + 5 web), `pnpm test:e2e` (5), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
 
@@ -23,8 +23,8 @@
 **Estado:** implementação da Fase 2 concluída em `feature/02-foundation`, empilhada sobre `feature/00-bootstrap` porque o merge do PR #1 pela LLM foi bloqueado pela política de permissões. Tudo verde localmente.
 **Alterações:** `apps/server` (core, módulos session/projects/system, CLI), `apps/web` (Angular 22 + Tailwind 4), `packages/shared` (tipos), `tests/e2e`, `.github/workflows/ci.yml`, tooling da raiz, Vault atualizado.
 **Decisões:** token descartável HMAC para o CLI (achado de segurança: o CLI enviava o segredo bruto a qualquer processo na porta); CSP restritiva com `inlineCritical` desligado; sessões sem estado assinadas por HMAC.
-**Pendências:** merge do PR #2 pelo humano (o #1 fica superado, pois o #2 o contém); dívidas TD-01 a TD-05. CI verde e proteção de branches (HG-11) já concluídos.
-**Próximo passo:** após CI verde e merge, Fase 2 → Concluído; **não iniciar a Fase 3 sem autorização (HG-14)**. A Fase 3 instala `@lydell/node-pty` com fallback para `node-pty` (ADR-0012).
+**Pendências:** dívidas TD-01 a TD-05. PRs #1 e #2 mergeados em `release`; CI verde; proteção de branches (HG-11) aplicada.
+**Próximo passo:** Fase 2 concluída; **não iniciar a Fase 3 sem autorização (HG-14)**. A Fase 3 instala `@lydell/node-pty` com fallback para `node-pty` (ADR-0012).
 **Arquivos relevantes:** `apps/server/src/core/security.ts`, `apps/server/src/core/cli-auth.ts`, `apps/server/src/app.ts`, `apps/web/src/app/core/auth.service.ts`, `vault/11_ROADMAP/DEVELOPMENT_PLAN.md`.
 
 ---
