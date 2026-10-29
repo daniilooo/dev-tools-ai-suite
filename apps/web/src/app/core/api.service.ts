@@ -8,6 +8,7 @@ import type {
   HealthResponse,
   Project,
   ProvidersResponse,
+  QuotaResponse,
   TerminalSession,
 } from "@devtools/shared";
 import type { Observable } from "rxjs";
@@ -69,5 +70,9 @@ export class ApiService {
 
   agentRun(id: string): Observable<AgentRunDetail> {
     return this.http.get<AgentRunDetail>(`/api/v1/agents/runs/${encodeURIComponent(id)}`);
+  }
+
+  quota(): Observable<QuotaResponse> {
+    return this.http.get<QuotaResponse>("/api/v1/quota");
   }
 }
