@@ -6,6 +6,8 @@ export interface RunOptions {
   /** Limite de bytes capturados por stream. */
   maxOutputBytes?: number;
   env?: NodeJS.ProcessEnv;
+  /** Cancela a execução encerrando toda a árvore de processos. */
+  signal?: AbortSignal;
 }
 
 export interface RunResult {
@@ -54,11 +56,15 @@ export function runProcess(
       timedOut = true;
       killTree(child.pid);
     }, timeoutMs);
+    const abort = () => killTree(child.pid);
+    if (options.signal?.aborted) abort();
+    else options.signal?.addEventListener("abort", abort, { once: true });
 
     const finish = (result: Omit<RunResult, "stdout" | "stderr" | "timedOut">) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      options.signal?.removeEventListener("abort", abort);
       resolve({ ...result, stdout, stderr, timedOut });
     };
 

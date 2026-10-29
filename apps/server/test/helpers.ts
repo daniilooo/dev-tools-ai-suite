@@ -34,6 +34,9 @@ export interface TestAppOptions {
   providers?: AppDeps["providers"];
   agentSourceRoots?: AppDeps["agentSourceRoots"];
   agentScanIntervalMs?: AppDeps["agentScanIntervalMs"];
+  /** Embeddings e grafo falsos; por padrão nenhum (testes não tocam o Ollama nem o Graphify reais). */
+  embeddings?: AppDeps["embeddings"];
+  graphExtractor?: AppDeps["graphExtractor"];
   /** Variáveis lidas pela configuração (ex.: DEVTOOLS_CLAUDE_STATUSLINE). */
   env?: NodeJS.ProcessEnv;
 }
@@ -65,6 +68,13 @@ export async function createTestApp(
     },
     agentScanIntervalMs: options.agentScanIntervalMs ?? 0,
     quotaScanIntervalMs: 0,
+    embeddings: options.embeddings ?? [],
+    graphExtractor: options.graphExtractor ?? {
+      check: async () => "Graphify não instalado (teste).",
+      extract: async () => {
+        throw new Error("Graphify não instalado (teste).");
+      },
+    },
   });
   await app.server.ready();
   return {

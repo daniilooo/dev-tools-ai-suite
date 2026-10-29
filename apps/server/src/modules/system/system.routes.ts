@@ -21,8 +21,8 @@ export function registerSystemRoutes(
       integrations: "ok",
       agents: "ok",
       quota: "ok",
-      // Busca textual pronta; semântica aguarda embeddings locais (S-03).
-      knowledge: "degraded",
+      // Busca textual sempre; semântica e grafo são opcionais (ADR-0006) e aparecem no status do projeto.
+      knowledge: "ok",
       telemetry: "ok",
     },
   }));

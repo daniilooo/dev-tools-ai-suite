@@ -1,7 +1,9 @@
 import type {
   KnowledgeHit,
   KnowledgeIndexState,
+  KnowledgeQueryMode,
   KnowledgeQueryResponse,
+  KnowledgeSemanticRequest,
   KnowledgeSkipped,
   KnowledgeStatus,
 } from "@devtools/shared";
@@ -11,12 +13,14 @@ import type { Db } from "../../core/database.js";
 import { AppError, badRequest } from "../../core/errors.js";
 import type { ProjectsService } from "../projects/projects.service.js";
 import { indexFiles, listProjectFiles } from "./indexer.js";
+import type { CodeGraphService } from "./code-graph.service.js";
 import { KnowledgeIndexReader, KnowledgeIndexWriter, searchTerms } from "./knowledge-index.js";
+import type { SemanticService } from "./semantic.service.js";
 
 const EMPTY_SKIPPED: KnowledgeSkipped = { sensitive: 0, noise: 0, large: 0, binary: 0 };
-/** Embeddings locais aguardam o spike S-03 e a aprovação da dependência nativa (HG-07). */
-const SEMANTIC_UNAVAILABLE =
-  "Busca semântica INDISPONÍVEL: nenhum mecanismo de embeddings local configurado ainda. A busca textual funciona.";
+/** Constante do Reciprocal Rank Fusion: suaviza o peso das primeiras posições. */
+const RRF_K = 60;
+const CANDIDATES = 50;
 
 interface Row {
   project_id: string;
@@ -29,20 +33,33 @@ interface Row {
   error: string | null;
 }
 
+export interface KnowledgeExtras {
+  semantic: SemanticService;
+  graph: CodeGraphService;
+  now?: () => Date;
+}
+
 /**
  * Conhecimento local (RN-04): indexa o projeto em um índice textual próprio, sem nenhuma
  * chamada de rede, e responde consultas com arquivo e linhas. Uma indexação por projeto
- * de cada vez; o índice anterior segue consultável até a nova terminar.
+ * de cada vez; o índice anterior segue consultável até a nova terminar. Busca semântica e
+ * grafo de código são opcionais (ADR-0006) e vivem em serviços próprios.
  */
 export class KnowledgeService {
   private readonly running = new Map<string, Promise<void>>();
+  readonly semantic: SemanticService;
+  readonly graph: CodeGraphService;
+  private readonly now: () => Date;
 
   constructor(
     private readonly db: Db,
     private readonly projects: ProjectsService,
     private readonly indexesDir: string,
-    private readonly now: () => Date = () => new Date(),
+    extras: KnowledgeExtras,
   ) {
+    this.semantic = extras.semantic;
+    this.graph = extras.graph;
+    this.now = extras.now ?? (() => new Date());
     mkdirSync(indexesDir, { recursive: true, mode: 0o700 });
     // Indexação interrompida por reinício do servidor.
     this.db
@@ -67,7 +84,8 @@ export class KnowledgeService {
       durationMs: row?.duration_ms ?? null,
       changedFiles: 0,
       error: row?.error ?? null,
-      semantic: { available: false, reason: SEMANTIC_UNAVAILABLE },
+      semantic: await this.semantic.status(projectId),
+      graph: await this.graph.status(projectId),
     };
     if (base.state !== "indexed") return base;
     const changed = await this.changedFiles(project.path, projectId);
@@ -86,6 +104,7 @@ export class KnowledgeService {
         const listed = await listProjectFiles(project.path);
         const result = await indexFiles(project.path, listed, writer);
         writer.commit();
+        this.semantic.start(projectId, this.indexPath(projectId));
         this.save(projectId, {
           state: "indexed",
           files: result.files,
@@ -104,40 +123,95 @@ export class KnowledgeService {
     return "indexing";
   }
 
-  /** Aguarda a indexação em andamento (testes e desligamento). */
+  /** Aguarda a indexação em andamento (e os vetores/grafo que ela dispara) — testes e desligamento. */
   async idle(projectId?: string): Promise<void> {
     const jobs = projectId ? [this.running.get(projectId)] : [...this.running.values()];
     await Promise.all(jobs.filter(Boolean));
+    await this.semantic.idle(projectId);
+    await this.graph.idle(projectId);
+  }
+
+  async configureSemantic(projectId: string, request: KnowledgeSemanticRequest): Promise<void> {
+    this.projects.get(projectId);
+    await this.semantic.configure(projectId, request, this.indexPath(projectId));
+  }
+
+  /** Projeto removido: índice, vetores e grafo saem juntos. */
+  async removeAll(projectId: string): Promise<void> {
+    await this.remove(projectId, { checkProject: false });
+    await this.graph.remove(projectId, { checkProject: false });
+  }
+
+  /** Desligamento do servidor: interrompe embeddings e Graphify; a indexação textual termina. */
+  async shutdown(): Promise<void> {
+    await Promise.all([this.semantic.shutdown(), this.graph.shutdown()]);
+    await this.idle();
   }
 
   /** Remove o índice do projeto; o código do projeto não é tocado. */
   async remove(projectId: string, { checkProject = true } = {}): Promise<void> {
     if (checkProject) this.projects.get(projectId);
     await this.idle(projectId);
+    // Os vetores dependem dos trechos do índice textual: saem junto.
+    await this.semantic.disable(projectId);
     rmSync(this.indexPath(projectId), { force: true });
     this.db.prepare("DELETE FROM knowledge_indexes WHERE project_id = ?").run(projectId);
   }
 
-  async query(projectId: string, text: string, limit = 20): Promise<KnowledgeQueryResponse> {
+  async query(
+    projectId: string,
+    text: string,
+    limit = 20,
+    requested?: KnowledgeQueryMode,
+  ): Promise<KnowledgeQueryResponse> {
     const project = this.projects.get(projectId);
     const query = text.trim().slice(0, 500);
     if (!query) throw badRequest("Informe o que procurar.");
+    const max = Math.min(Math.max(limit, 1), 50);
+    const mode = requested ?? (this.semantic.usable(projectId) ? "hybrid" : "lexical");
+    if (mode !== "lexical" && !this.semantic.usable(projectId)) {
+      throw new AppError(
+        "SEMANTIC_NOT_READY",
+        409,
+        "A busca semântica não está ligada ou ainda não tem vetores para este projeto.",
+      );
+    }
     const reader = KnowledgeIndexReader.open(this.indexPath(projectId));
     if (!reader) {
       throw new AppError("KNOWLEDGE_NOT_INDEXED", 409, "Este projeto ainda não foi indexado.");
     }
     try {
       const indexed = new Map(reader.files().map((f) => [f.path, f]));
-      const hits: KnowledgeHit[] = reader
-        .search(searchTerms(query), Math.min(Math.max(limit, 1), 50))
-        .map((hit) => ({
-          filePath: hit.path,
-          lineStart: hit.lineStart,
-          lineEnd: hit.lineEnd,
-          snippet: hit.snippet,
-          stale: isStale(project.path, indexed.get(hit.path)),
-        }));
-      return { query, mode: "lexical", hits };
+      const lexical =
+        mode === "semantic" ? [] : reader.search(searchTerms(query), mode === "lexical" ? max : CANDIDATES);
+      const semantic =
+        mode === "lexical" ? [] : ((await this.semantic.search(projectId, query, CANDIDATES)) ?? []);
+
+      // Reciprocal Rank Fusion: soma 1/(k + posição) de cada busca que encontrou o trecho.
+      const merged = new Map<string, { hit: Omit<KnowledgeHit, "stale">; score: number }>();
+      const add = (
+        source: "lexical" | "semantic",
+        rank: number,
+        ref: { path: string; lineStart: number; lineEnd: number },
+        snippet: string,
+      ) => {
+        const key = `${ref.path}:${ref.lineStart}`;
+        const entry = merged.get(key) ?? {
+          hit: { filePath: ref.path, lineStart: ref.lineStart, lineEnd: ref.lineEnd, snippet, matchedBy: [] },
+          score: 0,
+        };
+        entry.hit.matchedBy.push(source);
+        entry.score += 1 / (RRF_K + rank + 1);
+        merged.set(key, entry);
+      };
+      lexical.forEach((hit, rank) => add("lexical", rank, hit, hit.snippet));
+      semantic.forEach((hit, rank) => add("semantic", rank, hit, hit.preview));
+
+      const hits: KnowledgeHit[] = [...merged.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, max)
+        .map(({ hit }) => ({ ...hit, stale: isStale(project.path, indexed.get(hit.filePath)) }));
+      return { query, mode, hits };
     } finally {
       reader.close();
     }

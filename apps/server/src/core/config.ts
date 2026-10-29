@@ -16,6 +16,13 @@ export interface AppConfig {
    * `DEVTOOLS_CLAUDE_STATUSLINE=off` desliga.
    */
   claudeStatusLine: boolean;
+  /** Conhecimento (ADR-0006, D-20): Ollama só em loopback; modelos e Graphify configuráveis. */
+  knowledge: {
+    ollamaUrl: string;
+    ollamaEmbedModel: string;
+    transformersModel: string;
+    graphifyBin: string;
+  };
 }
 
 export interface ConfigOverrides {
@@ -41,7 +48,30 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, overrides: Conf
 
   const claudeStatusLine = env.DEVTOOLS_CLAUDE_STATUSLINE !== "off";
 
-  return { host: "127.0.0.1", port, dataDir, logLevel, claudeStatusLine };
+  const knowledge = {
+    ollamaUrl: parseLoopbackUrl(env.DEVTOOLS_OLLAMA_URL ?? "http://127.0.0.1:11434"),
+    ollamaEmbedModel: env.DEVTOOLS_OLLAMA_EMBED_MODEL || "embeddinggemma",
+    transformersModel: env.DEVTOOLS_TRANSFORMERS_MODEL || "Xenova/multilingual-e5-small",
+    graphifyBin: env.DEVTOOLS_GRAPHIFY_BIN || "graphify",
+  };
+
+  return { host: "127.0.0.1", port, dataDir, logLevel, claudeStatusLine, knowledge };
+}
+
+/** Embeddings nunca saem da máquina (INV-04): o Ollama só é aceito em loopback. */
+function parseLoopbackUrl(raw: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error(`DEVTOOLS_OLLAMA_URL inválida: ${raw}`);
+  }
+  if (url.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(url.hostname)) {
+    throw new Error(
+      `DEVTOOLS_OLLAMA_URL=${raw} não é permitido: o código só pode ir para um Ollama local (127.0.0.1).`,
+    );
+  }
+  return url.origin;
 }
 
 function parsePort(raw: string | undefined): number {

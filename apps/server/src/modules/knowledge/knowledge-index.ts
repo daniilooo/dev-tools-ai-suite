@@ -92,6 +92,13 @@ export class KnowledgeIndexReader {
     return this.db.prepare("SELECT path, size, mtime_ms AS mtimeMs FROM files").all() as IndexedFile[];
   }
 
+  /** Trechos indexados (para calcular embeddings). */
+  *chunks(): IterableIterator<Chunk> {
+    yield* this.db
+      .prepare("SELECT path, line_start AS lineStart, line_end AS lineEnd, body FROM chunks")
+      .iterate() as IterableIterator<Chunk>;
+  }
+
   /** Busca por termos (todos precisam aparecer), ordenada por relevância (BM25). */
   search(terms: string[], limit: number): LexicalHit[] {
     if (terms.length === 0) return [];

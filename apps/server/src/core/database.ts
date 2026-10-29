@@ -100,6 +100,32 @@ const MIGRATIONS: Migration[] = [
       );
     `,
   },
+  {
+    version: 5,
+    description: "cria tabelas da busca semântica e do grafo de código",
+    up: `
+      CREATE TABLE knowledge_semantic (
+        project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+        provider TEXT NOT NULL,
+        model TEXT NOT NULL,
+        state TEXT NOT NULL,
+        embedded INTEGER NOT NULL DEFAULT 0,
+        total INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT,
+        error TEXT
+      );
+      CREATE TABLE knowledge_graphs (
+        project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+        state TEXT NOT NULL,
+        nodes INTEGER NOT NULL DEFAULT 0,
+        edges INTEGER NOT NULL DEFAULT 0,
+        repos INTEGER NOT NULL DEFAULT 0,
+        built_at TEXT,
+        duration_ms INTEGER,
+        error TEXT
+      );
+    `,
+  },
 ];
 
 export function openDatabase(file: string): Db {
