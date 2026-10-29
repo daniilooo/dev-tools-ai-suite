@@ -1,0 +1,19 @@
+{
+  "name": "dev-tools-ai-suite-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Camada local-first de integração, observabilidade e conhecimento para desenvolvimento assistido por IA.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniilooo/dev-tools-ai-suite.git"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate:bootstrap": "bash scripts/validate-bootstrap.sh",
+    "check:secrets": "bash scripts/check-secrets.sh"
+  }
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# pre-push — typecheck, testes e build quando disponíveis (Fase 2+). Ver .ai/hooks/HOOKS.md
+set -euo pipefail
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [[ "$branch" == "main" ]]; then
+  echo "❌ Push direto em main não é permitido (gate humano HG-01)."; exit 1
+fi
+
+has_script() { node -e "process.exit(require('./package.json').scripts?.['$1']?0:1)"; }
+for s in typecheck test build; do
+  if has_script "$s"; then echo "▶ pnpm $s"; pnpm -s "$s"; else echo "↷ script '$s' ainda não existe (pulado)"; fi
+done
+bash scripts/validate-bootstrap.sh

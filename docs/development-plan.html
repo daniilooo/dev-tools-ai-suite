@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plano de Desenvolvimento — Dev Tools AI Suite</title>
+<!--
+  Derivado de vault/11_ROADMAP/DEVELOPMENT_PLAN.md (fonte da verdade).
+  Ao alterar o plano, atualize o array PHASES abaixo na mesma mudança.
+  Standalone: sem dependências externas.
+-->
+<style>
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface-2:#1c2330;--border:#2a3240;
+  --text:#e6edf3;--muted:#8b98a9;--accent:#7c9cff;
+  --st-none:#6b7686;--st-progress:#4f8cff;--st-blocked:#f05d5d;--st-validation:#e3a83b;--st-done:#3fb27f;
+  --radius:12px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#f6f8fb;--surface:#ffffff;--surface-2:#f0f3f8;--border:#d9dee7;
+    --text:#1b2430;--muted:#5d6b7c;--accent:#3c5fd6;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f6f8fb;--surface:#ffffff;--surface-2:#f0f3f8;--border:#d9dee7;
+  --text:#1b2430;--muted:#5d6b7c;--accent:#3c5fd6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 16px 64px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0}
+button,select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.tile .k{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+.tile .v{font-size:1.35rem;font-weight:650;margin-top:2px}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar>span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.timeline{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:24px}
+.tl{flex:1 0 82px;text-align:center;font-size:.75rem;color:var(--muted)}
+.tl .dot{height:6px;border-radius:99px;margin-bottom:6px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.chip{border-radius:99px;padding:4px 12px;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.phases{display:grid;gap:12px}
+details.phase{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--c);border-radius:var(--radius)}
+details.phase summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+details.phase summary::-webkit-details-marker{display:none}
+.num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:700}
+.ttl{font-weight:600}
+.meta{color:var(--muted);font-size:.85rem}
+.pill{font-size:.75rem;font-weight:600;padding:3px 10px;border-radius:99px;color:#fff;background:var(--c);white-space:nowrap}
+.pbar{grid-column:1/-1}
+.body{padding:0 16px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.body h4{margin:0 0 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.body p,.body ul{margin:0}
+.body ul{padding-left:0;list-style:none}
+.body li{padding:2px 0 2px 24px;position:relative}
+.body li::before{content:"";position:absolute;left:2px;top:7px;width:12px;height:12px;border:1.5px solid var(--muted);border-radius:3px}
+.body li.ok::before{background:var(--st-done);border-color:var(--st-done)}
+.body li.ok::after{content:"";position:absolute;left:6px;top:9px;width:4px;height:7px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.body li.plain::before{border:none;background:var(--muted);width:5px;height:5px;border-radius:50%;top:10px;left:6px}
+.block{color:var(--st-blocked)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.8rem;margin-top:24px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+footer{margin-top:32px;color:var(--muted);font-size:.8rem}
+code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.85em}
+@media (max-width:560px){details.phase summary{grid-template-columns:auto 1fr}.pill{grid-column:2;justify-self:start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Plano de Desenvolvimento</h1>
+      <p class="sub">Dev Tools AI Suite · MVP em fases finitas · atualizado em <span id="updated"></span></p>
+    </div>
+    <button id="theme" type="button" aria-label="Alternar tema">◐ Tema</button>
+  </header>
+
+  <section class="summary" id="summary"></section>
+  <nav class="timeline" id="timeline" aria-label="Linha do tempo das fases"></nav>
+
+  <div class="controls" id="filters" role="group" aria-label="Filtrar por status"></div>
+  <div class="controls">
+    <button type="button" id="expand">Expandir tudo</button>
+    <button type="button" id="collapse">Recolher tudo</button>
+  </div>
+
+  <section class="phases" id="phases"></section>
+
+  <div class="legend" id="legend"></div>
+  <footer>Fonte da verdade: <code>vault/11_ROADMAP/DEVELOPMENT_PLAN.md</code>. Iniciar fase exige gate humano (HG-14). Melhorias fora da fase vão para <code>POST_MVP_BACKLOG.md</code>.</footer>
+</div>
+
+<script>
+const UPDATED = "2026-10-28";
+const STATUS = {
+  "Não iniciado": "--st-none",
+  "Em andamento": "--st-progress",
+  "Bloqueado": "--st-blocked",
+  "Em validação": "--st-validation",
+  "Concluído": "--st-done"
+};
+// [texto, concluído?]
+const PHASES = [
+  {n:0,name:"Intake e Discovery",prio:"—",status:"Concluído",progress:100,
+   goal:"Transformar a ideia em definição clara de MVP.",
+   deliverables:[["Registro do Intake (4 blocos)",1],["Decisões de stack e arquitetura",1],["Definition of MVP Done",1]],
+   deps:["—"],criteria:[["Proposta consolidada aprovada pelo humano",1]],
+   risks:["Spikes técnicos pendentes, migrados para as fases 2, 5, 6 e 7"],blockers:[]},
+  {n:1,name:"Bootstrap",prio:"—",status:"Em validação",progress:90,
+   goal:"Fundação documental e operacional para desenvolvimento multi-LLM, sem código de produto.",
+   deliverables:[["Vault com 16 áreas e START_HERE",1],[".ai/ (workflow, agentes, contratos, skills, hooks, adapters, estado)",1],["CLAUDE.md, AGENTS.md, .claude/, .agents/",1],[".githooks/ e scripts/",1],["HTMLs de roadmap e sistema de IA",1],["Manual de desenvolvimento e README",1],["ADR-0001 a ADR-0011",1],["PR feature/00-bootstrap → release mergeado",0]],
+   deps:["Fase 0"],criteria:[["validate-bootstrap.sh passa",1],["Revisão humana do PR",0]],
+   risks:["Documentação excessiva — mitigada pela regra de documentação mínima útil"],blockers:["Aguardando revisão humana do PR"]},
+  {n:2,name:"Foundation",prio:"P0",status:"Não iniciado",progress:0,
+   goal:"Aplicação instalável e segura que sobe, autentica, abre o dashboard e gerencia projetos.",
+   deliverables:[["Tooling: TS strict, ESLint, Prettier, Vitest, Playwright",0],["CI GitHub Actions + proteção de branches (HG-11)",0],["core: config, segredo, sessão (ADR-0007), logger, redator, ProcessRunner, SQLite",0],["Shell Angular + design system + temas",0],["Módulo projects",0],["CLI devtools start / doctor",0]],
+   deps:["Fase 1","Spike S-01 (node-pty, driver SQLite)"],
+   criteria:[["Bind somente em 127.0.0.1",0],["Sem sessão → 401; Origin/Host inválidos → 403",0],["Segredo 0600, ausente de logs/URLs/bundle",0],["Projeto persiste após reinício",0],["Core inicia sem Ollama/Graphify",0],["CI completo verde",0]],
+   risks:["R-03 dependências nativas","R-07 segurança do terminal web"],blockers:[]},
+  {n:3,name:"Integrated Terminal (SUG03)",prio:"P0",status:"Não iniciado",progress:0,
+   goal:"Terminal real no navegador, estável e seguro.",
+   deliverables:[["node-pty + xterm.js + WS autenticado",0],["Abas, resize, reconexão com buffer",0],["Encerramento limpo de processos",0]],
+   deps:["Fase 2"],
+   criteria:[["vim, htop, claude e codex interativos",0],["Recarregar a página reconecta à sessão",0],["WS sem sessão/Origin inválida recusado",0],["Sessões isoladas por projeto",0],["Nenhum processo órfão",0]],
+   risks:["PTY no CI","Memória do buffer"],blockers:[]},
+  {n:4,name:"Provider Integration",prio:"P0",status:"Não iniciado",progress:0,
+   goal:"Detectar e iniciar Claude Code e Codex pela plataforma.",
+   deliverables:[["ProviderAdapter claude-code, codex, ollama",0],["Endpoint /providers e doctor completo",0],["Abrir Claude/Codex no projeto",0]],
+   deps:["Fase 3"],
+   criteria:[["Ferramenta ausente indicada sem erro",0],["Nenhum arquivo de credencial lido",0],["CLIs iniciam no cwd do projeto",0]],
+   risks:["Mudanças de CLI entre versões"],blockers:[]},
+  {n:5,name:"Agent Monitor + Telemetria (SUG01)",prio:"P1",status:"Não iniciado",progress:0,
+   goal:"Ver agentes e subagentes trabalhando, com histórico.",
+   deliverables:[["Spike S-04 (fontes de eventos)",0],["AgentRun / SubagentRun / AgentEvent",0],["Painel em tempo real + histórico",0],["Telemetria básica",0]],
+   deps:["Fase 4"],
+   criteria:[["Distingue agente com terminal de subagente só com eventos",0],["Sem evento → INDISPONÍVEL, nunca inferido",0],["Payloads redigidos",0],["Fixtures de contrato por versão",0]],
+   risks:["R-01 formatos instáveis"],blockers:[]},
+  {n:6,name:"AI Quota Monitor (SUG02)",prio:"P1",status:"Não iniciado",progress:0,
+   goal:"Mostrar limites e renovações com honestidade sobre a origem do dado.",
+   deliverables:[["Spike S-05 (fontes de uso/limites)",0],["QuotaReading com categoria e frescor",0],["Painel compacto",0]],
+   deps:["Fase 4"],
+   criteria:[["Fonte, horário, categoria e frescor em todo valor",0],["Indisponível → INDISPONÍVEL com motivo",0],["Sem API não documentada ou scraping",0]],
+   risks:["R-02 pouca informação oficial"],blockers:[]},
+  {n:7,name:"Knowledge: RAG + Grafo",prio:"P1",status:"Não iniciado",progress:0,
+   goal:"Indexar projetos localmente e responder com referências verificáveis.",
+   deliverables:[["Spikes S-02 (Graphify) e S-03 (vetores/embeddings)",0],["EmbeddingProvider ONNX + Ollama",0],["VectorStore + exclusões + consulta",0],["CodeGraphProvider",0],["ADR-0006 aceito",0]],
+   deps:["Fase 2 (paralelizável com 3–6)"],
+   criteria:[["Um mecanismo de embeddings local validado",0],["Respostas citam arquivo e linhas",0],["Sensíveis nunca indexados",0],["Nenhuma chamada de rede externa",0],["Índices isolados e removíveis",0]],
+   risks:["R-04 Graphify/Python","R-05 CPU/RAM"],blockers:[]},
+  {n:8,name:"Hardening e Validação",prio:"—",status:"Não iniciado",progress:0,
+   goal:"Provar a Definition of MVP Done.",
+   deliverables:[["E2E das jornadas",0],["Instalação em Linux limpo",0],["Revisão de segurança completa",0],["Validação em projeto Angular + Spring Boot",0],["Relatório dos 12 itens da DoD",0]],
+   deps:["Fases 5, 6 e 7"],criteria:[["12 itens da DoD verificados",0]],
+   risks:["Problemas tardios de empacotamento"],blockers:[]},
+  {n:9,name:"MVP Release",prio:"—",status:"Não iniciado",progress:0,
+   goal:"Publicar v0.1.0.",
+   deliverables:[["0.1.0-next.N no canal next",0],["Promoção para latest",0],["Merge release → main + tag",0],["Notas de release",0]],
+   deps:["Fase 8"],criteria:[["Instalação via npm reproduz a jornada principal",0],["Gates HG-01, HG-02 e HG-03 aprovados",0]],
+   risks:["R-08 nome do pacote npm"],blockers:[]}
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const color = st => `var(${STATUS[st]})`;
+$("#updated").textContent = UPDATED;
+
+// Resumo
+const overall = Math.round(PHASES.reduce((a,p)=>a+p.progress,0)/PHASES.length);
+const current = PHASES.find(p=>p.status!=="Concluído") || PHASES[PHASES.length-1];
+const blockers = PHASES.flatMap(p=>p.blockers);
+const done = PHASES.filter(p=>p.status==="Concluído").length;
+$("#summary").innerHTML = `
+  <div class="tile"><div class="k">Progresso geral</div><div class="v">${overall}%</div><div class="bar"><span style="width:${overall}%"></span></div></div>
+  <div class="tile"><div class="k">Fase atual</div><div class="v">${current.n} · ${esc(current.name)}</div><div class="meta">${esc(current.status)}</div></div>
+  <div class="tile"><div class="k">Fases concluídas</div><div class="v">${done} / ${PHASES.length}</div></div>
+  <div class="tile"><div class="k">Bloqueios / pendências</div><div class="v">${blockers.length}</div><div class="meta">${blockers.map(esc).join("<br>")||"Nenhum"}</div></div>`;
+
+// Linha do tempo
+$("#timeline").innerHTML = PHASES.map(p=>`<a class="tl" href="#f${p.n}" style="text-decoration:none;color:inherit"><div class="dot" style="background:${color(p.status)}"></div>${p.n} · ${esc(p.name.split(" ")[0])}</a>`).join("");
+
+// Fases
+const list = (items, checklist=true) => `<ul>${items.map(i=>Array.isArray(i)?`<li class="${i[1]?"ok":""}">${esc(i[0])}</li>`:`<li class="plain">${esc(i)}</li>`).join("")}</ul>`;
+$("#phases").innerHTML = PHASES.map(p=>{
+  const items=[...p.deliverables,...p.criteria];
+  const checked=items.filter(i=>i[1]).length;
+  return `<details class="phase" id="f${p.n}" data-status="${esc(p.status)}" style="--c:${color(p.status)}" ${p.status==="Em validação"||p.status==="Em andamento"?"open":""}>
+  <summary>
+    <div class="num">${p.n}</div>
+    <div><div class="ttl">${esc(p.name)}</div><div class="meta">Prioridade ${esc(p.prio)} · ${checked}/${items.length} itens · ${p.progress}%</div></div>
+    <span class="pill">${esc(p.status)}</span>
+    <div class="pbar bar"><span style="width:${p.progress}%;background:${color(p.status)}"></span></div>
+  </summary>
+  <div class="body">
+    <div><h4>Objetivo</h4><p>${esc(p.goal)}</p></div>
+    <div><h4>Entregáveis</h4>${list(p.deliverables)}</div>
+    <div><h4>Critérios de aceite</h4>${list(p.criteria)}</div>
+    <div><h4>Dependências</h4>${list(p.deps)}</div>
+    <div><h4>Riscos</h4>${list(p.risks)}</div>
+    <div><h4>Bloqueios</h4>${p.blockers.length?`<ul>${p.blockers.map(b=>`<li class="plain block">${esc(b)}</li>`).join("")}</ul>`:"<p class='meta'>Nenhum</p>"}</div>
+  </div></details>`;
+}).join("");
+
+// Filtros
+const filters = ["Todos",...Object.keys(STATUS)];
+$("#filters").innerHTML = filters.map((f,i)=>`<button type="button" class="chip" aria-pressed="${i===0}" data-f="${esc(f)}">${esc(f)}</button>`).join("");
+$("#filters").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  document.querySelectorAll("#filters .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));
+  document.querySelectorAll(".phase").forEach(d=>{d.hidden = b.dataset.f!=="Todos" && d.dataset.status!==b.dataset.f;});
+});
+$("#expand").onclick=()=>document.querySelectorAll(".phase").forEach(d=>d.open=true);
+$("#collapse").onclick=()=>document.querySelectorAll(".phase").forEach(d=>d.open=false);
+$("#legend").innerHTML = Object.keys(STATUS).map(s=>`<span><i style="background:${color(s)}"></i>${esc(s)}</span>`).join("");
+
+// Tema
+const root=document.documentElement;
+try{const t=localStorage.getItem("devplan-theme"); if(t) root.dataset.theme=t;}catch(e){}
+$("#theme").onclick=()=>{
+  const dark = root.dataset.theme ? root.dataset.theme==="dark" : !matchMedia("(prefers-color-scheme: light)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try{localStorage.setItem("devplan-theme",root.dataset.theme);}catch(e){}
+};
+</script>
+</body>
+</html>
