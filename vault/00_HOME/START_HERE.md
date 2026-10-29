@@ -16,9 +16,9 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 7 — índice textual pronto; spikes de embeddings e grafo aguardam permissão |
+| Etapa atual | FASE 7 — índice textual integrado; spikes de embeddings e grafo concluídos, aguardam HG-07 |
 | Última decisão | Busca textual FTS5 como base do conhecimento (D-18) → [[DECISION_LOG]] |
-| Próxima ação | Permitir spikes S-02/S-03; revisar o PR da parte 1 |
+| Próxima ação | Decisão HG-07 sobre a recomendação dos spikes S-02/S-03 |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |
