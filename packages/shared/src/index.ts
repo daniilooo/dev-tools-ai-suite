@@ -284,8 +284,103 @@ export interface KnowledgeStatus {
   /** Arquivos alterados, novos ou removidos desde a indexação (só em `outdated`). */
   changedFiles: number;
   error: string | null;
-  /** Busca textual sempre disponível com índice; semântica depende de embeddings locais. */
-  semantic: { available: boolean; reason: string | null };
+  /** Busca semântica opcional (ADR-0006): ligada pelo humano, por projeto. */
+  semantic: SemanticStatus;
+  /** Grafo de código opcional via Graphify externo (ADR-0006). */
+  graph: CodeGraphStatus;
+}
+
+/** Mecanismos de embeddings locais aceitos (D-20). */
+export type SemanticProviderId = "ollama" | "transformers";
+
+export type SemanticState = "off" | "indexing" | "ready" | "failed";
+
+export interface SemanticStatus {
+  /** Há um mecanismo de embeddings utilizável agora (o escolhido ou algum, se desligada). */
+  available: boolean;
+  reason: string | null;
+  enabled: boolean;
+  provider: SemanticProviderId | null;
+  model: string | null;
+  state: SemanticState;
+  /** Trechos com vetor / total de trechos do índice textual. */
+  embedded: number;
+  total: number;
+  updatedAt: string | null;
+  error: string | null;
+}
+
+export interface SemanticProviderInfo {
+  id: SemanticProviderId;
+  label: string;
+  model: string;
+  available: boolean;
+  /** Por que não está disponível e como resolver (ex.: `ollama pull …`). */
+  reason: string | null;
+  /** Ligar exige consentimento para baixar o modelo (Transformers.js). */
+  downloadsModel: boolean;
+}
+
+export interface KnowledgeSemanticRequest {
+  enabled: boolean;
+  provider?: SemanticProviderId;
+  /** Obrigatório para provedores que baixam o modelo. */
+  consentModelDownload?: boolean;
+}
+
+export type CodeGraphState = "not_built" | "building" | "built" | "failed";
+
+export interface CodeGraphStatus {
+  available: boolean;
+  reason: string | null;
+  state: CodeGraphState;
+  nodes: number;
+  edges: number;
+  /** Repositórios analisados (raiz + aninhados). */
+  repos: number;
+  builtAt: string | null;
+  durationMs: number | null;
+  error: string | null;
+}
+
+export interface CodeGraphNode {
+  id: string;
+  label: string;
+  /** null = símbolo externo (biblioteca). */
+  filePath: string | null;
+  line: number | null;
+}
+
+export interface CodeGraphLink {
+  relation: string;
+  node: CodeGraphNode;
+  /** Onde a relação aparece no código. */
+  filePath: string | null;
+  line: number | null;
+}
+
+export interface CodeGraphImpact {
+  node: CodeGraphNode;
+  relation: string;
+  depth: number;
+}
+
+export interface CodeGraphQueryRequest {
+  symbol: string;
+  depth?: number;
+}
+
+export interface CodeGraphQueryResponse {
+  symbol: string;
+  node: CodeGraphNode | null;
+  /** Outros símbolos com o mesmo nome (escolha pelo `id`). */
+  candidates: CodeGraphNode[];
+  /** O que o símbolo usa. */
+  dependencies: CodeGraphLink[];
+  /** Quem usa o símbolo diretamente. */
+  dependents: CodeGraphLink[];
+  /** Quem pode ser afetado por uma mudança no símbolo (dependentes transitivos). */
+  impact: CodeGraphImpact[];
 }
 
 export interface KnowledgeHit {
@@ -297,15 +392,21 @@ export interface KnowledgeHit {
   snippet: string;
   /** O arquivo mudou ou sumiu desde a indexação: as linhas podem não corresponder mais. */
   stale: boolean;
+  /** Quais buscas encontraram o trecho. */
+  matchedBy: ("lexical" | "semantic")[];
 }
+
+export type KnowledgeQueryMode = "lexical" | "semantic" | "hybrid";
 
 export interface KnowledgeQueryRequest {
   query: string;
   limit?: number;
+  /** Padrão: híbrida quando há vetores prontos, senão textual. */
+  mode?: KnowledgeQueryMode;
 }
 
 export interface KnowledgeQueryResponse {
   query: string;
-  mode: "lexical";
+  mode: KnowledgeQueryMode;
   hits: KnowledgeHit[];
 }

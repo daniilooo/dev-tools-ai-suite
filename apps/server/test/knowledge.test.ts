@@ -1,14 +1,5 @@
 import type { KnowledgeQueryResponse, KnowledgeStatus, Project } from "@devtools/shared";
-import { execFileSync } from "node:child_process";
-import {
-  appendFileSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  realpathSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { appendFileSync, existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { Socket } from "node:net";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -16,50 +7,9 @@ import { exclusionFor } from "../src/modules/knowledge/exclusions.js";
 import { listProjectFiles } from "../src/modules/knowledge/indexer.js";
 import { KnowledgeService } from "../src/modules/knowledge/knowledge.service.js";
 import { FIXTURE_SECRET } from "./agent-fixtures.js";
+import { makeProject } from "./knowledge-fixtures.js";
 import { createTestApp, HOST, login, ORIGIN, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
-
-/** Projeto git com código, segredos, ruído, binário, arquivo grande e um repositório aninhado ignorado pela raiz. */
-function makeProject(): string {
-  const root = realpathSync(tempDir("devtools-know-"));
-  const git = (cwd: string, ...args: string[]) =>
-    execFileSync("git", ["-C", cwd, ...args], { stdio: "ignore" });
-  git(root, "init", "-q");
-  writeFileSync(join(root, ".gitignore"), "*.log\n/backend/\n");
-  mkdirSync(join(root, "src"));
-  writeFileSync(
-    join(root, "src", "pedido.service.ts"),
-    [
-      "// Serviço de pedidos",
-      "export class PedidoService {",
-      "  calcularTotalComDesconto(itens: number[]): number {",
-      "    return itens.reduce((a, b) => a + b, 0) * 0.9;",
-      "  }",
-      "}",
-      `const chave = "${FIXTURE_SECRET}";`,
-    ].join("\n"),
-  );
-  writeFileSync(join(root, "README.md"), "# Projeto\n\nDocumentação da reserva recorrente.\n");
-  writeFileSync(join(root, ".env"), `API_TOKEN=${FIXTURE_SECRET}\nsenhaDoBanco=palavraSecretaDoEnv\n`);
-  writeFileSync(join(root, ".env.example"), "API_TOKEN=\n");
-  mkdirSync(join(root, "secrets"));
-  writeFileSync(join(root, "secrets", "chave.txt"), "conteudoDaPastaSecrets\n");
-  writeFileSync(join(root, "servidor.pem"), "-----BEGIN CERTIFICATE-----\n");
-  writeFileSync(join(root, "debug.log"), "linhaDeLogIgnorada\n");
-  writeFileSync(join(root, "logo.png"), Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 0, 0]));
-  writeFileSync(join(root, "dados.bin.txt"), Buffer.from([0x41, 0, 0x42]));
-  writeFileSync(join(root, "grande.txt"), "x".repeat(1024 * 1024 + 1));
-  mkdirSync(join(root, "node_modules", "lib"), { recursive: true });
-  writeFileSync(join(root, "node_modules", "lib", "index.js"), "dependenciaDeTerceiros();\n");
-  const nested = join(root, "backend", "api");
-  mkdirSync(join(nested, "src"), { recursive: true });
-  git(nested, "init", "-q");
-  writeFileSync(
-    join(nested, "src", "ReservaController.java"),
-    "public class ReservaController {\n  // agendaRecorrente\n}\n",
-  );
-  return root;
-}
 
 describe("exclusões de indexação", () => {
   it("segue a lista padrão do Vault", () => {
@@ -238,7 +188,10 @@ describe("conhecimento no servidor", () => {
     ctx.db
       .prepare("INSERT INTO knowledge_indexes (project_id, state) VALUES (?, 'indexing')")
       .run(project.id);
-    new KnowledgeService(ctx.db, { get: () => project } as never, ctx.layout.indexes);
+    new KnowledgeService(ctx.db, { get: () => project } as never, ctx.layout.indexes, {
+      semantic: ctx.knowledge.semantic,
+      graph: ctx.knowledge.graph,
+    });
     const row = ctx.db
       .prepare("SELECT state, error FROM knowledge_indexes WHERE project_id = ?")
       .get(project.id);

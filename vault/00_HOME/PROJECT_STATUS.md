@@ -8,16 +8,16 @@ atualizado: 2026-10-29
 | Campo | Valor |
 |---|---|
 | Fase atual | **FASE 7 — Knowledge: RAG + Grafo** |
-| Status da fase | Em andamento |
-| Etapa | Parte 1 (índice textual) integrada (PR #9); spikes S-02/S-03 concluídos; recomendação aguarda HG-07 |
-| Branch atual | `docs/07-spikes-s02-s03` |
+| Status da fase | Em validação |
+| Etapa | Parte 2 (busca semântica, vetores e grafo de código) pronta; aguarda revisão do PR |
+| Branch atual | `feature/07-semantic-graph` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Conhecimento, parte 1: índice textual local por projeto e consulta com arquivo e linhas |
-| Última decisão | Fase 7 autorizada (D-17); busca textual FTS5 como base (D-18) |
+| Última entrega | Conhecimento, parte 2: busca semântica opcional (sqlite-vec, Ollama/Transformers.js), busca híbrida e grafo de código via Graphify |
+| Última decisão | HG-07 aprovado: sqlite-vec, embeddings opcionais e Graphify externo (D-20) |
 | Tarefas em andamento | Nenhuma |
-| Bloqueios | HG-07: adoção de `sqlite-vec`, embeddings opcionais e Graphify externo |
-| Próxima ação | Decisão HG-07 sobre a recomendação dos spikes ([[TECHNICAL_SPIKES]]) |
-| Testes atuais | 123 servidor + 13 web + 13 E2E, todos passando localmente |
+| Bloqueios | Nenhum |
+| Próxima ação | Revisão humana do PR da parte 2; depois, Fase 8 só com autorização (HG-14) |
+| Testes atuais | 132 servidor + 15 web + 14 E2E, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |
@@ -29,7 +29,7 @@ atualizado: 2026-10-29
 | 4 — Provider Integration | Concluído |
 | 5 — Agent Monitor + Telemetria | Concluído |
 | 6 — AI Quota Monitor | Concluído |
-| 7 — Knowledge (RAG + Grafo) | Em andamento |
+| 7 — Knowledge (RAG + Grafo) | Em validação |
 | 8 e 9 | Não iniciado |
 
 ## Hipóteses abertas

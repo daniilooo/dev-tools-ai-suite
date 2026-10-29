@@ -5,6 +5,7 @@ import type { ApiErrorBody } from "@devtools/shared";
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AppConfig } from "./core/config.js";
 import type { DataDirLayout } from "./core/data-dir.js";
@@ -33,7 +34,13 @@ import { prepareClaudeStatusLine, readClaudeStatusLine } from "./modules/quota/c
 import { QuotaMonitor } from "./modules/quota/quota-monitor.js";
 import { registerQuotaRoutes } from "./modules/quota/quota.routes.js";
 import { registerEventRoutes } from "./modules/system/events.routes.js";
+import { GraphifyExtractor } from "./modules/knowledge/code-graph.js";
+import type { GraphExtractor } from "./modules/knowledge/code-graph.js";
+import { CodeGraphService } from "./modules/knowledge/code-graph.service.js";
+import { OllamaEmbeddings, TransformersEmbeddings } from "./modules/knowledge/embeddings.js";
+import type { EmbeddingProvider } from "./modules/knowledge/embeddings.js";
 import { KnowledgeService } from "./modules/knowledge/knowledge.service.js";
+import { SemanticService } from "./modules/knowledge/semantic.service.js";
 import { registerKnowledgeRoutes } from "./modules/knowledge/knowledge.routes.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
@@ -63,6 +70,10 @@ export interface AppDeps {
   quotaScanIntervalMs?: number;
   /** Detecção de provedores (testes injetam adapters falsos). */
   providers?: ProvidersService;
+  /** Mecanismos de embeddings (testes injetam um falso). Padrão: Ollama local e Transformers.js. */
+  embeddings?: EmbeddingProvider[];
+  /** Extrator do grafo de código (testes injetam um falso). Padrão: Graphify externo. */
+  graphExtractor?: GraphExtractor;
   /** Ajustes do gerenciador de terminais (retenção, limites) — usado em testes. */
   terminalOptions?: Partial<Omit<TerminalManagerOptions, "backend" | "backendError" | "repository">>;
 }
@@ -128,15 +139,32 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   registerSessionRoutes(server, { codes, sessions });
   registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals, providers });
   registerProviderRoutes(server, providers);
-  const knowledge = new KnowledgeService(deps.db, projects, deps.layout.indexes);
+  const knowledgeConfig = deps.config.knowledge;
+  const knowledge = new KnowledgeService(deps.db, projects, deps.layout.indexes, {
+    semantic: new SemanticService(
+      deps.db,
+      deps.embeddings ?? [
+        new OllamaEmbeddings(knowledgeConfig.ollamaUrl, knowledgeConfig.ollamaEmbedModel),
+        new TransformersEmbeddings(deps.layout.addons, deps.layout.models, knowledgeConfig.transformersModel),
+      ],
+      deps.layout.indexes,
+    ),
+    graph: new CodeGraphService(
+      deps.db,
+      projects,
+      deps.layout.graphs,
+      deps.graphExtractor ??
+        new GraphifyExtractor(knowledgeConfig.graphifyBin, join(deps.layout.graphs, ".home")),
+    ),
+  });
   registerProjectRoutes(server, projects, {
     onRemoved: async (id) => {
       await terminals.closeProject(id);
-      await knowledge.remove(id, { checkProject: false });
+      await knowledge.removeAll(id);
     },
   });
   registerKnowledgeRoutes(server, knowledge);
-  server.addHook("onClose", async () => knowledge.idle());
+  server.addHook("onClose", async () => knowledge.shutdown());
   registerTerminalRoutes(server, { terminals, projects, providers });
 
   const agents = new AgentMonitor({

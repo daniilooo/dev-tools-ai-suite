@@ -22,8 +22,9 @@ Classificação obrigatória de cada fonte (RN-03):
 | Codex — login | Provedores, doctor | `codex login status` | A | baixo | ✅ Fase 4 (0.165.x) |
 | Codex — eventos | Agent Monitor | sessões locais (`sessions/…/rollout-*.jsonl`) | B | médio | ✅ Fase 5 (0.165.0) |
 | Codex — uso/limites | Quota | `rate_limits` em `token_count` das sessões locais | B | médio (formato muda) | ✅ Fase 6 (0.165.0) |
-| Ollama | detecção; embeddings opcionais | `ollama --version` + `GET 127.0.0.1:11434/api/version` | A | baixo | ✅ detecção Fase 4; embeddings Fase 7 |
-| Graphify | grafo de código | CLI como processo externo | B (a validar) | médio (Python, não instalado) | spike S-02 |
+| Ollama | detecção; embeddings opcionais | `ollama --version` + `GET 127.0.0.1:11434/api/version`; embeddings via `GET /api/tags` e `POST /api/embed` (só loopback) | A | baixo | ✅ detecção Fase 4; embeddings Fase 7 (modelo padrão `embeddinggemma`, baixado pelo humano com `ollama pull`) |
+| Transformers.js | embeddings opcionais | complemento instalado pelo humano em `<dados>/addons`; modelo `Xenova/multilingual-e5-small` baixado para `<dados>/models` após consentimento | A | médio (548 MB de runtime ONNX) | ✅ Fase 7 |
+| Graphify | grafo de código | `graphify extract <repo> --code-only --no-cluster --out <dados>` por repositório (raiz e aninhados); `DEVTOOLS_GRAPHIFY_BIN` | B | médio (Python, instalado pelo humano) | ✅ Fase 7 (testado com 0.9.x) |
 | GitHub | desenvolvimento deste repo | `gh` CLI | A | baixo | — |
 
 ## Regras para cada adapter

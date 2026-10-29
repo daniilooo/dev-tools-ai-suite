@@ -64,7 +64,7 @@ async function candidateFiles(root: string): Promise<string[]> {
   return [...all].sort();
 }
 
-function nestedRepos(root: string, maxDepth = 3): string[] {
+export function nestedRepos(root: string, maxDepth = 3): string[] {
   const found: string[] = [];
   const visit = (rel: string, depth: number) => {
     if (depth > maxDepth) return;

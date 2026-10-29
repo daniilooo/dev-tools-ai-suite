@@ -22,7 +22,8 @@ tags: [seguranca]
 | Outro usuário local lê segredo | arquivo 0600 no home do usuário | RN-01 |
 | Injeção de comando em processos externos | `spawn` com array, sem shell | Convenções |
 | Vazamento de segredos em transcrições/índices | redator + [[INDEXING_EXCLUSIONS]] | RN-02/RN-04 |
-| Envio de código para fora | embeddings locais; externos só com opt-in (HG-13); índice textual sem nenhuma chamada de rede (teste vigia `fetch` e `Socket.connect`) | INV-04 |
+| Envio de código para fora | índice textual sem nenhuma chamada de rede (teste vigia `fetch` e `Socket.connect`); embeddings só locais: Ollama aceito apenas em loopback (`DEVTOOLS_OLLAMA_URL` validada) e Transformers.js no próprio processo; busca semântica desligada por padrão e ligada pelo humano por projeto; download do modelo só com consentimento explícito (400 sem ele); Graphify só com `--code-only`, ambiente sem chaves de API e `HOME` isolado; externos só com opt-in (HG-13) | INV-04 |
+| Escrita no projeto por ferramentas externas | Graphify roda com `--out` no diretório de dados (nunca grava `graphify-out/` no projeto); teste confere que o projeto fica igual | INV-05 |
 | Segredo ou arquivo sensível no índice | exclusões padrão antes da leitura, redator antes de gravar, índice 0600 por projeto; teste procura o segredo nos bytes do índice | RN-02, RN-04 |
 | Leitura de credenciais de provedores | adapters só executam comandos oficiais; `fs` bloqueado por lint no módulo `integrations`; teste com arquivos-isca e allowlist de comandos | INV-02 |
 | Leitura indevida de arquivos pelo Agent Monitor | allowlist de padrões de transcrição/sessão relativa às raízes; links simbólicos recusados; caminho real dentro da raiz; credenciais e configs nunca casam (teste com arquivos-isca e `..`) | ADR-0013 |

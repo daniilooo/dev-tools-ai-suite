@@ -87,6 +87,8 @@ stateDiagram-v2
 ```
 Valores (`KnowledgeIndexState`): `not_indexed`, `indexing`, `indexed`, `outdated` (calculado ao consultar o estado: arquivo novo, alterado ou removido desde a indexação), `failed`. Reindexar mantém o índice anterior consultável até o novo terminar. Implementação: `apps/server/src/modules/knowledge/knowledge.service.ts`.
 
+Busca semântica (`SemanticState`): `off` → (humano liga) `indexing` → `ready`; falha → `failed`; reindexar o texto volta a `indexing` só para os trechos novos; desligar ou remover o índice volta a `off` e apaga os vetores; reinício durante o cálculo → `failed`. Grafo (`CodeGraphState`): `not_built` → `building` → `built` | `failed`; remover → `not_built`; reinício durante a geração → `failed`.
+
 ## Alteração de configuração de projeto (RN-05)
 ```mermaid
 stateDiagram-v2
