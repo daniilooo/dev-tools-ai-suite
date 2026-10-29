@@ -3,6 +3,7 @@ import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createTestApp, HOST, login, ORIGIN, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
+import { detectStack } from "../src/modules/projects/stack-detection.js";
 
 const contexts: TestContext[] = [];
 afterEach(async () => {
@@ -30,6 +31,23 @@ function fakeProject(files: Record<string, string>): string {
 }
 
 describe("projetos", () => {
+  it("detecta stack em subpastas (backend/ e frontend/), ignorando dependências e pastas ocultas", () => {
+    const root = tempDir("devtools-umbrella-");
+    const files: Record<string, string> = {
+      "backend/service/pom.xml": "<artifactId>spring-boot-starter-parent</artifactId>",
+      "frontend/app/angular.json": "{}",
+      "frontend/app/package.json": JSON.stringify({ dependencies: { "@angular/core": "22.0.0" } }),
+      "node_modules/lib/go.mod": "module x",
+      ".cache/Cargo.toml": "",
+      "a/b/c/pyproject.toml": "",
+    };
+    for (const [rel, content] of Object.entries(files)) {
+      mkdirSync(join(root, rel, ".."), { recursive: true });
+      writeFileSync(join(root, rel), content);
+    }
+    expect(detectStack(root)).toEqual(["angular", "java-maven", "node", "spring-boot"]);
+  });
+
   it("cadastra diretório, detecta stack Angular + Spring Boot e lista", async () => {
     const { call } = await setup();
     const path = fakeProject({
