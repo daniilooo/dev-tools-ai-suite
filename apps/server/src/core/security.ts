@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { forbidden, unauthorized } from "./errors.js";
-import type { InstallSecret } from "./secret.js";
+import type { CliTokenVerifier } from "./cli-auth.js";
+import { CLI_AUTH_SCHEME } from "./cli-auth.js";
 import type { Session, SessionManager } from "./sessions.js";
 import { SESSION_COOKIE } from "./sessions.js";
 import { safeEqual } from "./secret.js";
@@ -8,20 +9,33 @@ import { safeEqual } from "./secret.js";
 const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 export const CSRF_HEADER = "x-csrf-token";
 
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 /** Rotas de API acessíveis sem sessão. */
 const PUBLIC_API_ROUTES = new Set(["POST /api/v1/session/exchange"]);
 
 declare module "fastify" {
   interface FastifyRequest {
     session: Session | null;
-    /** true quando autenticado pelo CLI local via segredo de instalação. */
-    viaInstallSecret: boolean;
+    /** true quando autenticado pelo CLI local (token HMAC descartável). */
+    viaCli: boolean;
   }
 }
 
 export interface SecurityOptions {
   port: number;
-  secret: InstallSecret;
+  cliTokens: CliTokenVerifier;
   sessions: SessionManager;
 }
 
@@ -29,7 +43,7 @@ export interface SecurityOptions {
  * Proteções do servidor local (ADR-0007):
  * - Host restrito a 127.0.0.1/localhost na porta configurada (anti DNS rebinding);
  * - Origin, quando presente, deve ser a própria origem (anti CSRF / CSWSH);
- * - toda rota /api exige sessão (cookie assinado) ou Bearer do CLI local;
+ * - toda rota /api exige sessão (cookie assinado) ou token descartável do CLI local;
  * - métodos com efeito colateral via cookie exigem header anti-CSRF.
  * Sem CORS: nenhum header Access-Control-* é emitido.
  */
@@ -38,7 +52,7 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
   const allowedOrigins = new Set([...allowedHosts].map((host) => `http://${host}`));
 
   app.decorateRequest("session", null);
-  app.decorateRequest("viaInstallSecret", false);
+  app.decorateRequest("viaCli", false);
 
   app.addHook("onRequest", async (request, reply) => {
     const host = request.headers.host;
@@ -61,16 +75,17 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
     reply.header("X-Content-Type-Options", "nosniff");
     reply.header("Referrer-Policy", "no-referrer");
     reply.header("X-Frame-Options", "DENY");
+    reply.header("Content-Security-Policy", CONTENT_SECURITY_POLICY);
 
     if (!request.url.startsWith("/api/")) return;
 
     const routeKey = `${request.method} ${request.url.split("?")[0]}`;
     if (PUBLIC_API_ROUTES.has(routeKey)) return;
 
-    const bearer = bearerToken(request);
-    if (bearer !== null) {
-      if (!options.secret.matchesBearer(bearer)) throw unauthorized();
-      request.viaInstallSecret = true;
+    const cliToken = cliTokenOf(request);
+    if (cliToken !== null) {
+      if (!options.cliTokens.verify(cliToken)) throw unauthorized();
+      request.viaCli = true;
       return;
     }
 
@@ -87,8 +102,9 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
   });
 }
 
-function bearerToken(request: FastifyRequest): string | null {
+function cliTokenOf(request: FastifyRequest): string | null {
   const header = request.headers.authorization;
-  if (typeof header !== "string" || !header.startsWith("Bearer ")) return null;
-  return header.slice("Bearer ".length).trim();
+  if (typeof header !== "string") return null;
+  if (!header.startsWith(`${CLI_AUTH_SCHEME} `)) return "";
+  return header.slice(CLI_AUTH_SCHEME.length + 1).trim();
 }

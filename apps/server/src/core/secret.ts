@@ -7,7 +7,7 @@ const SECRET_BYTES = 32;
 /**
  * Segredo de instalação (RN-01 / ADR-0007): gerado uma única vez, arquivo 0600,
  * nunca exibido, nunca em URL, log ou bundle. Usado para assinar sessões e
- * autenticar o próprio CLI junto ao servidor.
+ * tokens descartáveis do CLI (cli-auth.ts); o valor bruto nunca trafega.
  */
 export class InstallSecret {
   private constructor(private readonly value: Buffer) {}
@@ -32,19 +32,9 @@ export class InstallSecret {
     return createHmac("sha256", this.value).update(data).digest("base64url");
   }
 
-  /** Comparação em tempo constante com um token Bearer recebido do CLI. */
-  matchesBearer(candidate: string): boolean {
-    return safeEqual(candidate, this.value.toString("hex"));
-  }
-
-  /** Valor bruto para o CLI local; nunca deve sair do processo por outro caminho. */
-  toBearer(): string {
+  /** Valor bruto, usado apenas pelo redator de logs para mascará-lo caso apareça por acidente. */
+  redactionValue(): string {
     return this.value.toString("hex");
-  }
-
-  /** Usado pelo redator de logs para mascarar o segredo caso apareça por acidente. */
-  isContainedIn(text: string): boolean {
-    return text.includes(this.value.toString("hex"));
   }
 }
 

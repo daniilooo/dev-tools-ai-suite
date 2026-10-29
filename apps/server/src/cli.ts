@@ -5,6 +5,7 @@ import { createWriteStream } from "node:fs";
 import { join } from "node:path";
 import { buildApp } from "./app.js";
 import { openBrowser } from "./browser.js";
+import { cliAuthorizationHeader } from "./core/cli-auth.js";
 import { loadConfig } from "./core/config.js";
 import type { AppConfig } from "./core/config.js";
 import { ensureDataDir } from "./core/data-dir.js";
@@ -92,12 +93,12 @@ async function start(config: AppConfig, open: boolean): Promise<void> {
   process.once("SIGTERM", shutdown);
 }
 
-/** Servidor já rodando nesta porta: pede um novo código usando o segredo local. */
+/** Servidor já rodando nesta porta: pede um novo código com um token descartável assinado pelo segredo local. */
 async function attachToRunningServer(base: string, secret: InstallSecret, open: boolean): Promise<void> {
   try {
     const response = await fetch(`${base}/api/v1/session/launch-code`, {
       method: "POST",
-      headers: { authorization: `Bearer ${secret.toBearer()}` },
+      headers: { authorization: cliAuthorizationHeader(secret) },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const code = (await response.json()) as { token: string; short: string };

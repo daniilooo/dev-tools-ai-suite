@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import type { AppConfig } from "./core/config.js";
 import type { DataDirLayout } from "./core/data-dir.js";
 import type { Db } from "./core/database.js";
+import { CliTokenVerifier } from "./core/cli-auth.js";
 import { AppError } from "./core/errors.js";
 import { LaunchCodeStore } from "./core/launch-codes.js";
 import { redactingStream } from "./core/redact.js";
@@ -44,7 +45,7 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   const server = Fastify({
     logger: {
       level: deps.config.logLevel,
-      stream: redactingStream(deps.logStream ?? process.stdout, () => [deps.secret.toBearer()]),
+      stream: redactingStream(deps.logStream ?? process.stdout, () => [deps.secret.redactionValue()]),
       redact: ["req.headers.cookie", "req.headers.authorization", "req.headers['x-csrf-token']"],
     },
     trustProxy: false,
@@ -67,14 +68,17 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   });
 
   await server.register(fastifyCookie);
-  registerSecurity(server, { port: deps.config.port, secret: deps.secret, sessions });
+  registerSecurity(server, {
+    port: deps.config.port,
+    cliTokens: new CliTokenVerifier(deps.secret),
+    sessions,
+  });
 
   registerSessionRoutes(server, { codes, sessions });
   registerSystemRoutes(server, { layout: deps.layout, db: deps.db });
   registerProjectRoutes(server, new ProjectsService(new ProjectsRepository(deps.db)));
 
-  const publicDir =
-    deps.publicDir === undefined ? fileURLToPath(new URL("./public", import.meta.url)) : deps.publicDir;
+  const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {
     await server.register(fastifyStatic, { root: publicDir, index: ["index.html"] });
     // SPA: rotas que não são API nem arquivo devolvem o index.html.
@@ -95,4 +99,13 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   }
 
   return { server, codes };
+}
+
+/** dist/public no pacote publicado; em desenvolvimento (tsx), o build de apps/web. */
+function defaultPublicDir(): string | null {
+  const candidates = [
+    new URL("./public", import.meta.url),
+    new URL("../../web/dist/web/browser", import.meta.url),
+  ];
+  return candidates.map((url) => fileURLToPath(url)).find((dir) => existsSync(dir)) ?? null;
 }

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { cliAuthorizationHeader, createCliToken } from "../src/core/cli-auth.js";
 import { createTestApp, HOST, login, ORIGIN } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
@@ -48,14 +49,18 @@ describe("autenticação local (ADR-0007, INV-01)", () => {
     expect((await get("/api/v1/health", { cookie })).statusCode).toBe(200);
   });
 
-  it("aceita o Bearer do CLI local e recusa Bearer inválido", async () => {
-    const ok = await get("/api/v1/health", { authorization: `Bearer ${ctx.secret.toBearer()}` });
-    expect(ok.statusCode).toBe(200);
-    const bad = await get("/api/v1/health", { authorization: `Bearer ${"0".repeat(64)}` });
-    expect(bad.statusCode).toBe(401);
+  it("aceita token descartável do CLI uma única vez e recusa credenciais inválidas", async () => {
+    const header = cliAuthorizationHeader(ctx.secret);
+    expect((await get("/api/v1/health", { authorization: header })).statusCode).toBe(200);
+    expect((await get("/api/v1/health", { authorization: header })).statusCode, "replay").toBe(401);
+    const expired = `DevtoolsCli ${createCliToken(ctx.secret, Date.now() - 60_000)}`;
+    expect((await get("/api/v1/health", { authorization: expired })).statusCode, "expirado").toBe(401);
+    const raw = `Bearer ${readFileSync(ctx.layout.secretFile, "utf8")}`;
+    expect((await get("/api/v1/health", { authorization: raw })).statusCode, "segredo bruto").toBe(401);
+    expect((await get("/api/v1/health", { authorization: "DevtoolsCli 1.2.3" })).statusCode).toBe(401);
   });
 
-  it("só emite novo código de acesso para o CLI (Bearer), não para sessão do navegador", async () => {
+  it("só emite novo código de acesso para o CLI, não para sessão do navegador", async () => {
     const { cookie, csrf } = await login(ctx);
     const viaBrowser = await ctx.server.inject({
       method: "POST",
@@ -66,7 +71,7 @@ describe("autenticação local (ADR-0007, INV-01)", () => {
     const viaCli = await ctx.server.inject({
       method: "POST",
       url: "/api/v1/session/launch-code",
-      headers: { host: HOST, authorization: `Bearer ${ctx.secret.toBearer()}` },
+      headers: { host: HOST, authorization: cliAuthorizationHeader(ctx.secret) },
     });
     expect(viaCli.statusCode).toBe(200);
   });
@@ -134,6 +139,13 @@ describe("Host, Origin e CSRF", () => {
     expect(ok.statusCode).toBe(201);
   });
 
+  it("aplica Content-Security-Policy restritiva", async () => {
+    const csp = String((await get("/")).headers["content-security-policy"]);
+    expect(csp).toContain("script-src 'self'");
+    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
+  });
+
   it("não emite cabeçalhos CORS", async () => {
     const { cookie } = await login(ctx);
     const response = await get("/api/v1/health", { cookie, origin: ORIGIN });
@@ -142,11 +154,11 @@ describe("Host, Origin e CSRF", () => {
 });
 
 describe("segredo de instalação nunca vaza", () => {
-  it("não aparece em respostas nem em logs, mesmo usado como Bearer", async () => {
-    const bearer = ctx.secret.toBearer();
+  it("não aparece em respostas nem em logs", async () => {
+    const bearer = ctx.secret.redactionValue();
     const { cookie } = await login(ctx);
     const bodies = [
-      (await get("/api/v1/health", { authorization: `Bearer ${bearer}` })).body,
+      (await get("/api/v1/health", { authorization: cliAuthorizationHeader(ctx.secret) })).body,
       (await get("/api/v1/session", { cookie })).body,
       (await get("/api/v1/doctor", { cookie })).body,
     ];

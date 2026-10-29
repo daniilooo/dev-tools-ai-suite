@@ -42,9 +42,9 @@ export function registerSessionRoutes(
     return toResponse(request.session);
   });
 
-  // Usado pelo CLI (Bearer do segredo) quando o servidor já está rodando.
+  // Usado pelo CLI (token HMAC descartável) quando o servidor já está rodando.
   app.post("/api/v1/session/launch-code", async (request) => {
-    if (!request.viaInstallSecret) throw unauthorized();
+    if (!request.viaCli) throw unauthorized();
     const code = deps.codes.issue();
     return { token: code.token, short: code.short, expiresAt: new Date(code.expiresAt).toISOString() };
   });

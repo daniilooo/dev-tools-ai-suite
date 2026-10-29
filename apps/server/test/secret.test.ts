@@ -17,7 +17,7 @@ describe("InstallSecret", () => {
     }
     expect(readFileSync(layout.secretFile, "utf8")).toMatch(/^[0-9a-f]{64}$/);
     const second = InstallSecret.loadOrCreate(layout.secretFile);
-    expect(second.toBearer()).toBe(first.toBearer());
+    expect(second.redactionValue()).toBe(first.redactionValue());
   });
 
   it.runIf(posix)("restringe permissões abertas demais", () => {
@@ -28,11 +28,10 @@ describe("InstallSecret", () => {
     expect(statSync(layout.secretFile).mode & 0o777).toBe(0o600);
   });
 
-  it("compara Bearer em tempo constante", () => {
-    const layout = ensureDataDir(tempDir());
-    const secret = InstallSecret.loadOrCreate(layout.secretFile);
-    expect(secret.matchesBearer(secret.toBearer())).toBe(true);
-    expect(secret.matchesBearer("x".repeat(64))).toBe(false);
-    expect(secret.matchesBearer("")).toBe(false);
+  it("produz HMAC determinístico por segredo", () => {
+    const a = InstallSecret.loadOrCreate(ensureDataDir(tempDir()).secretFile);
+    const b = InstallSecret.loadOrCreate(ensureDataDir(tempDir()).secretFile);
+    expect(a.hmac("x")).toBe(a.hmac("x"));
+    expect(a.hmac("x")).not.toBe(b.hmac("x"));
   });
 });
