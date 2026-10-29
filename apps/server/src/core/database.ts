@@ -84,6 +84,22 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX idx_agent_events_run ON agent_events(run_id);
     `,
   },
+  {
+    version: 4,
+    description: "cria tabela de estado dos índices de conhecimento",
+    up: `
+      CREATE TABLE knowledge_indexes (
+        project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,
+        state TEXT NOT NULL,
+        files INTEGER NOT NULL DEFAULT 0,
+        chunks INTEGER NOT NULL DEFAULT 0,
+        skipped_json TEXT NOT NULL DEFAULT '{}',
+        indexed_at TEXT,
+        duration_ms INTEGER,
+        error TEXT
+      );
+    `,
+  },
 ];
 
 export function openDatabase(file: string): Db {

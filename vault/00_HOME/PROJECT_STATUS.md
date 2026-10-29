@@ -7,17 +7,17 @@ atualizado: 2026-10-29
 
 | Campo | Valor |
 |---|---|
-| Fase atual | **FASE 6 — AI Quota Monitor (SUG02)** |
-| Status da fase | Em validação |
-| Etapa | Implementado; PR para `release` e revisão humana |
-| Branch atual | `feature/06-quota-monitor` |
+| Fase atual | **FASE 7 — Knowledge: RAG + Grafo** |
+| Status da fase | Em andamento |
+| Etapa | Parte 1 (índice textual) pronta; spikes S-02/S-03 aguardam permissão para instalar pacotes |
+| Branch atual | `feature/07-knowledge` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Quota Monitor: janelas de 5 h e semanal do Claude Code (status line da suíte) e do Codex (sessões locais), com fonte, horário, categoria e frescor |
-| Última decisão | Fase 6 autorizada (D-14); fontes das cotas (ADR-0014, D-15) |
+| Última entrega | Conhecimento, parte 1: índice textual local por projeto e consulta com arquivo e linhas |
+| Última decisão | Fase 7 autorizada (D-17); busca textual FTS5 como base (D-18) |
 | Tarefas em andamento | Nenhuma |
-| Bloqueios | Nenhum |
-| Próxima ação | Revisão humana e merge do PR da Fase 6 |
-| Testes atuais | 115 servidor + 11 web + 12 E2E, todos passando localmente |
+| Bloqueios | Spikes S-02 (Graphify) e S-03 (vetores/embeddings): instalar pacotes externos exige permissão do humano |
+| Próxima ação | Humano permite os spikes; revisão do PR da parte 1 |
+| Testes atuais | 123 servidor + 13 web + 13 E2E, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |
@@ -28,8 +28,9 @@ atualizado: 2026-10-29
 | 3 — Integrated Terminal | Concluído |
 | 4 — Provider Integration | Concluído |
 | 5 — Agent Monitor + Telemetria | Concluído |
-| 6 — AI Quota Monitor | Em validação |
-| 7 a 9 | Não iniciado |
+| 6 — AI Quota Monitor | Concluído |
+| 7 — Knowledge (RAG + Grafo) | Em andamento |
+| 8 e 9 | Não iniciado |
 
 ## Hipóteses abertas
 - **H-01:** sem prazo fixo; roadmap guiado por fases, não por datas. Dedicação semanal não informada. → [[INTAKE_RECORD]]

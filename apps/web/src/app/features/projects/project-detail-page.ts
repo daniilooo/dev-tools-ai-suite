@@ -83,8 +83,11 @@ import { StackChips } from "./stack-chips";
             <p class="text-muted">Carregando…</p>
           }
         </div>
-        <div class="card p-4 text-sm text-muted md:col-span-2">
-          O conhecimento do projeto fica disponível a partir da fase 7.
+        <div class="card flex flex-wrap items-center justify-between gap-2 p-4 text-sm md:col-span-2">
+          <span class="text-muted">Índice local do projeto para consultas com arquivo e linhas.</span>
+          <a class="btn" routerLink="/conhecimento" [queryParams]="{ projeto: p.id }"
+            >Consultar conhecimento</a
+          >
         </div>
       </section>
     }

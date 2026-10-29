@@ -6,6 +6,8 @@ import type {
   CreateTerminalRequest,
   DoctorReport,
   HealthResponse,
+  KnowledgeQueryResponse,
+  KnowledgeStatus,
   Project,
   ProvidersResponse,
   QuotaResponse,
@@ -70,6 +72,28 @@ export class ApiService {
 
   agentRun(id: string): Observable<AgentRunDetail> {
     return this.http.get<AgentRunDetail>(`/api/v1/agents/runs/${encodeURIComponent(id)}`);
+  }
+
+  knowledge(projectId: string): Observable<KnowledgeStatus> {
+    return this.http.get<KnowledgeStatus>(`/api/v1/projects/${encodeURIComponent(projectId)}/knowledge`);
+  }
+
+  indexKnowledge(projectId: string): Observable<KnowledgeStatus> {
+    return this.http.post<KnowledgeStatus>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/index`,
+      {},
+    );
+  }
+
+  removeKnowledge(projectId: string): Observable<void> {
+    return this.http.delete<void>(`/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/index`);
+  }
+
+  queryKnowledge(projectId: string, query: string): Observable<KnowledgeQueryResponse> {
+    return this.http.post<KnowledgeQueryResponse>(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/knowledge/query`,
+      { query },
+    );
   }
 
   quota(): Observable<QuotaResponse> {

@@ -19,8 +19,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 3 | Integrated Terminal (SUG03) | P0 | Concluído | 100% |
 | 4 | Provider Integration | P0 | Concluído | 100% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Concluído | 100% |
-| 6 | AI Quota Monitor (SUG02) | P1 | Em validação | 90% |
-| 7 | Knowledge (RAG + Grafo) | P1 | Não iniciado | 0% |
+| 6 | AI Quota Monitor (SUG02) | P1 | Concluído | 100% |
+| 7 | Knowledge (RAG + Grafo) | P1 | Em andamento | 40% |
 | 8 | Hardening e Validação | — | Não iniciado | 0% |
 | 9 | MVP Release | — | Não iniciado | 0% |
 
@@ -158,7 +158,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-01 (formatos instáveis); possível necessidade de instalar hooks no projeto (RN-05, autorização).
 
 ## FASE 6 — AI Quota Monitor / SUG02 (P1)
-**Status:** Em validação — implementação na branch `feature/06-quota-monitor`; falta CI, revisão humana e merge
+**Status:** Concluído — PR #8 aprovado e mergeado em `release` em 2026-10-29 (merge `693e378`)
 - **Objetivo:** mostrar limites e renovações com honestidade sobre a origem do dado.
 - **Escopo:** spike **S-05** (fontes de uso/limites) · `QuotaReading` com categoria e frescor · agendamento periódico · UI compacta.
 - **Entregáveis:**
@@ -178,17 +178,27 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 
 ## FASE 7 — Knowledge: RAG + Grafo (P1)
-**Status:** Não iniciado
+**Status:** Em andamento — parte 1 (índice textual) na branch `feature/07-knowledge`; spikes S-02/S-03 bloqueados até o humano permitir instalar pacotes externos para o benchmark
 - **Objetivo:** indexar projetos localmente e responder consultas com referências verificáveis.
 - **Escopo:** spikes **S-02** (Graphify) e **S-03** (vetores + embeddings) · `EmbeddingProvider` (ONNX, Ollama) · `VectorStore` · exclusões · chunking · consulta com referências · remover/reconstruir índice · `CodeGraphProvider`.
-- **Entregáveis:** indexação e consulta no dashboard; ADR-0006 **Aceito**.
+- **Entregáveis:**
+  - [x] Módulo `knowledge`: listagem pelo git (`.gitignore` e repositórios aninhados), exclusões padrão, limite de 1 MiB, binários, redação de segredos, trechos de 40 linhas
+  - [x] Índice textual FTS5 por projeto (`indexes/<projeto>.db`, 0600), troca atômica, estado `outdated`, remoção do índice e remoção junto com o projeto
+  - [x] Rotas `GET/POST/DELETE /projects/:id/knowledge…` e consulta com arquivo, linhas e trecho
+  - [x] Tela **Conhecimento** (indexar, estado, exclusões por motivo, consulta com destaque)
+  - [ ] Spike S-02 (Graphify) — instalação bloqueada: precisa de permissão do humano (pacote PyPI `graphifyy`)
+  - [ ] Spike S-03 (sqlite-vec × LanceDB + embeddings ONNX) — instalação bloqueada: precisa de permissão e de HG-07
+  - [ ] `EmbeddingProvider` + `VectorStore` (busca semântica) e `CodeGraphProvider`
+  - [ ] ADR-0006 **Aceito**
+- **Resultado parcial (2026-10-29):** repositório Angular + Spring Boot real da máquina de referência (`jinsei`, com repositórios aninhados): 2.090 arquivos, 7.197 trechos em 7,2 s, índice de 28 MB, ~120 MB de RAM, consultas em < 5 ms. 123 testes no servidor, 13 no dashboard e 13 E2E.
 - **Dependências:** Fase 2 (pode correr em paralelo a 3–6).
 - **Critérios de aceite:**
-  - [ ] Pelo menos um mecanismo de embeddings local validado.
-  - [ ] Respostas citam arquivo e linhas existentes.
-  - [ ] Arquivos sensíveis nunca indexados (teste).
-  - [ ] Nenhuma chamada de rede externa durante indexação (teste).
-  - [ ] Índices isolados por projeto; remoção funciona.
+  - [ ] Pelo menos um mecanismo de embeddings local validado (aguarda S-03).
+  - [x] Respostas citam arquivo e linhas existentes (`knowledge.test.ts`, E2E).
+  - [x] Arquivos sensíveis nunca indexados (teste com `.env`, `secrets/`, `.pem` e segredo no código redigido).
+  - [x] Nenhuma chamada de rede externa durante indexação (teste com `fetch` e `Socket.connect` vigiados).
+  - [x] Índices isolados por projeto; remoção funciona.
+- **Decisões da fase:** D-17 (fase autorizada), D-18 (busca textual FTS5 como base), D-19 (repositórios aninhados entram no índice).
 - **DoD:** indexação de um repositório Angular + Spring Boot real em tempo aceitável na máquina de referência.
 - **Riscos:** R-04 (Graphify/Python), R-05 (CPU/RAM).
 

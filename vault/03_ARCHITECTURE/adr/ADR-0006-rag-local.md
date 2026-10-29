@@ -17,6 +17,7 @@ Privacidade exige processamento local (INV-04). Ambiente de referência: CPU sem
 - `VectorStore`: **sqlite-vec** vs **LanceDB** — decidir por benchmark (S-03): tamanho, latência de consulta, consumo de RAM, empacotamento nativo.
 - `CodeGraphProvider`: Graphify via processo externo; interface a validar (S-02). Plano B: adapter próprio baseado em tree-sitter.
 - Sem embeddings configurados → RAG semântico desabilitado, demais funções intactas.
+- **Base textual (Fase 7, D-18):** índice FTS5 do SQLite já embutido no `better-sqlite3` (sem dependência nova), um arquivo por projeto em `indexes/<projeto>.db`. Atende consulta por identificador/termo com arquivo e linhas e serve de complemento à busca semântica (busca híbrida) quando os embeddings chegarem.
 
 ## Consequências
 - + Privacidade e funcionamento offline.

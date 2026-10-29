@@ -27,9 +27,10 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 | GET | `/projects/:id/agents/runs` | ✅ execuções do projeto (`AgentRunDetail[]`, sessões principais com `subagents`), mais recentes primeiro, até 100 | 5 |
 | GET | `/agents/runs/:id` | ✅ uma execução com subagentes; 404 se não existir | 5 |
 | GET | `/quota` | ✅ `QuotaResponse`: por provedor, janelas com % usado (ou limite atingido), renovação, frescor (`fresh`/`stale`/`reset`), categoria, horário da medida e fonte com nível; `unavailableReason` quando não há leitura | 6 |
-| POST | `/projects/:id/knowledge/index` | (re)indexar | 7 |
-| DELETE | `/projects/:id/knowledge/index` | remover índice | 7 |
-| POST | `/projects/:id/knowledge/query` | consulta RAG com referências | 7 |
+| GET | `/projects/:id/knowledge` | ✅ `KnowledgeStatus`: estado (`not_indexed`/`indexing`/`indexed`/`outdated`/`failed`), arquivos, trechos, excluídos por motivo, horário, duração, arquivos mudados, disponibilidade da busca semântica | 7 |
+| POST | `/projects/:id/knowledge/index` | ✅ (re)indexar em segundo plano → 202 com o estado | 7 |
+| DELETE | `/projects/:id/knowledge/index` | ✅ remover índice (o código não é tocado) → 204 | 7 |
+| POST | `/projects/:id/knowledge/query` | ✅ `{ query, limit? }` → `{ mode: "lexical", hits: [{ filePath, lineStart, lineEnd, snippet, stale }] }`; 409 sem índice, 400 consulta vazia | 7 |
 
 ## WebSocket
 | Canal | Direção | Mensagens |

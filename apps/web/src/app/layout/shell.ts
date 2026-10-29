@@ -92,7 +92,7 @@ export class Shell {
     { label: "Provedores", route: "/provedores" },
     { label: "Agentes", route: "/agentes" },
     { label: "Cotas", route: "/cotas" },
-    { label: "Conhecimento", phase: "Fase 7" },
+    { label: "Conhecimento", route: "/conhecimento" },
     { label: "Diagnóstico", route: "/diagnostico" },
   ];
 

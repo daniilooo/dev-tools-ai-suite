@@ -22,5 +22,7 @@ tags: [engenharia, divida]
 | TD-14 | Vínculo terminal ↔ Codex por janela de tempo (sem flag de id de sessão no Codex 0.165) | Fase 5 | Baixo | Trocar por flag oficial quando existir |
 | TD-15 | Nas sessões do Claude abertas pela suíte, a status line da suíte substitui uma status line própria do usuário | Fase 6 | Baixo | `DEVTOOLS_CLAUDE_STATUSLINE=off`; avaliar encadear a status line do usuário (pós-MVP) |
 | TD-16 | Cotas lidas por varredura (5 s), sem histórico persistido de leituras | Fase 6 | Baixo | Persistir histórico se surgir necessidade de gráfico de consumo (pós-MVP) |
+| TD-17 | Busca textual não separa CamelCase (`ReservaController` não casa com `controller`; só prefixo) | Fase 7 | Baixo | Busca semântica/híbrida; ou tokenização de identificadores |
+| TD-18 | Indexação acompanhada por consulta a cada 1 s e sem reindexação incremental (refaz o projeto todo) | Fase 7 | Baixo | Evento em `/ws/events` e reindexação só dos arquivos alterados |
 
 Registrar aqui atalhos conscientes tomados para entregar o MVP, com plano de pagamento.
