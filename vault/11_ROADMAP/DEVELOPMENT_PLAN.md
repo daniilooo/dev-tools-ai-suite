@@ -152,7 +152,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Sem evento → estado `Desconhecido`/`INDISPONÍVEL`, nunca inferido (`deriveState` com limite de frescor; reinício marca `unknown`; tokens ausentes → `INDISPONÍVEL`).
   - [x] Payloads redigidos antes de persistir (teste verifica que prompts, saídas e segredos das fixtures não chegam ao banco nem à tela).
   - [x] Fixtures de contrato para cada fonte/versão suportada (Claude Code 2.1.312, Codex 0.165.0).
-- **Resultado local (2026-10-28):** varredura das 240 sessões e subagentes reais da máquina de referência em ~0,4 s (incremental); 100 testes no servidor, 8 no dashboard e 10 E2E passando.
+- **Resultado local (2026-10-28):** varredura das 240 sessões e subagentes reais da máquina de referência em ~0,4 s (incremental); 102 testes no servidor, 8 no dashboard e 11 E2E passando.
 - **Decisões da fase:** D-12 (limites de frescor 5/30 min) e D-13 (`--session-id`). Sessão principal sem evento de fim → `Aguardando`/`Desconhecido` (TD-12).
 - **DoD:** monitor confiável em sessão real com subagentes paralelos.
 - **Riscos:** R-01 (formatos instáveis); possível necessidade de instalar hooks no projeto (RN-05, autorização).
