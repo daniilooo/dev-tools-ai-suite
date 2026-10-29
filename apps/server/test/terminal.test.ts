@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { WebSocket } from "ws";
 import { isAlive } from "../src/core/process-tree.js";
+import { ProvidersService } from "../src/modules/integrations/providers.service.js";
 import { createTestApp, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
@@ -87,6 +88,17 @@ describe("terminal (PTY real + WebSocket)", () => {
     ctx = await createTestApp(tempDir(), true, {
       port,
       terminalOptions: { shell: { file: "/bin/bash", args: ["--norc", "--noprofile"] } },
+      // Provedor falso: o comando "lançado" só ecoa um marcador.
+      providers: new ProvidersService({
+        adapters: [
+          {
+            id: "claude-code",
+            label: "Claude Code",
+            launchCommand: "echo lancou-$((40+2))",
+            detect: () => Promise.reject(new Error("não usado")),
+          },
+        ],
+      }),
     });
     await ctx.server.listen({ host: "127.0.0.1", port });
     auth = await login(ctx, host);
@@ -132,6 +144,24 @@ describe("terminal (PTY real + WebSocket)", () => {
     await socket.waitFor(/resultado-42/);
     await socket.waitFor(new RegExp(projectDir.replace(/[/.]/g, "\\$&")));
     socket.close();
+  });
+
+  it("inicia um provedor no shell do projeto e recusa provedor desconhecido", async () => {
+    const response = await api("POST", `/api/v1/projects/${project.id}/terminals`, { launch: "claude-code" });
+    expect(response.statusCode).toBe(201);
+    const terminal = response.json<TerminalSession>();
+    expect(terminal.title).toBe("Claude 1");
+    const socket = connect(terminal.id);
+    await socket.opened;
+    await socket.waitFor(/lancou-42/);
+    socket.send("pwd\r");
+    await socket.waitFor(new RegExp(projectDir.replace(/[/.]/g, "\\$&")));
+    socket.close();
+
+    for (const launch of ["codex", "rm -rf /", "ollama"]) {
+      const refused = await api("POST", `/api/v1/projects/${project.id}/terminals`, { launch });
+      expect(refused.statusCode).toBe(400);
+    }
   });
 
   it("recusa WebSocket sem sessão, sem Origin ou com Origin de outro site", async () => {

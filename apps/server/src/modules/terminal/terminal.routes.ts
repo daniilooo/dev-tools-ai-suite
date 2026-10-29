@@ -2,16 +2,19 @@ import type { CreateTerminalRequest, TerminalClientMessage, TerminalServerMessag
 import type { FastifyInstance } from "fastify";
 import type { WebSocket } from "ws";
 import type { ProjectsService } from "../projects/projects.service.js";
+import type { ProvidersService } from "../integrations/providers.service.js";
 import type { TerminalClient, TerminalManager } from "./terminal-manager.js";
+
+const LAUNCH_TITLES: Record<string, string> = { "claude-code": "Claude", codex: "Codex" };
 
 /** Maior mensagem aceita do navegador (colagens grandes chegam em várias mensagens). */
 export const MAX_WS_MESSAGE_BYTES = 64 * 1024;
 
 export function registerTerminalRoutes(
   app: FastifyInstance,
-  deps: { terminals: TerminalManager; projects: ProjectsService },
+  deps: { terminals: TerminalManager; projects: ProjectsService; providers: ProvidersService },
 ): void {
-  const { terminals, projects } = deps;
+  const { terminals, projects, providers } = deps;
 
   app.get<{ Params: { id: string } }>("/api/v1/projects/:id/terminals", async (request) =>
     terminals.list(projects.get(request.params.id).id),
@@ -22,10 +25,22 @@ export function registerTerminalRoutes(
     async (request, reply) => {
       const project = projects.get(request.params.id);
       const body = request.body ?? {};
-      const session = terminals.create(project, {
-        cols: typeof body.cols === "number" ? body.cols : undefined,
-        rows: typeof body.rows === "number" ? body.rows : undefined,
-      });
+      // Só comandos fixos de provedores conhecidos: o navegador nunca escolhe o texto executado.
+      const launch =
+        body.launch === undefined
+          ? undefined
+          : {
+              title: LAUNCH_TITLES[body.launch] ?? "Terminal",
+              command: providers.launchCommand(String(body.launch)),
+            };
+      const session = terminals.create(
+        project,
+        {
+          cols: typeof body.cols === "number" ? body.cols : undefined,
+          rows: typeof body.rows === "number" ? body.rows : undefined,
+        },
+        launch,
+      );
       request.log.info({ terminalId: session.id, projectId: project.id }, "terminal criado");
       return reply.code(201).send(session);
     },

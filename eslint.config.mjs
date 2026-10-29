@@ -37,6 +37,21 @@ export default tseslint.config(
     },
   },
   {
+    // INV-02: adapters de provedores só executam comandos oficiais; ler arquivos
+    // (credenciais, configurações, sessões) é proibido neste módulo.
+    files: ["apps/server/src/modules/integrations/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: ["fs", "node:fs", "fs/promises", "node:fs/promises", "node:sqlite", "better-sqlite3"].map(
+            (name) => ({ name, message: "Adapters de provedores não leem arquivos (INV-02)." }),
+          ),
+        },
+      ],
+    },
+  },
+  {
     files: ["apps/web/**/*.ts"],
     languageOptions: { globals: { ...globals.browser } },
   },

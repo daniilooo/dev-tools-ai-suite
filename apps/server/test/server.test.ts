@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createTestApp, HOST, login } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
-import { extractVersion } from "../src/modules/system/doctor.js";
+import { extractVersion } from "../src/modules/integrations/provider-adapter.js";
 
 let ctx: TestContext | undefined;
 afterEach(async () => ctx?.close());
@@ -31,7 +31,12 @@ describe("servidor", () => {
     });
     const report = doctor.json();
     expect(report.checks.find((c: { id: string }) => c.id === "database").status).toBe("ok");
-    for (const tool of report.tools) expect(tool.auth).toBe("unavailable");
+    // Login nunca é inventado (INV-03): ou não se aplica, ou vem de comando oficial, ou é INDISPONÍVEL.
+    for (const tool of report.tools) {
+      if (tool.auth === null) continue;
+      if (tool.auth.state === "unavailable") expect(tool.auth.category).toBe("unavailable");
+      else expect(tool.auth.category).toBe("official");
+    }
   });
 
   it("aplica cabeçalhos de segurança", async () => {
