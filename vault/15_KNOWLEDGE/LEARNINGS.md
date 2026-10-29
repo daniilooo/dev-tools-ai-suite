@@ -30,3 +30,6 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-29 | O Codex grava `rate_limits` (% usado e renovação das janelas de 5 h e 7 dias) em cada `token_count` do rollout; alguns registros vêm com janelas nulas e não devem apagar a última leitura válida. | Fase 6 |
 | 2026-10-29 | O % de uso do Claude Code só chega à status line (`rate_limits`); `claude --settings <arquivo>` permite configurá-la só nas sessões abertas pela suíte, sem tocar no `settings.json` do usuário. | Fase 6 |
 | 2026-10-29 | Node 22.18+ executa `.ts` sem flag (remoção de tipos): um script autocontido, só com imports `node:`, roda igual em desenvolvimento e compilado. | Fase 6 |
+| 2026-10-29 | O SQLite do `better-sqlite3` já traz FTS5: busca textual com BM25, destaque e remoção de acentos sem dependência nova. Desligar diário e `fsync` no índice temporário deixou a indexação ~5× mais rápida. | Fase 7 |
+| 2026-10-29 | Projetos "guarda-chuva" ignoram no `.gitignore` os repositórios de backend/frontend versionados à parte: `git ls-files` sozinho deixaria o código fora do índice. | Fase 7 |
+| 2026-10-29 | O modo automático do Claude Code bloqueia instalar pacotes externos (pip/npm) mesmo em diretório isolado: spikes que exigem instalação precisam de permissão explícita do humano. | Fase 7 |

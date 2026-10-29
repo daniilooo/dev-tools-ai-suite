@@ -4,16 +4,28 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 6 — AI Quota Monitor (em validação) |
-| Etapa atual | Implementado; PR e revisão humana |
-| Branch atual | `feature/06-quota-monitor` |
-| Última entrega | Quota Monitor (`quota` + `integrations/sources/quota-sources.ts`), status line da suíte, tela Cotas |
-| Última decisão | D-14 (fase autorizada), ADR-0014, D-15, D-16 |
-| Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado (`pnpm dev:server` + `pnpm dev:web`) |
-| Bloqueios | Nenhum |
-| Próxima ação | PR `feature/06-quota-monitor → release`, CI verde, revisão humana |
-| Testes atuais | `pnpm test` (115 servidor + 11 web), `pnpm test:e2e` (12), `validate:bootstrap` |
+| Fase atual | FASE 7 — Knowledge: RAG + Grafo (em andamento) |
+| Etapa atual | Parte 1 (índice textual) pronta; spikes S-02/S-03 bloqueados |
+| Branch atual | `feature/07-knowledge` |
+| Última entrega | Módulo `knowledge` (FTS5 por projeto), rotas `/knowledge`, tela Conhecimento |
+| Última decisão | D-17 (fase autorizada), D-18 (FTS5 como base), D-19 (repositórios aninhados) |
+| Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
+| Bloqueios | Instalar `graphifyy` (pip) e `sqlite-vec`/LanceDB/Transformers.js + modelo (npm/HF) foi recusado pelo modo automático: precisa de permissão do humano |
+| Próxima ação | Humano permite os spikes (diretório isolado); depois HG-07 para a dependência escolhida |
+| Testes atuais | `pnpm test` (123 servidor + 13 web), `pnpm test:e2e` (13), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 7, parte 1) — Claude Code (Opus)
+
+**Contexto:** Fase 7 autorizada após o merge da Fase 6 (PR #8). O humano está em modo remoto e avalia à noite.
+**Estado:** parte 1 implementada em `feature/07-knowledge`; testes locais verdes (123 servidor, 13 web, 13 E2E).
+**Alterações:** `apps/server/src/modules/knowledge/*` (exclusões, listagem git com repositórios aninhados, chunking, índice FTS5 por projeto, serviço, rotas), migração 4, `apps/web/src/app/features/knowledge/*`, card no detalhe do projeto, `tests/e2e/knowledge.spec.ts`.
+**Decisões:** D-18 (FTS5 como base, índice em `indexes/<projeto>.db`), D-19 (repositórios aninhados).
+**Pendências:** spikes S-02 (Graphify) e S-03 (sqlite-vec × LanceDB + embeddings ONNX) — instalação de pacotes externos bloqueada pelo modo automático; pesquisa documental registrada em TECHNICAL_SPIKES. Dívidas TD-17 e TD-18.
+**Próximo passo:** com permissão, rodar os benchmarks em diretório isolado (scratchpad) com o repositório `jinsei` (Angular + Spring Boot), propor ADR-0006 Aceito e pedir HG-07. **Não iniciar a Fase 8 sem autorização.**
+**Arquivos relevantes:** `apps/server/src/modules/knowledge/knowledge.service.ts`, `indexer.ts`, `knowledge-index.ts`, `exclusions.ts`, `apps/web/src/app/features/knowledge/knowledge-page.ts`.
 
 ---
 
@@ -23,7 +35,7 @@
 **Estado:** implementado em `feature/06-quota-monitor`; testes locais verdes (115 servidor, 11 web, 12 E2E).
 **Alterações:** `apps/server/src/statusline.ts` (script autocontido executado pelo Claude Code), `modules/quota/*` (preparo da status line, monitor, rota), `integrations/sources/quota-sources.ts`, `system/events.routes.ts` (`/ws/events` reúne agentes e cotas), `--settings` no lançamento do Claude, `DEVTOOLS_CLAUDE_STATUSLINE`, fixtures de cotas, `apps/web/src/app/features/quota/*` (tela e resumo na barra lateral), `tests/e2e/quota.spec.ts`; o Claude falso do E2E executa a status line como o real.
 **Decisões:** ADR-0014, D-15 (status line com `--settings`), D-16 (sem persistência; frescor 15 min).
-**Pendências:** revisão humana e merge; dívidas TD-15 e TD-16. Validar com o Claude Code real: abrir pelo botão da suíte, enviar uma mensagem e conferir a tela Cotas.
+**Pendências:** dívidas TD-15 e TD-16. PR #8 aprovado e mergeado; validação com o Claude Code real fica com o humano.
 **Próximo passo:** **não iniciar a Fase 7 sem autorização (HG-14)**. A Fase 7 começa pelos spikes S-02 (Graphify) e S-03 (vetores + embeddings).
 **Arquivos relevantes:** `apps/server/src/modules/quota/quota-monitor.ts`, `claude-statusline.ts`, `apps/server/src/modules/integrations/sources/quota-sources.ts`, `apps/server/src/statusline.ts`, `apps/web/src/app/features/quota/quota-page.ts`.
 

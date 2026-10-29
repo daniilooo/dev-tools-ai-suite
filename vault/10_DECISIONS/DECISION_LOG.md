@@ -19,7 +19,7 @@ tags: [decisoes]
 | 2026-10-28 | ADR-0011 | Vault + workflow multi-LLM | Aceito | [[ADR-0011-vault-e-workflow-multi-llm]] |
 | 2026-10-28 | ADR-0012 | Dependências nativas: PTY híbrido e better-sqlite3 | Aceito (HG-07) | [[ADR-0012-dependencias-nativas]] |
 | 2026-10-28 | ADR-0013 | Fontes do Agent Monitor: transcrições locais (B) agora, hooks com opt-in depois | Aceito (PR #7 aprovado) | [[ADR-0013-fontes-agent-monitor]] |
-| 2026-10-29 | ADR-0014 | Fontes do Quota Monitor: status line da suíte no Claude Code (A) e sessões locais do Codex (B) | Proposto (aceito com o merge do PR da Fase 6) | [[ADR-0014-fontes-quota-monitor]] |
+| 2026-10-29 | ADR-0014 | Fontes do Quota Monitor: status line da suíte no Claude Code (A) e sessões locais do Codex (B) | Aceito (PR #8 aprovado) | [[ADR-0014-fontes-quota-monitor]] |
 | 2026-10-28 | D-01 | Licença Apache-2.0; repositório público desde o início | Aceito | [[INTAKE_RECORD]] |
 | 2026-10-28 | D-02 | `monitor-do-contexto-local` fica fora do versionamento | Aceito | [[INTAKE_RECORD]] |
 | 2026-10-28 | D-03 | Commit inicial direto em `main` autorizado (repositório vazio) | Aceito (gate) | [[INTAKE_RECORD]] |
@@ -35,4 +35,7 @@ tags: [decisoes]
 | 2026-10-28 | D-13 | Abrir o Claude Code pela suíte passa `--session-id <uuid>` para vincular sessão e terminal | Aceito (PR #7 aprovado) | [[ADR-0013-fontes-agent-monitor]] |
 | 2026-10-29 | D-14 | Fase 6 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-29 | D-15 | Cotas do Claude Code via status line da suíte, passada com `--settings` só nas sessões abertas por ela (sem alterar arquivos do Claude) | Aceito (escolha do humano no S-05) | [[ADR-0014-fontes-quota-monitor]] |
-| 2026-10-29 | D-16 | Leituras de cota não persistidas (recalculadas a cada 5 s das fontes); frescor de 15 min | Proposto pela LLM | [[STATE_MACHINES]] |
+| 2026-10-29 | D-16 | Leituras de cota não persistidas (recalculadas a cada 5 s das fontes); frescor de 15 min | Aceito (PR #8 aprovado) | [[STATE_MACHINES]] |
+| 2026-10-29 | D-17 | Fase 7 autorizada pelo humano (HG-14) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
+| 2026-10-29 | D-18 | Busca textual FTS5 (SQLite embutido) como base do conhecimento, um índice por projeto em `indexes/`; semântica entra depois dos spikes | Proposto pela LLM | [[ADR-0006-rag-local]] |
+| 2026-10-29 | D-19 | Repositórios git aninhados (até 3 níveis) entram no índice com o próprio `.gitignore`, mesmo que a raiz os ignore | Proposto pela LLM | [[INDEXING_EXCLUSIONS]] |

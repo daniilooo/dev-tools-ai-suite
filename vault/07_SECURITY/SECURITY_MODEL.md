@@ -22,7 +22,8 @@ tags: [seguranca]
 | Outro usuário local lê segredo | arquivo 0600 no home do usuário | RN-01 |
 | Injeção de comando em processos externos | `spawn` com array, sem shell | Convenções |
 | Vazamento de segredos em transcrições/índices | redator + [[INDEXING_EXCLUSIONS]] | RN-02/RN-04 |
-| Envio de código para fora | embeddings locais; externos só com opt-in (HG-13) | INV-04 |
+| Envio de código para fora | embeddings locais; externos só com opt-in (HG-13); índice textual sem nenhuma chamada de rede (teste vigia `fetch` e `Socket.connect`) | INV-04 |
+| Segredo ou arquivo sensível no índice | exclusões padrão antes da leitura, redator antes de gravar, índice 0600 por projeto; teste procura o segredo nos bytes do índice | RN-02, RN-04 |
 | Leitura de credenciais de provedores | adapters só executam comandos oficiais; `fs` bloqueado por lint no módulo `integrations`; teste com arquivos-isca e allowlist de comandos | INV-02 |
 | Leitura indevida de arquivos pelo Agent Monitor | allowlist de padrões de transcrição/sessão relativa às raízes; links simbólicos recusados; caminho real dentro da raiz; credenciais e configs nunca casam (teste com arquivos-isca e `..`) | ADR-0013 |
 | Conteúdo de conversas persistido | só metadados (horários, modelo, tokens, nomes de ferramentas); títulos e descrições redigidos e truncados; teste garante que prompts, saídas e segredos das fixtures não chegam ao banco | ADR-0013, RN-02 |

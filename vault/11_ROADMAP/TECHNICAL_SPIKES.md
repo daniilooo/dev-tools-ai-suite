@@ -9,8 +9,8 @@ Spikes têm **timebox** e produzem uma resposta + recomendação (não código d
 | ID | Pergunta | Timebox | Fase | Saída |
 |---|---|---|---|---|
 | S-01 | `node-pty` instala sem toolchain em Linux limpo via npm? Qual driver SQLite (`node:sqlite` vs `better-sqlite3`)? Impacto em Windows/macOS? | 1 dia | 2 (início) | recomendação + HG-07 |
-| S-02 | Interface do Graphify: instalação, comandos, formato de saída, versões, tempo em repo médio; viabilidade do plano B tree-sitter | 1 dia | 7 | atualização do ADR-0006 |
-| S-03 | Benchmark `sqlite-vec` vs LanceDB + modelo de embeddings ONNX (tamanho, RAM, latência, qualidade) na máquina de referência | 1–2 dias | 7 | ADR-0006 Aceito + HG-07 |
+| S-02 | Interface do Graphify: instalação, comandos, formato de saída, versões, tempo em repo médio; viabilidade do plano B tree-sitter | 1 dia | 7 | ⏸ bloqueado: instalar `graphifyy` exige permissão do humano |
+| S-03 | Benchmark `sqlite-vec` vs LanceDB + modelo de embeddings ONNX (tamanho, RAM, latência, qualidade) na máquina de referência | 1–2 dias | 7 | ⏸ bloqueado: instalar pacotes e baixar modelo exige permissão do humano; depois HG-07 |
 | S-04 | Quais eventos de agentes/subagentes os hooks e transcripts do Claude Code 2.1.x e as sessões do Codex 0.16x fornecem? Nível A/B/C de cada | 1 dia | 5 (início) | ✅ concluído — [[ADR-0013-fontes-agent-monitor]] |
 | S-05 | Existe saída oficial consumível de uso/limites para Claude Code e Codex nos planos atuais? | 0,5 dia | 6 (início) | ✅ concluído — [[ADR-0014-fontes-quota-monitor]] |
 
@@ -48,3 +48,8 @@ Verificado em Claude Code 2.1.312 e Codex 0.165.0 (só a estrutura das chaves; f
 
 Hipótese H-05 confirmada em parte: há fonte oficial para o Codex (registrada localmente) e para o Claude Code (status line), mas a do Claude exige configurar a status line. O humano escolheu passá-la com `--settings` só nas sessões abertas pela suíte (D-15). Leitura das fontes reais da máquina de referência: ~40 ms por varredura.
 Decisão: [[ADR-0014-fontes-quota-monitor]].
+
+### S-02 e S-03 — pesquisa documental (2026-10-29), execução pendente
+- **Graphify** ([safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI `graphifyy`, Python ≥ 3.10, Apache-2.0/MIT): `graphify extract --code-only` roda offline com tree-sitter (~40 linguagens) e gera `graphify-out/graph.json`, `graph.html` e `GRAPH_REPORT.md`. Documentos e PDFs pedem LLM (assistente ou backend configurado) — a suíte usaria só `--code-only` para não enviar nada (INV-04). Registra consultas em `~/.cache/graphify-queries.log` (desligável com `GRAPHIFY_QUERY_LOG_DISABLE=1`). Pacotes `graphify*` homônimos no PyPI não são do projeto. Grava a saída dentro do projeto (`graphify-out/`) — verificar no spike se há opção de diretório de saída, senão rodar numa cópia ou no diretório de dados (INV-05).
+- **Vetores:** referências públicas apontam `sqlite-vec` como busca exata (força bruta, recall 100%), adequada até ~100 mil vetores, e LanceDB com índice IVF, mais rápido em escala mas com ajuste por tamanho. O repositório real medido gera ~7 mil trechos por projeto: ordem de grandeza confortável para `sqlite-vec`. Precisa de benchmark local.
+- **Bloqueio:** o modo automático do Claude Code recusou instalar código externo (pip/npm) sem autorização explícita. Próximo passo: o humano permite a instalação em diretório isolado (scratchpad) para o benchmark; a adoção no produto segue para HG-07.

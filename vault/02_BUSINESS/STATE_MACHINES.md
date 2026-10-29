@@ -83,7 +83,9 @@ stateDiagram-v2
   Desatualizado --> Indexando
   Indexado --> NaoIndexado: usuário remove índice
   FalhaIndexacao --> Indexando: nova tentativa
+  Indexando --> FalhaIndexacao: servidor reiniciado
 ```
+Valores (`KnowledgeIndexState`): `not_indexed`, `indexing`, `indexed`, `outdated` (calculado ao consultar o estado: arquivo novo, alterado ou removido desde a indexação), `failed`. Reindexar mantém o índice anterior consultável até o novo terminar. Implementação: `apps/server/src/modules/knowledge/knowledge.service.ts`.
 
 ## Alteração de configuração de projeto (RN-05)
 ```mermaid
