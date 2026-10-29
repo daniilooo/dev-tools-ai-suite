@@ -17,8 +17,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 1 | Bootstrap | — | Concluído | 100% |
 | 2 | Foundation | P0 | Concluído | 100% |
 | 3 | Integrated Terminal (SUG03) | P0 | Concluído | 100% |
-| 4 | Provider Integration | P0 | Em validação | 90% |
-| 5 | Agent Monitor + Telemetria (SUG01) | P1 | Não iniciado | 0% |
+| 4 | Provider Integration | P0 | Concluído | 100% |
+| 5 | Agent Monitor + Telemetria (SUG01) | P1 | Em validação | 90% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Não iniciado | 0% |
 | 7 | Knowledge (RAG + Grafo) | P1 | Não iniciado | 0% |
 | 8 | Hardening e Validação | — | Não iniciado | 0% |
@@ -114,7 +114,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** comportamento de PTY no CI; consumo de memória do buffer.
 
 ## FASE 4 — Provider Integration (P0)
-**Status:** Em validação — implementação na branch `feature/04-providers`; falta CI, revisão humana e merge
+**Status:** Concluído — PR #6 aprovado e mergeado em `release` em 2026-10-28 (merge `6455d2f`)
 - **Objetivo:** detectar e iniciar Claude Code e Codex pela plataforma.
 - **Escopo:** `ProviderAdapter` (claude-code, codex, ollama-detecção) · versões e capacidades · estado de autenticação via mecanismos documentados · atalhos "Abrir Claude/Codex neste projeto" no terminal · tela de provedores.
 - **Entregáveis:**
@@ -134,16 +134,25 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** mudanças de CLI entre versões.
 
 ## FASE 5 — Agent Monitor + Telemetria básica / SUG01 (P1)
-**Status:** Não iniciado
+**Status:** Em validação — implementação na branch `feature/05-agent-monitor`; falta CI, revisão humana e merge
 - **Objetivo:** ver agentes e subagentes trabalhando, com histórico.
 - **Escopo:** spike **S-04** (fontes de eventos) · normalização em `AgentEvent` · `AgentRun`/`SubagentRun` · estados conforme [[STATE_MACHINES]] · `/ws/events` · histórico · telemetria básica (duração, tokens quando disponíveis).
-- **Entregáveis:** painel Agent Monitor; histórico por projeto.
+- **Entregáveis:**
+  - [x] Spike S-04 e [[ADR-0013-fontes-agent-monitor]]: transcrições locais do Claude Code e sessões do Codex (nível B); hooks adiados (RN-05)
+  - [x] Leitores com allowlist (`integrations/sources/`): leitura incremental, parsers por provedor, descoberta por projeto
+  - [x] Módulo `agents`: `AgentMonitor` (varredura de 2 s), migração 3 (`agent_runs`, `agent_events`), `GET /projects/:id/agents/runs`, `GET /agents/runs/:id`, WS `/ws/events`
+  - [x] Vínculo sessão ↔ terminal: `claude --session-id <uuid>`; Codex por janela de tempo
+  - [x] Telemetria básica: duração, tokens (entrada, saída, cache lido/gravado — calculado), chamadas de ferramenta por nome, modelo e versão
+  - [x] Tela **Agentes** (seletor de projeto, estados com explicação, subagentes, fonte e nível, atualização ao vivo) e card no detalhe do projeto
+  - [x] Testes: 23 de servidor (allowlist, tail, parsers, monitor, rotas, WS), 3 de formatação no dashboard e 1 E2E
 - **Dependências:** Fase 4.
 - **Critérios de aceite:**
-  - [ ] Distingue agente com terminal de subagente só com eventos.
-  - [ ] Sem evento → estado `Desconhecido`/`INDISPONÍVEL`, nunca inferido.
-  - [ ] Payloads redigidos antes de persistir.
-  - [ ] Fixtures de contrato para cada fonte/versão suportada.
+  - [x] Distingue agente com terminal de subagente só com eventos (`kind`, `parentRunId`, `terminalId`; `agents.test.ts` vincula a sessão aberta pela suíte ao terminal).
+  - [x] Sem evento → estado `Desconhecido`/`INDISPONÍVEL`, nunca inferido (`deriveState` com limite de frescor; reinício marca `unknown`; tokens ausentes → `INDISPONÍVEL`).
+  - [x] Payloads redigidos antes de persistir (teste verifica que prompts, saídas e segredos das fixtures não chegam ao banco nem à tela).
+  - [x] Fixtures de contrato para cada fonte/versão suportada (Claude Code 2.1.312, Codex 0.165.0).
+- **Resultado local (2026-10-28):** varredura das 240 sessões e subagentes reais da máquina de referência em ~0,4 s (incremental); 100 testes no servidor, 8 no dashboard e 10 E2E passando.
+- **Decisões da fase:** D-12 (limites de frescor 5/30 min) e D-13 (`--session-id`). Sessão principal sem evento de fim → `Aguardando`/`Desconhecido` (TD-12).
 - **DoD:** monitor confiável em sessão real com subagentes paralelos.
 - **Riscos:** R-01 (formatos instáveis); possível necessidade de instalar hooks no projeto (RN-05, autorização).
 

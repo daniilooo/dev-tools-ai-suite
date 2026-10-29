@@ -24,18 +24,31 @@ Regra: sessão `Desconectada` mantém o processo vivo e um buffer limitado de sa
 ## Execução de agente (Agent Monitor)
 ```mermaid
 stateDiagram-v2
-  [*] --> Detectado
-  Detectado --> EmExecucao: evento de início
-  EmExecucao --> Aguardando: aguardando input/permissão
-  Aguardando --> EmExecucao
-  EmExecucao --> Concluido: evento de fim com sucesso
+  [*] --> Detectado: sessão encontrada
+  Detectado --> EmExecucao: mensagem do usuário ou início de turno
+  EmExecucao --> Aguardando: turno encerrado (agente principal)
+  Aguardando --> EmExecucao: nova mensagem
+  EmExecucao --> Concluido: subagente terminou
   EmExecucao --> Falhou: evento de erro
-  EmExecucao --> Desconhecido: sem eventos além do limite de frescor
+  Falhou --> EmExecucao: nova mensagem
+  Detectado --> Desconhecido: sem eventos por 30 min
+  EmExecucao --> Desconhecido: sem eventos por 5 min
+  Aguardando --> Desconhecido: sem eventos por 30 min
   Desconhecido --> EmExecucao: novo evento
   Concluido --> [*]
-  Falhou --> [*]
 ```
-`Desconhecido` existe para cumprir INV-03: sem evento, não se presume estado.
+`Desconhecido` existe para cumprir INV-03: sem evento, não se presume estado. As fontes atuais (transcrições, nível B) não registram o fim de uma sessão principal: por isso ela termina em `Aguardando` ou `Desconhecido`, nunca em `Concluído` presumido.
+
+| Estado (`AgentRunState`) | Evidência observada | Limite de frescor |
+|---|---|---|
+| `detected` — Detectado | sessão existe, sem turnos | 30 min |
+| `running` — Em execução | último registro é de trabalho (mensagem, ferramenta, início de turno) | 5 min |
+| `waiting` — Aguardando | turno encerrado (`end_turn`, `task_complete`, interrupção do usuário) | 30 min |
+| `completed` — Concluído | subagente encerrou o turno | — |
+| `failed` — Falhou | último evento é erro | — |
+| `unknown` — Desconhecido | limite de frescor excedido ou servidor reiniciado antes da releitura | — |
+
+Implementação: `deriveState` em `apps/server/src/modules/integrations/sources/run-snapshot.ts` ([[ADR-0013-fontes-agent-monitor]]).
 
 ## Dado de cota/telemetria
 ```mermaid

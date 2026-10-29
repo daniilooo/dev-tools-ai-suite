@@ -24,6 +24,9 @@ tags: [seguranca]
 | Vazamento de segredos em transcrições/índices | redator + [[INDEXING_EXCLUSIONS]] | RN-02/RN-04 |
 | Envio de código para fora | embeddings locais; externos só com opt-in (HG-13) | INV-04 |
 | Leitura de credenciais de provedores | adapters só executam comandos oficiais; `fs` bloqueado por lint no módulo `integrations`; teste com arquivos-isca e allowlist de comandos | INV-02 |
+| Leitura indevida de arquivos pelo Agent Monitor | allowlist de padrões de transcrição/sessão relativa às raízes; links simbólicos recusados; caminho real dentro da raiz; credenciais e configs nunca casam (teste com arquivos-isca e `..`) | ADR-0013 |
+| Conteúdo de conversas persistido | só metadados (horários, modelo, tokens, nomes de ferramentas); títulos e descrições redigidos e truncados; teste garante que prompts, saídas e segredos das fixtures não chegam ao banco | ADR-0013, RN-02 |
+| Estado de agente inventado | estado derivado só de eventos com limite de frescor; sem evidência → `unknown` | INV-03 |
 | Navegador escolhendo o comando executado | `launch` aceita só ids de provedor; o texto digitado é fixo no servidor | Fase 4 |
 | Dados pessoais da conta do provedor | e-mail e organização descartados da saída de `claude auth status` | RN-02 |
 | Elevação de privilégio | sem `sudo`; processos com o usuário atual | G-03 |

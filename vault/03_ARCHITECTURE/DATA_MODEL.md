@@ -36,12 +36,24 @@ erDiagram
     datetime detected_at }
   AGENT_RUN { text id PK
     text project_id FK
-    text provider_id FK
-    text parent_run_id FK
+    text provider_id
     text kind
+    text parent_run_id
+    text external_id
+    text title
+    text agent_type
+    text model
+    text provider_version
     text state
-    text source
-    datetime last_event_at }
+    datetime started_at
+    datetime last_event_at
+    datetime ended_at
+    text tokens_json
+    text tool_calls_json
+    text terminal_id
+    text source_level
+    text source_description
+    text error }
   AGENT_EVENT { text id PK
     text run_id FK
     text type
@@ -85,6 +97,7 @@ erDiagram
 
 ## Regras
 - Payloads de eventos são **redigidos** antes de persistir.
+- `AGENT_RUN` (migração 3, `agent_runs`): id = `<provedor>:<id externo>` ou `<provedor>:<sessão>:<subagente>`. Guarda só metadados (título e descrição redigidos e truncados); tokens são **calculados** a partir dos registros do provedor. `AGENT_EVENT` (`agent_events`) registra cada mudança de estado (`{state, previous}`). Ao iniciar, execuções `running`/`waiting`/`detected` viram `unknown` até a releitura (INV-03). Remover o projeto apaga o histórico (`ON DELETE CASCADE`).
 - `category` em `QUOTA_READING`/`TELEMETRY_RECORD` ∈ {oficial, calculado, estimado}; ausência é representada pela falta de leitura válida → UI mostra `INDISPONÍVEL`.
 - Vetores ficam no `VectorStore` (tabela virtual sqlite-vec ou diretório LanceDB por projeto), referenciando `CHUNK.id`.
 - Nenhuma credencial é armazenada (INV-02). O segredo de instalação fica em arquivo próprio 0600, não no banco.

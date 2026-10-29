@@ -11,7 +11,7 @@ Spikes têm **timebox** e produzem uma resposta + recomendação (não código d
 | S-01 | `node-pty` instala sem toolchain em Linux limpo via npm? Qual driver SQLite (`node:sqlite` vs `better-sqlite3`)? Impacto em Windows/macOS? | 1 dia | 2 (início) | recomendação + HG-07 |
 | S-02 | Interface do Graphify: instalação, comandos, formato de saída, versões, tempo em repo médio; viabilidade do plano B tree-sitter | 1 dia | 7 | atualização do ADR-0006 |
 | S-03 | Benchmark `sqlite-vec` vs LanceDB + modelo de embeddings ONNX (tamanho, RAM, latência, qualidade) na máquina de referência | 1–2 dias | 7 | ADR-0006 Aceito + HG-07 |
-| S-04 | Quais eventos de agentes/subagentes os hooks e transcripts do Claude Code 2.1.x e as sessões do Codex 0.16x fornecem? Nível A/B/C de cada | 1 dia | 5 (início) | atualização de [[INTEGRATIONS]] |
+| S-04 | Quais eventos de agentes/subagentes os hooks e transcripts do Claude Code 2.1.x e as sessões do Codex 0.16x fornecem? Nível A/B/C de cada | 1 dia | 5 (início) | ✅ concluído — [[ADR-0013-fontes-agent-monitor]] |
 | S-05 | Existe saída oficial consumível de uso/limites para Claude Code e Codex nos planos atuais? | 0,5 dia | 6 (início) | atualização de [[INTEGRATIONS]] e expectativa da UI |
 
 ## Resultados
@@ -22,3 +22,16 @@ Spikes têm **timebox** e produzem uma resposta + recomendação (não código d
 - `node:sqlite` funciona no Node 22.23, com `ExperimentalWarning`.
 - `better-sqlite3` 13.0.3 instala com binário pronto e funciona.
 - Decisão proposta: [[ADR-0012-dependencias-nativas]] (aguardando HG-07).
+
+### S-04 — concluído em 2026-10-28
+Verificado em Claude Code 2.1.312 e Codex 0.165.0, com as transcrições reais da máquina de referência (lidas só como estrutura de chaves; as fixtures são anonimizadas).
+
+| Fonte | Nível | O que fornece | Limitação |
+|---|---|---|---|
+| Hooks do Claude Code | A | eventos de ferramenta, subagente e fim de sessão | exige alterar `settings.json` (RN-05) → adiado |
+| Transcrição do Claude (`projects/<dir>/<sessão>.jsonl`) | B | `timestamp`, `version`, `cwd`, `message.model`, `message.usage` (repetido por bloco: deduplicar por `message.id`), `stop_reason`, nomes de `tool_use`, `ai-title`, `system` com `level: error` | sem evento de fim de sessão |
+| Subagentes do Claude (`<sessão>/subagents/agent-<id>.jsonl` + `.meta.json`) | B | mesmo formato; meta com `agentType` e `description` | — |
+| Sessão do Codex (`sessions/AAAA/MM/DD/rollout-*.jsonl`) | B | `session_meta` (id, cwd, `cli_version`, `parent_thread_id`, `agent_nickname`), `turn_context.model`, `task_started`/`task_complete`, `token_count.info.total_token_usage` (acumulado), `function_call`/`custom_tool_call` | primeira linha pode ter centenas de KB (instruções) |
+
+Desempenho: varredura incremental de 240 sessões e subagentes reais em ~0,4 s; arquivos grandes são lidos em blocos de 4 MB.
+Decisão: [[ADR-0013-fontes-agent-monitor]].
