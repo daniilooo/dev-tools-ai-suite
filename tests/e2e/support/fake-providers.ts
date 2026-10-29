@@ -5,13 +5,31 @@ import { join } from "node:path";
 const FIXTURES = join(import.meta.dirname, "../../../apps/server/test/fixtures");
 
 /**
+ * Com `--session-id`, o Claude falso grava uma transcrição mínima onde o real gravaria
+ * (`$CLAUDE_CONFIG_DIR/projects/<cwd codificado>/<id>.jsonl`), para o Agent Monitor achá-la.
+ */
+const FAKE_CLAUDE_SESSION = [
+  'dir="$CLAUDE_CONFIG_DIR/projects/$(printf %s "$PWD" | sed "s/[^A-Za-z0-9]/-/g")"',
+  'mkdir -p "$dir"',
+  'printf \'{"type":"user","cwd":"%s","version":"2.1.312","timestamp":"%s","message":{"role":"user","content":"oi"}}\\n\' "$PWD" "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" > "$dir/$2.jsonl"',
+  'echo "claude-falso-interativo"',
+].join("; ");
+
+/**
  * Binários falsos de `claude` e `codex` que respondem com as fixtures oficiais.
- * Sem argumentos (modo interativo) só imprimem um marcador. Devolve um ambiente com
- * PATH restrito e `/bin/sh` como shell — o rc do usuário não pode trazer o binário real.
+ * Sem argumentos ou com `--session-id <uuid>` (modo interativo) só imprimem um marcador.
+ * Devolve um ambiente com PATH restrito e `/bin/sh` como shell — o rc do usuário não pode
+ * trazer o binário real — e raízes vazias de transcrições (`CLAUDE_CONFIG_DIR`/`CODEX_HOME`),
+ * para o Agent Monitor nunca ler o `~/.claude` real.
  */
 export function fakeProvidersEnv(): NodeJS.ProcessEnv {
-  const bin = join(mkdtempSync(join(tmpdir(), "devtools-e2e-bin-")), "bin");
+  const root = mkdtempSync(join(tmpdir(), "devtools-e2e-bin-"));
+  const bin = join(root, "bin");
   mkdirSync(bin);
+  const claudeHome = join(root, "claude");
+  const codexHome = join(root, "codex");
+  mkdirSync(claudeHome);
+  mkdirSync(codexHome);
   const script = (name: string, cases: string) => {
     const file = join(bin, name);
     writeFileSync(
@@ -22,11 +40,17 @@ export function fakeProvidersEnv(): NodeJS.ProcessEnv {
   };
   script(
     "claude",
-    `  "--version") cat "${FIXTURES}/claude-code/2.1.312/version.txt";;\n  "auth status --json") cat "${FIXTURES}/claude-code/2.1.312/auth-status.json";;`,
+    `  "--version") cat "${FIXTURES}/claude-code/2.1.312/version.txt";;\n  "auth status --json") cat "${FIXTURES}/claude-code/2.1.312/auth-status.json";;\n  "--session-id "*) ${FAKE_CLAUDE_SESSION};;`,
   );
   script(
     "codex",
     `  "--version") cat "${FIXTURES}/codex/0.165.0/version.txt";;\n  "login status") cat "${FIXTURES}/codex/0.165.0/login-status.txt";;`,
   );
-  return { ...process.env, PATH: `${bin}:/usr/bin:/bin`, SHELL: "/bin/sh" };
+  return {
+    ...process.env,
+    PATH: `${bin}:/usr/bin:/bin`,
+    SHELL: "/bin/sh",
+    CLAUDE_CONFIG_DIR: claudeHome,
+    CODEX_HOME: codexHome,
+  };
 }

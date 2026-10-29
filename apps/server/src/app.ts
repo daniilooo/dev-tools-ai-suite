@@ -20,7 +20,13 @@ import { ProjectsRepository } from "./modules/projects/projects.repository.js";
 import { registerProjectRoutes } from "./modules/projects/projects.routes.js";
 import { ProjectsService } from "./modules/projects/projects.service.js";
 import { registerSessionRoutes } from "./modules/session/session.routes.js";
+import { AgentMonitor } from "./modules/agents/agent-monitor.js";
+import { AgentsRepository } from "./modules/agents/agents.repository.js";
+import { registerAgentRoutes } from "./modules/agents/agents.routes.js";
 import { registerProviderRoutes } from "./modules/integrations/providers.routes.js";
+import { AgentSources } from "./modules/integrations/sources/agent-sources.js";
+import { defaultRoots, LocalSourceFiles } from "./modules/integrations/sources/local-files.js";
+import type { LocalSourceRoots } from "./modules/integrations/sources/local-files.js";
 import { ProvidersService } from "./modules/integrations/providers.service.js";
 import { registerSystemRoutes } from "./modules/system/system.routes.js";
 import { loadPtyBackend } from "./modules/terminal/pty-backend.js";
@@ -42,6 +48,10 @@ export interface AppDeps {
   codes?: LaunchCodeStore;
   /** Backend de PTY (testes podem injetar um falso). Padrão: carrega a biblioteca nativa. */
   pty?: PtyBackendStatus;
+  /** Raízes das transcrições/sessões dos provedores (testes apontam para fixtures). */
+  agentSourceRoots?: LocalSourceRoots;
+  /** Intervalo da varredura do Agent Monitor; 0 desliga a varredura automática (testes). */
+  agentScanIntervalMs?: number;
   /** Detecção de provedores (testes injetam adapters falsos). */
   providers?: ProvidersService;
   /** Ajustes do gerenciador de terminais (retenção, limites) — usado em testes. */
@@ -52,6 +62,7 @@ export interface App {
   server: FastifyInstance;
   codes: LaunchCodeStore;
   terminals: TerminalManager;
+  agents: AgentMonitor;
 }
 
 export async function buildApp(deps: AppDeps): Promise<App> {
@@ -109,6 +120,18 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   registerProjectRoutes(server, projects, { onRemoved: (id) => terminals.closeProject(id) });
   registerTerminalRoutes(server, { terminals, projects, providers });
 
+  const agents = new AgentMonitor({
+    sources: new AgentSources(new LocalSourceFiles(deps.agentSourceRoots ?? defaultRoots())),
+    projects,
+    repository: new AgentsRepository(deps.db),
+    terminals,
+    intervalMs: deps.agentScanIntervalMs || 2_000,
+    onError: (error) => server.log.warn({ err: error }, "falha na varredura do Agent Monitor"),
+  });
+  registerAgentRoutes(server, agents);
+  if (deps.agentScanIntervalMs !== 0) server.addHook("onReady", async () => agents.start());
+  server.addHook("onClose", async () => agents.stop());
+
   const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {
     await server.register(fastifyStatic, { root: publicDir, index: ["index.html"] });
@@ -129,7 +152,7 @@ export async function buildApp(deps: AppDeps): Promise<App> {
     );
   }
 
-  return { server, codes, terminals };
+  return { server, codes, terminals, agents };
 }
 
 /** dist/public no pacote publicado; em desenvolvimento (tsx), o build de apps/web. */

@@ -141,6 +141,57 @@ export type TerminalServerMessage =
  */
 export type TerminalCloseCode = 4401 | 4404 | 4410 | 4429;
 
+/**
+ * Estado de uma execução de agente (STATE_MACHINES). Derivado só de eventos observados:
+ * sem evento recente, `unknown` — nunca presumido (INV-03).
+ */
+export type AgentRunState = "detected" | "running" | "waiting" | "completed" | "failed" | "unknown";
+
+/** `agent` = sessão principal, roda em um terminal; `subagent` = só emite eventos. */
+export type AgentRunKind = "agent" | "subagent";
+
+export interface AgentTokenUsage {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+}
+
+export interface AgentRun {
+  id: string;
+  projectId: string;
+  providerId: LaunchableProviderId;
+  kind: AgentRunKind;
+  parentRunId: string | null;
+  /** Id da sessão no provedor (Claude: sessionId; Codex: thread id; subagente: agentId). */
+  externalId: string;
+  /** Título curto e redigido (título da conversa, tipo/descrição do subagente). */
+  title: string | null;
+  /** Tipo do subagente (ex.: "explorer"), quando informado. */
+  agentType: string | null;
+  model: string | null;
+  providerVersion: string | null;
+  state: AgentRunState;
+  startedAt: string;
+  lastEventAt: string;
+  endedAt: string | null;
+  /** Somados a partir dos registros do provedor: categoria `calculated`; null = INDISPONÍVEL. */
+  tokens: AgentTokenUsage | null;
+  /** Contagem de chamadas por ferramenta (só o nome, nunca os argumentos). */
+  toolCalls: Record<string, number>;
+  /** Terminal da suíte em que o agente foi aberto, quando identificado. */
+  terminalId: string | null;
+  source: { level: SupportLevel; description: string };
+  error: string | null;
+}
+
+export interface AgentRunDetail extends AgentRun {
+  subagents: AgentRun[];
+}
+
+/** Mensagens do servidor em `/ws/events`. */
+export type ServerEvent = { type: "agent.run.state"; run: AgentRun };
+
 /** Categoria de proveniência de todo dado exibido (ADR-0010, INV-03). */
 export type DataCategory = "official" | "calculated" | "estimated" | "unavailable";
 

@@ -52,6 +52,7 @@ export const claudeCodeAdapter: ProviderAdapter = {
   id: "claude-code",
   label: "Claude Code",
   launchCommand: "claude",
+  sessionIdFlag: "--session-id",
 
   async detect(context): Promise<ProviderInfo> {
     const base = { id: this.id, label: this.label, testedVersions: "2.1.x", capabilities: CAPABILITIES };

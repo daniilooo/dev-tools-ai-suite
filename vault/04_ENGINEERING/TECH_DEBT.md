@@ -16,5 +16,9 @@ tags: [engenharia, divida]
 | TD-08 | Árvore de processos no Windows via `taskkill /T` e no macOS via `ps`: sem teste automatizado | Fase 3 | Médio | Validar na Fase 8 (multiplataforma) |
 | TD-09 | O PATH do servidor pode diferir do PATH do shell interativo (ex.: `~/.local/bin` só no `.zshrc`): provedor pode aparecer ausente e ainda abrir no terminal | Fase 4 | Baixo | Avaliar na Fase 8 resolver o PATH via shell de login |
 | TD-10 | Fixture de "não logado" do Claude Code não foi capturada de uma saída real (máquina de referência está logada) | Fase 4 | Baixo | Capturar ao testar em máquina sem login |
+| TD-11 | Agent Monitor faz varredura periódica (2 s) em vez de observar o sistema de arquivos; atraso de até 2 s | Fase 5 | Baixo | Avaliar `fs.watch` na Fase 8 se o custo aparecer |
+| TD-12 | Sessão principal nunca vira `Concluído`: transcrições não registram o fim (fica `Aguardando` → `Desconhecido`) | Fase 5 | Baixo | Hooks do Claude Code com opt-in (pós-MVP, RN-05) |
+| TD-13 | Histórico de `agent_runs` sem limpeza automática; descoberta limitada a 30 dias | Fase 5 | Baixo | Política de retenção na Fase 8 |
+| TD-14 | Vínculo terminal ↔ Codex por janela de tempo (sem flag de id de sessão no Codex 0.165) | Fase 5 | Baixo | Trocar por flag oficial quando existir |
 
 Registrar aqui atalhos conscientes tomados para entregar o MVP, com plano de pagamento.

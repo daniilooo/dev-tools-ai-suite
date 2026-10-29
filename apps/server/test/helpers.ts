@@ -32,6 +32,8 @@ export interface TestAppOptions {
   pty?: AppDeps["pty"];
   terminalOptions?: AppDeps["terminalOptions"];
   providers?: AppDeps["providers"];
+  agentSourceRoots?: AppDeps["agentSourceRoots"];
+  agentScanIntervalMs?: AppDeps["agentScanIntervalMs"];
 }
 
 export async function createTestApp(
@@ -54,6 +56,12 @@ export async function createTestApp(
     pty: options.pty,
     terminalOptions: options.terminalOptions,
     providers: options.providers,
+    // Testes não varrem o ~/.claude real: raízes vazias por padrão.
+    agentSourceRoots: options.agentSourceRoots ?? {
+      claude: join(dataDir, "no-claude"),
+      codex: join(dataDir, "no-codex"),
+    },
+    agentScanIntervalMs: options.agentScanIntervalMs ?? 0,
   });
   await app.server.ready();
   return {

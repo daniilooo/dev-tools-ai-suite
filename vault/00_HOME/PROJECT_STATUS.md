@@ -7,17 +7,17 @@ atualizado: 2026-10-28
 
 | Campo | Valor |
 |---|---|
-| Fase atual | **FASE 4 — Provider Integration** |
+| Fase atual | **FASE 5 — Agent Monitor + Telemetria (SUG01)** |
 | Status da fase | Em validação |
 | Etapa | Implementado; PR para `release` e revisão humana |
-| Branch atual | `feature/04-providers` |
+| Branch atual | `feature/05-agent-monitor` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Provedores: detecção, login via comandos oficiais, abrir Claude/Codex no projeto |
-| Última decisão | Fase 4 autorizada (HG-14); lançamento por comando fixo (D-09) |
+| Última entrega | Agent Monitor: sessões e subagentes do Claude Code e do Codex, estados, tokens, ferramentas, atualização ao vivo |
+| Última decisão | Fase 5 autorizada (D-11); fontes do monitor (ADR-0013) |
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | Revisão humana e merge do PR da Fase 4 |
-| Testes atuais | 77 servidor + 5 web + 9 E2E, todos passando localmente |
+| Próxima ação | Revisão humana e merge do PR da Fase 5 |
+| Testes atuais | 102 servidor + 8 web + 11 E2E, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |
@@ -26,8 +26,9 @@ atualizado: 2026-10-28
 | 1 — Bootstrap | Concluído |
 | 2 — Foundation | Concluído |
 | 3 — Integrated Terminal | Concluído |
-| 4 — Provider Integration | Em validação |
-| 5 a 9 | Não iniciado |
+| 4 — Provider Integration | Concluído |
+| 5 — Agent Monitor + Telemetria | Em validação |
+| 6 a 9 | Não iniciado |
 
 ## Hipóteses abertas
 - **H-01:** sem prazo fixo; roadmap guiado por fases, não por datas. Dedicação semanal não informada. → [[INTAKE_RECORD]]

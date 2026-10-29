@@ -18,7 +18,11 @@ export interface RunningServer {
   secret(): string;
 }
 
-/** Inicia o servidor real compilado (`pnpm build`) em uma porta e diretório de dados isolados. */
+/**
+ * Inicia o servidor real compilado (`pnpm build`) em uma porta e diretório de dados isolados.
+ * Sem ambiente próprio, as raízes de transcrições apontam para diretórios vazios: o E2E
+ * nunca lê o `~/.claude` nem o `~/.codex` reais.
+ */
 export async function startServer(
   port: number,
   dataDir = mkdtempSync(join(tmpdir(), "devtools-e2e-")),
@@ -29,7 +33,10 @@ export async function startServer(
     [CLI, "start", "--no-open", "--port", String(port), "--data-dir", dataDir],
     {
       stdio: ["ignore", "pipe", "pipe"],
-      env,
+      env:
+        env === process.env
+          ? { ...env, CLAUDE_CONFIG_DIR: join(dataDir, "no-claude"), CODEX_HOME: join(dataDir, "no-codex") }
+          : env,
     },
   );
   let output = "";

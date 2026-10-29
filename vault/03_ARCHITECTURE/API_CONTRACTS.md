@@ -24,7 +24,8 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 | GET/POST | `/projects/:id/terminals` | ✅ listar / criar sessão PTY (`cols`, `rows`, `launch` opcionais — `launch`: `claude-code` ou `codex`); 503 sem biblioteca de PTY, 409 no limite, 400 provedor inválido | 3–4 |
 | DELETE | `/terminals/:id` | ✅ encerrar sessão e sua árvore de processos | 3 |
 | GET | `/providers` | ✅ provedores detectados: versão (testada ou não), login via comando oficial com fonte e horário, capacidades com nível A/B/C; cache 60 s, `?refresh=1` força | 4 |
-| GET | `/projects/:id/agents/runs` | histórico de execuções | 5 |
+| GET | `/projects/:id/agents/runs` | ✅ execuções do projeto (`AgentRunDetail[]`, sessões principais com `subagents`), mais recentes primeiro, até 100 | 5 |
+| GET | `/agents/runs/:id` | ✅ uma execução com subagentes; 404 se não existir | 5 |
 | GET | `/quota` | leituras atuais com categoria e frescor | 6 |
 | POST | `/projects/:id/knowledge/index` | (re)indexar | 7 |
 | DELETE | `/projects/:id/knowledge/index` | remover índice | 7 |
@@ -34,7 +35,7 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 | Canal | Direção | Mensagens |
 |---|---|---|
 | `/ws/terminal/:id` | bidirecional | ✅ cliente: `input`, `resize` · servidor: `replay` (primeira mensagem, com a saída recente), `output`, `exit`. Upgrade exige `Origin` da suíte e cookie de sessão (sem token do CLI). Fechamento: 4401 sessão expirada, 4404 inexistente, 4410 encerrado, 4429 cliente lento. Mensagem máxima 64 KiB |
-| `/ws/events` | servidor → cliente | `agent.event`, `agent.run.state`, `quota.reading`, `module.status` |
+| `/ws/events` | servidor → cliente | ✅ `agent.run.state` (`{ type, run: AgentRun }`, enviado quando qualquer campo da execução muda). Previstos: `quota.reading` (6), `module.status`. Mesma autenticação de `/ws/terminal` (Origin + cookie); fecha com 4401 quando a sessão expira |
 
 ## Convenções
 - Erros: `{ "error": { "code": "STRING", "message": "PT-BR", "details"?: {} } }`.

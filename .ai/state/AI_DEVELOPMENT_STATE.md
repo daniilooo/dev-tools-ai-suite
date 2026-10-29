@@ -4,16 +4,28 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 4 — Provider Integration (em validação) |
+| Fase atual | FASE 5 — Agent Monitor + Telemetria (em validação) |
 | Etapa atual | Implementado; PR e revisão humana |
-| Branch atual | `feature/04-providers` |
-| Última entrega | Módulo `integrations`, `/providers`, doctor com login real, abrir Claude/Codex no projeto |
-| Última decisão | Fase 4 autorizada (HG-14); D-09 e D-10 |
+| Branch atual | `feature/05-agent-monitor` |
+| Última entrega | Agent Monitor (`agents` + `integrations/sources`), `/ws/events`, tela Agentes |
+| Última decisão | D-11 (fase autorizada), ADR-0013, D-12, D-13 |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando (`pnpm dev:server` + `pnpm dev:web`) |
 | Bloqueios | Nenhum |
-| Próxima ação | PR `feature/04-providers → release`, CI verde, revisão humana |
-| Testes atuais | `pnpm test` (52 servidor + 5 web), `pnpm test:e2e` (5), `validate:bootstrap` |
+| Próxima ação | PR `feature/05-agent-monitor → release`, CI verde, revisão humana |
+| Testes atuais | `pnpm test` (102 servidor + 8 web), `pnpm test:e2e` (11), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-28 (Fase 5) — Claude Code (Opus)
+
+**Contexto:** Fase 5 autorizada pelo humano após o merge da Fase 4 (PR #6).
+**Estado:** implementado em `feature/05-agent-monitor`; testes locais verdes (102 servidor, 8 web, 11 E2E).
+**Alterações:** `apps/server/src/modules/integrations/sources/*` (allowlist, leitura incremental, parsers Claude/Codex, descoberta), `apps/server/src/modules/agents/*` (monitor, repositório, rotas, `/ws/events`), migração 3, `--session-id` no lançamento do Claude, fixtures de transcrição, `apps/web/src/app/features/agents/*`, `core/server-events.service.ts`, card no detalhe do projeto, `tests/e2e/agents.spec.ts`; E2E isolado de `~/.claude`/`~/.codex`.
+**Decisões:** ADR-0013 (transcrições nível B; hooks adiados), D-12 (frescor 5/30 min), D-13 (`--session-id`).
+**Pendências:** revisão humana e merge; dívidas TD-11 a TD-14.
+**Próximo passo:** **não iniciar a Fase 6 sem autorização (HG-14)**. A Fase 6 começa pelo spike S-05 (fontes de uso/limites); o `token_count` do Codex traz `rate_limits` — avaliar no spike.
+**Arquivos relevantes:** `apps/server/src/modules/agents/agent-monitor.ts`, `apps/server/src/modules/integrations/sources/agent-sources.ts`, `local-files.ts`, `run-snapshot.ts`, `apps/web/src/app/features/agents/agents-page.ts`.
 
 ---
 
@@ -23,7 +35,7 @@
 **Estado:** implementado em `feature/04-providers`; testes locais verdes (77 servidor, 5 web, 9 E2E).
 **Alterações:** `apps/server/src/modules/integrations/*` (adapters claude-code/codex/ollama, serviço, rota), doctor e CLI com login real, `launch` na criação de terminal, regra ESLint INV-02, fixtures por versão, `apps/web/src/app/features/providers/*`, botões de lançamento, `tests/e2e/providers.spec.ts` (binários falsos), hook pre-push pula push que só apaga branches.
 **Decisões:** D-09 (comando fixo digitado no shell) e D-10 (lint proíbe `fs` em `integrations`).
-**Pendências:** revisão humana e merge; dívidas TD-09 e TD-10.
+**Pendências:** dívidas TD-09 e TD-10. CI verde e PR #6 mergeado.
 **Próximo passo:** **não iniciar a Fase 5 sem autorização (HG-14)**. A Fase 5 exige spike S-04 (hooks do Claude Code e arquivos de sessão do Codex).
 **Arquivos relevantes:** `apps/server/src/modules/integrations/provider-adapter.ts`, `claude-code.adapter.ts`, `codex.adapter.ts`, `apps/server/test/providers.test.ts`.
 

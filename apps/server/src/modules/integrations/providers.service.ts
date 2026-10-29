@@ -1,4 +1,5 @@
 import type { LaunchableProviderId, ProviderId, ProviderInfo, ProvidersResponse } from "@devtools/shared";
+import { randomUUID } from "node:crypto";
 import { badRequest } from "../../core/errors.js";
 import { claudeCodeAdapter } from "./claude-code.adapter.js";
 import { codexAdapter } from "./codex.adapter.js";
@@ -42,11 +43,21 @@ export class ProvidersService {
     return this.inFlight;
   }
 
-  /** Comando a digitar no shell para iniciar o provedor. Só provedores conhecidos e lançáveis. */
-  launchCommand(id: string): string {
+  /**
+   * Comando a digitar no shell para iniciar o provedor. Só provedores conhecidos e lançáveis;
+   * o texto é montado aqui, nunca recebido do navegador. Quando o provedor aceita um id de
+   * sessão (Claude Code), ele é gerado aqui para ligar o terminal à transcrição.
+   */
+  launchSpec(id: string): { providerId: LaunchableProviderId; command: string; externalId: string | null } {
     const adapter = this.adapters.find((a) => a.id === id);
-    if (!adapter?.launchCommand) throw badRequest("Provedor inválido para iniciar no terminal.", { id });
-    return adapter.launchCommand;
+    if (!adapter?.launchCommand || !this.isLaunchable(id)) {
+      throw badRequest("Provedor inválido para iniciar no terminal.", { id });
+    }
+    const externalId = adapter.sessionIdFlag ? randomUUID() : null;
+    const command = externalId
+      ? `${adapter.launchCommand} ${adapter.sessionIdFlag} ${externalId}`
+      : adapter.launchCommand;
+    return { providerId: id, command, externalId };
   }
 
   isLaunchable(id: string): id is LaunchableProviderId {

@@ -45,6 +45,45 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX idx_terminal_sessions_project ON terminal_sessions(project_id);
     `,
   },
+  {
+    version: 3,
+    description: "cria tabelas de execuções e eventos de agentes",
+    up: `
+      CREATE TABLE agent_runs (
+        id TEXT PRIMARY KEY,
+        project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        provider_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        parent_run_id TEXT,
+        external_id TEXT NOT NULL,
+        title TEXT,
+        agent_type TEXT,
+        model TEXT,
+        provider_version TEXT,
+        state TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        last_event_at TEXT NOT NULL,
+        ended_at TEXT,
+        tokens_json TEXT,
+        tool_calls_json TEXT NOT NULL DEFAULT '{}',
+        terminal_id TEXT,
+        source_level TEXT NOT NULL,
+        source_description TEXT NOT NULL,
+        error TEXT
+      );
+      CREATE INDEX idx_agent_runs_project ON agent_runs(project_id, last_event_at);
+      CREATE INDEX idx_agent_runs_parent ON agent_runs(parent_run_id);
+      CREATE TABLE agent_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL REFERENCES agent_runs(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        payload_redacted_json TEXT NOT NULL,
+        source TEXT NOT NULL,
+        occurred_at TEXT NOT NULL
+      );
+      CREATE INDEX idx_agent_events_run ON agent_events(run_id);
+    `,
+  },
 ];
 
 export function openDatabase(file: string): Db {

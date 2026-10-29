@@ -40,6 +40,8 @@ export default tseslint.config(
     // INV-02: adapters de provedores só executam comandos oficiais; ler arquivos
     // (credenciais, configurações, sessões) é proibido neste módulo.
     files: ["apps/server/src/modules/integrations/**/*.ts"],
+    // Única exceção: leitor com allowlist de caminhos (transcrições/sessões, nível B).
+    ignores: ["apps/server/src/modules/integrations/sources/local-files.ts"],
     rules: {
       "no-restricted-imports": [
         "error",
