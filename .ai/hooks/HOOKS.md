@@ -10,7 +10,7 @@ git config core.hooksPath .githooks
 | Nome | Momento | Comando | Objetivo | Tempo esperado | Bloqueante |
 |---|---|---|---|---|---|
 | pre-commit | antes do commit | `.githooks/pre-commit` → `check-secrets --staged`; `prettier --check` e `eslint` nos arquivos staged (quando o tooling existir) | evitar segredos e código fora do padrão | < 10 s | Sim |
-| pre-push | antes do push | `.githooks/pre-push` → `pnpm typecheck`, `pnpm test`, `pnpm build` (quando existirem); `validate-bootstrap` | evitar quebrar `release` | 1–3 min | Sim |
+| pre-push | antes do push | `.githooks/pre-push` → `pnpm typecheck`, `pnpm test`, `pnpm build` (quando existirem); `validate-bootstrap`. Push que só apaga branches pula as verificações | evitar quebrar `release` | 1–3 min | Sim |
 | CI (PR) | Pull Request | GitHub Actions: install → lint → typecheck → unit → integration → build → security → E2E | gate técnico de merge | < 15 min | Sim |
 | pre-release | antes de publicar | `pnpm pack` + instalação limpa + `devtools doctor` | validar pacote | 5 min | Sim + gate humano |
 
