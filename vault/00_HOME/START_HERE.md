@@ -11,14 +11,14 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 ## Resposta rápida
 | Pergunta | Resposta |
 |---|---|
-| Estado atual | Fase 2 (Foundation) concluída → [[PROJECT_STATUS]] |
+| Estado atual | Fase 3 (Integrated Terminal) em validação → [[PROJECT_STATUS]] |
 | Versão | `v0.0.0` (nada publicado) |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 2 — Foundation (em validação) |
-| Última decisão | ADR-0007 e ADR-0012 aceitos (2026-10-28) → [[DECISION_LOG]] |
-| Próxima ação | Autorização da FASE 3 — Integrated Terminal (HG-14) |
+| Etapa atual | FASE 3 — Integrated Terminal (em validação) |
+| Última decisão | Retenção de terminal desconectado = 8 h (2026-10-28) → [[DECISION_LOG]] |
+| Próxima ação | Validação humana do terminal e PR da Fase 3 |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

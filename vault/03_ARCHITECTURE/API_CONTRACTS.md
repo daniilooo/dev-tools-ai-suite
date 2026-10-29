@@ -21,8 +21,8 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 | GET/POST | `/projects` | ✅ listar / cadastrar projeto | 2 |
 | GET/DELETE | `/projects/:id` | ✅ detalhe / remover **apenas o cadastro** | 2 |
 | POST | `/projects/:id/redetect` | ✅ detectar a stack novamente | 2 |
-| GET/POST | `/projects/:id/terminals` | listar / criar sessão PTY | 3 |
-| DELETE | `/terminals/:id` | encerrar sessão | 3 |
+| GET/POST | `/projects/:id/terminals` | ✅ listar / criar sessão PTY (`cols`, `rows` opcionais); 503 sem biblioteca de PTY, 409 no limite | 3 |
+| DELETE | `/terminals/:id` | ✅ encerrar sessão e sua árvore de processos | 3 |
 | GET | `/providers` | provedores detectados, versão, capacidades | 4 |
 | GET | `/projects/:id/agents/runs` | histórico de execuções | 5 |
 | GET | `/quota` | leituras atuais com categoria e frescor | 6 |
@@ -33,7 +33,7 @@ Todas as rotas `/api` exigem sessão local válida (cookie `devtools_session`) *
 ## WebSocket
 | Canal | Direção | Mensagens |
 |---|---|---|
-| `/ws/terminal/:id` | bidirecional | `input`, `resize`, `output`, `exit`, `replay` (reconexão) |
+| `/ws/terminal/:id` | bidirecional | ✅ cliente: `input`, `resize` · servidor: `replay` (primeira mensagem, com a saída recente), `output`, `exit`. Upgrade exige `Origin` da suíte e cookie de sessão (sem token do CLI). Fechamento: 4401 sessão expirada, 4404 inexistente, 4410 encerrado, 4429 cliente lento. Mensagem máxima 64 KiB |
 | `/ws/events` | servidor → cliente | `agent.event`, `agent.run.state`, `quota.reading`, `module.status` |
 
 ## Convenções

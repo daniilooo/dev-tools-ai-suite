@@ -7,6 +7,7 @@ tags: [operacoes]
 | Tarefa | Como (planejado) |
 |---|---|
 | Iniciar | `devtools start` (abre o navegador; código curto exibido no terminal como alternativa) · `--port`, `--data-dir`, `--no-open` |
+| Terminal | Menu **Terminal** ou **Abrir terminal** no projeto. Fechar o navegador não encerra o terminal: ele fica vivo por 8 h. Fechar a aba (×) ou parar o servidor encerra os processos dele |
 | Novo código de acesso | executar `devtools start` de novo: se a suíte já estiver rodando, apenas gera um novo código |
 | Diagnóstico | `devtools doctor` |
 | Logs | `~/.dev-tools-ai-suite/logs/` (redigidos) |

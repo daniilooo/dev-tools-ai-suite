@@ -19,7 +19,7 @@ stateDiagram-v2
   Encerrada --> [*]
   Falhou --> [*]
 ```
-Regra: sessão `Desconectada` mantém o processo vivo e um buffer limitado de saída até o timeout de retenção (valor definido na Fase 3).
+Regra: sessão `Desconectada` mantém o processo vivo e um buffer limitado de saída (256 KiB) até o timeout de retenção de **8 h**. Sessão `Encerrada` continua listada por 10 min para a aba mostrar o código de saída. Encerrar a sessão encerra toda a árvore de processos dela (descendentes e processos da mesma sessão POSIX). Na API: `active` = Ativa, `disconnected` = Desconectada, `exited` = Encerrada; `Falhou` vira erro na criação (sem sessão).
 
 ## Execução de agente (Agent Monitor)
 ```mermaid
