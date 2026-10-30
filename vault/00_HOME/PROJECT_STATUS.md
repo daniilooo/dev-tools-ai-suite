@@ -7,17 +7,17 @@ atualizado: 2026-10-29
 
 | Campo | Valor |
 |---|---|
-| Fase atual | **FASE 7 — Knowledge: RAG + Grafo** |
+| Fase atual | **FASE 8 — Hardening e Validação** |
 | Status da fase | Em validação |
-| Etapa | Parte 2 (busca semântica, vetores e grafo de código) pronta; aguarda revisão do PR |
-| Branch atual | `feature/07-semantic-graph` |
+| Etapa | Relatório da DoD pronto (12/12); aguarda aprovação humana e revisão do PR |
+| Branch atual | `feature/08-hardening` |
 | Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Conhecimento, parte 2: busca semântica opcional (sqlite-vec, Ollama/Transformers.js), busca híbrida e grafo de código via Graphify |
-| Última decisão | HG-07 aprovado: sqlite-vec, embeddings opcionais e Graphify externo (D-20) |
+| Última entrega | Hardening: instalação limpa no CI, upgrade de migrações, E2E da jornada, revisão de segurança (S-01 corrigido), guia de operação, relatório da DoD |
+| Última decisão | Banco de versão mais nova é recusado (D-23) |
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | Revisão humana do PR da parte 2; depois, Fase 8 só com autorização (HG-14) |
-| Testes atuais | 132 servidor + 15 web + 14 E2E, todos passando localmente |
+| Próxima ação | Humano aprova o relatório ([[MVP_DOD_VALIDATION]]) e o PR; decide TD-02 e TD-13; Fase 9 só com autorização (HG-14) |
+| Testes atuais | 144 servidor + 15 web + 15 E2E + instalação limpa, todos passando localmente |
 
 ## Progresso por fase
 | Fase | Status |
@@ -29,8 +29,9 @@ atualizado: 2026-10-29
 | 4 — Provider Integration | Concluído |
 | 5 — Agent Monitor + Telemetria | Concluído |
 | 6 — AI Quota Monitor | Concluído |
-| 7 — Knowledge (RAG + Grafo) | Em validação |
-| 8 e 9 | Não iniciado |
+| 7 — Knowledge (RAG + Grafo) | Concluído |
+| 8 — Hardening e Validação | Em validação |
+| 9 — MVP Release | Não iniciado |
 
 ## Hipóteses abertas
 - **H-01:** sem prazo fixo; roadmap guiado por fases, não por datas. Dedicação semanal não informada. → [[INTAKE_RECORD]]

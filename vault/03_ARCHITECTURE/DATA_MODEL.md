@@ -104,6 +104,7 @@ erDiagram
 - Vetores (migração 5, `knowledge_semantic` guarda mecanismo, modelo, estado e progresso) ficam em `indexes/<projeto>.vec.db` (0600, `sqlite-vec`): tabela `refs` (hash do trecho, arquivo, linhas, prévia redigida) e tabela virtual `vectors` (`vec0`, cosseno). O hash de caminho + linhas + conteúdo permite recalcular só os trechos que mudaram; trocar de modelo descarta os vetores.
 - Grafo de código (migração 5, `knowledge_graphs` guarda estado e contagens) fica em `graphs/<projeto>.json` (0600): só símbolos, arquivos, linhas e relações extraídos pelo Graphify; símbolos de arquivos excluídos não entram.
 - Nenhuma credencial é armazenada (INV-02). O segredo de instalação fica em arquivo próprio 0600, não no banco.
+- **Upgrade (D-23):** migrações só aditivas, uma transação por migração, aplicadas ao abrir o banco; testes sobem bancos de cada versão anterior com dados até a última (`migrations.test.ts`). Banco de uma versão **mais nova** da suíte é recusado com mensagem clara e não é alterado (voltar de versão não roda com esquema desconhecido).
 
 ## Diretório de dados
 ```text

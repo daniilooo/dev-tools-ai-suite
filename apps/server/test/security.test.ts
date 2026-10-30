@@ -18,6 +18,22 @@ describe("autenticação local (ADR-0007, INV-01)", () => {
     }
   });
 
+  it("caminho com letras codificadas (`/%61pi/...`) não escapa da autenticação", async () => {
+    for (const url of ["/%61pi/v1/projects", "/%61%70%69/v1/doctor", "/%61pi/v1/session"]) {
+      expect((await get(url)).statusCode, url).toBe(401);
+    }
+    for (const url of ["/%61pi/v1/projects", "/%61pi/v1/session/launch-code"]) {
+      const response = await ctx.server.inject({
+        method: "POST",
+        url,
+        headers: { host: HOST, "content-type": "application/json" },
+        payload: { path: "/tmp" },
+      });
+      expect(response.statusCode, url).toBe(401);
+    }
+    expect((await get("/%77s/events")).statusCode).not.toBe(101);
+  });
+
   it("troca código de uso único por cookie HttpOnly SameSite=Strict", async () => {
     const code = ctx.codes.issue();
     const response = await ctx.server.inject({

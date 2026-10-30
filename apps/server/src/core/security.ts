@@ -78,7 +78,11 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
     reply.header("X-Frame-Options", "DENY");
     reply.header("Content-Security-Policy", CONTENT_SECURITY_POLICY);
 
-    if (request.url.startsWith("/ws/")) {
+    // Decide pela rota que o roteador casou, não só pela URL crua: `/%61pi/...` é decodificado
+    // pelo roteador e casaria `/api/...` sem passar pela autenticação.
+    const route = request.routeOptions.url ?? "";
+    const path = request.url.split("?")[0]!;
+    if (route.startsWith("/ws/") || path.startsWith("/ws/")) {
       // WebSocket não passa por CORS nem por header anti-CSRF: exige Origin da própria
       // suíte (anti cross-site WebSocket hijacking) e sessão do navegador. O CLI não abre WS.
       if (origin === undefined) throw forbidden("Origem obrigatória para WebSocket.");
@@ -88,9 +92,9 @@ export function registerSecurity(app: FastifyInstance, options: SecurityOptions)
       return;
     }
 
-    if (!request.url.startsWith("/api/")) return;
+    if (!route.startsWith("/api/") && !path.startsWith("/api/")) return;
 
-    const routeKey = `${request.method} ${request.url.split("?")[0]}`;
+    const routeKey = `${request.method} ${route}`;
     if (PUBLIC_API_ROUTES.has(routeKey)) return;
 
     const cliToken = cliTokenOf(request);

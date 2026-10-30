@@ -137,7 +137,13 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   const projects = new ProjectsService(new ProjectsRepository(deps.db));
   const providers = deps.providers ?? new ProvidersService();
   registerSessionRoutes(server, { codes, sessions });
-  registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals, providers });
+  registerSystemRoutes(server, {
+    layout: deps.layout,
+    db: deps.db,
+    terminals,
+    providers,
+    graphifyBin: deps.config.knowledge.graphifyBin,
+  });
   registerProviderRoutes(server, providers);
   const knowledgeConfig = deps.config.knowledge;
   const knowledge = new KnowledgeService(deps.db, projects, deps.layout.indexes, {
@@ -197,9 +203,16 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   const publicDir = deps.publicDir === undefined ? defaultPublicDir() : deps.publicDir;
   if (publicDir && existsSync(publicDir)) {
     await server.register(fastifyStatic, { root: publicDir, index: ["index.html"] });
-    // SPA: rotas que não são API nem arquivo devolvem o index.html.
+    // SPA: rotas que não são API nem arquivo devolvem o index.html. Arquivo inexistente
+    // (`/styles.css`) é 404: devolver HTML no lugar de CSS/JS esconde um build quebrado.
     server.setNotFoundHandler((request, reply) => {
-      if (request.url.startsWith("/api/") || request.url.startsWith("/ws/") || request.method !== "GET") {
+      const path = request.url.split("?")[0]!;
+      if (
+        path.startsWith("/api/") ||
+        path.startsWith("/ws/") ||
+        request.method !== "GET" ||
+        /\.[a-z0-9]+$/i.test(path)
+      ) {
         return reply.code(404).send({ error: { code: "NOT_FOUND", message: "Recurso não encontrado." } });
       }
       return reply.sendFile("index.html");

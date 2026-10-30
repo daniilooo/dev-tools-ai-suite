@@ -49,11 +49,11 @@ const STATE_ORDER: AgentRunState[] = ["running", "waiting", "detected", "failed"
           <span class="text-muted">Projeto</span>
           <select
             class="rounded-md border border-border bg-surface px-2 py-1.5 text-sm"
-            [value]="selectedId() ?? ''"
             (change)="select($any($event.target).value)"
           >
+            <!-- [selected] na opção: [value] no select chega antes das opções e o navegador fica na primeira. -->
             @for (p of projects(); track p.id) {
-              <option [value]="p.id">{{ p.name }}</option>
+              <option [value]="p.id" [selected]="p.id === selectedId()">{{ p.name }}</option>
             }
           </select>
         </label>

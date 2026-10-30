@@ -1,5 +1,6 @@
 import type { DoctorCheck, DoctorReport, DoctorTool, ProviderInfo } from "@devtools/shared";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { permissionsOf } from "../../core/data-dir.js";
 import type { DataDirLayout } from "../../core/data-dir.js";
 import type { Db } from "../../core/database.js";
@@ -17,10 +18,7 @@ interface ToolSpec {
 }
 
 /** Ferramentas que não são provedores de IA. Os provedores vêm do módulo `providers`. */
-const TOOLS: ToolSpec[] = [
-  { id: "git", label: "Git", command: "git", args: ["--version"], optional: false },
-  { id: "graphify", label: "Graphify", command: "graphify", args: ["--version"], optional: true },
-];
+const GIT: ToolSpec = { id: "git", label: "Git", command: "git", args: ["--version"], optional: false };
 
 const PROVIDER_TOOL_IDS: Record<ProviderInfo["id"], DoctorTool["id"]> = {
   "claude-code": "claude",
@@ -42,10 +40,19 @@ export async function runDoctor(
   db: Db | null,
   pty: PtyStatus,
   providers: ProviderInfo[],
+  graphifyBin = "graphify",
 ): Promise<DoctorReport> {
   const checks: DoctorCheck[] = [nodeCheck(), ...dataDirChecks(layout), databaseCheck(db), ptyCheck(pty)];
-  const [git, graphify] = await Promise.all(TOOLS.map(detectTool));
-  const tools = [git!, ...providers.map(providerTool), graphify!];
+  // Complementos opcionais do conhecimento (ADR-0006): Graphify externo e Transformers.js em `addons/`.
+  const graphifySpec: ToolSpec = {
+    id: "graphify",
+    label: "Graphify",
+    command: graphifyBin,
+    args: ["--version"],
+    optional: true,
+  };
+  const [git, graphify] = await Promise.all([detectTool(GIT), detectTool(graphifySpec)]);
+  const tools = [git, ...providers.map(providerTool), graphify, transformersTool(layout)];
   return { generatedAt: new Date().toISOString(), checks, tools };
 }
 
@@ -124,6 +131,25 @@ async function detectTool(spec: ToolSpec): Promise<DoctorTool> {
   const installed = result.spawnError === null && !result.timedOut && result.exitCode === 0;
   const version = installed ? extractVersion(result.stdout || result.stderr) : null;
   return { id: spec.id, label: spec.label, installed, version, auth: null, optional: spec.optional };
+}
+
+/** Só lê o `package.json` do complemento instalado; não carrega o runtime ONNX (~560 MB). */
+function transformersTool(layout: DataDirLayout): DoctorTool {
+  let version: string | null;
+  try {
+    const manifest = join(layout.addons, "node_modules", "@huggingface", "transformers", "package.json");
+    version = (JSON.parse(readFileSync(manifest, "utf8")) as { version?: string }).version ?? null;
+  } catch {
+    version = null;
+  }
+  return {
+    id: "transformers",
+    label: "Transformers.js (embeddings)",
+    installed: version !== null,
+    version,
+    auth: null,
+    optional: true,
+  };
 }
 
 function compareVersions(a: readonly number[], b: readonly number[]): number {

@@ -68,6 +68,9 @@ jobs:
           tar -tzf "$RUNNER_TEMP"/devtools-ai-suite-*.tgz | grep -q "package/dist/cli.js"
           tar -tzf "$RUNNER_TEMP"/devtools-ai-suite-*.tgz | grep -q "package/dist/public/index.html"
 
+      - name: Instalação limpa do pacote (contêiner Debian sem compilador)
+        run: scripts/smoke-install.sh "$RUNNER_TEMP"/devtools-ai-suite-*.tgz
+
       - name: Relatório do Playwright
         if: failure()
         uses: actions/upload-artifact@v4

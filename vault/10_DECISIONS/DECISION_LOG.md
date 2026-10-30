@@ -41,3 +41,5 @@ tags: [decisoes]
 | 2026-10-29 | D-19 | Repositórios git aninhados (até 3 níveis) entram no índice com o próprio `.gitignore`, mesmo que a raiz os ignore | Proposto pela LLM | [[INDEXING_EXCLUSIONS]] |
 | 2026-10-29 | D-20 | HG-07: `sqlite-vec` como `VectorStore`; busca semântica opcional por projeto via Ollama local ou Transformers.js sob demanda; Graphify como ferramenta externa opcional | Aceito (gate HG-07) | [[ADR-0006-rag-local]] |
 | 2026-10-29 | D-21 | Modelos padrão: `embeddinggemma` no Ollama (multilíngue, baixado pelo humano) e `Xenova/multilingual-e5-small` no Transformers.js (validado no S-03 em PT-BR); configuráveis por `DEVTOOLS_OLLAMA_EMBED_MODEL` e `DEVTOOLS_TRANSFORMERS_MODEL` | Proposto pela LLM | [[ADR-0006-rag-local]] |
+| 2026-10-29 | D-22 | Fase 8 autorizada pelo humano (HG-14) após o merge da Fase 7 (PR #11) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
+| 2026-10-29 | D-23 | Banco criado por versão mais nova da suíte é recusado ao abrir (sem alterá-lo), com instrução para atualizar em vez de voltar de versão | Proposto pela LLM | [[DATA_MODEL]] |

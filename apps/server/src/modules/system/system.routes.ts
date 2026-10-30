@@ -9,7 +9,13 @@ import { runDoctor } from "./doctor.js";
 
 export function registerSystemRoutes(
   app: FastifyInstance,
-  deps: { layout: DataDirLayout; db: Db; terminals: TerminalManager; providers: ProvidersService },
+  deps: {
+    layout: DataDirLayout;
+    db: Db;
+    terminals: TerminalManager;
+    providers: ProvidersService;
+    graphifyBin: string;
+  },
 ): void {
   app.get("/api/v1/health", async (): Promise<HealthResponse> => ({
     status: "ok",
@@ -28,7 +34,13 @@ export function registerSystemRoutes(
   }));
 
   app.get("/api/v1/doctor", async () =>
-    runDoctor(deps.layout, deps.db, ptyStatusOf(deps.terminals), (await deps.providers.list()).providers),
+    runDoctor(
+      deps.layout,
+      deps.db,
+      ptyStatusOf(deps.terminals),
+      (await deps.providers.list()).providers,
+      deps.graphifyBin,
+    ),
   );
 }
 

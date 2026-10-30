@@ -137,7 +137,14 @@ export function openDatabase(file: string): Db {
   return db;
 }
 
-export function migrate(db: Db): number {
+export const SCHEMA_VERSION = MIGRATIONS.at(-1)!.version;
+
+/**
+ * Aplica as migrações pendentes até `target` (padrão: a última; os testes de upgrade
+ * montam bancos antigos com um alvo menor). Banco de uma versão mais nova da suíte é
+ * recusado: rodar com um esquema desconhecido arriscaria os dados do usuário.
+ */
+export function migrate(db: Db, target = SCHEMA_VERSION): number {
   db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version INTEGER PRIMARY KEY,
     description TEXT NOT NULL,
@@ -145,7 +152,13 @@ export function migrate(db: Db): number {
   )`);
   const current =
     (db.prepare("SELECT MAX(version) AS v FROM schema_migrations").get() as { v: number | null }).v ?? 0;
-  const pending = MIGRATIONS.filter((m) => m.version > current);
+  if (current > SCHEMA_VERSION) {
+    throw new Error(
+      `O banco de dados é da migração ${current}, mais nova que a desta versão da suíte (${SCHEMA_VERSION}). ` +
+        "Atualize a suíte (npm install -g devtools-ai-suite) em vez de voltar para uma versão anterior.",
+    );
+  }
+  const pending = MIGRATIONS.filter((m) => m.version > current && m.version <= target);
   const apply = db.transaction((migration: Migration) => {
     db.exec(migration.up);
     db.prepare("INSERT INTO schema_migrations (version, description, applied_at) VALUES (?, ?, ?)").run(

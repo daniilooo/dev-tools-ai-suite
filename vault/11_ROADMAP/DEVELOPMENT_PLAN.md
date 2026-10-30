@@ -20,8 +20,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 4 | Provider Integration | P0 | Concluído | 100% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Concluído | 100% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Concluído | 100% |
-| 7 | Knowledge (RAG + Grafo) | P1 | Em andamento | 40% |
-| 8 | Hardening e Validação | — | Não iniciado | 0% |
+| 7 | Knowledge (RAG + Grafo) | P1 | Concluído | 100% |
+| 8 | Hardening e Validação | — | Em validação | 95% |
 | 9 | MVP Release | — | Não iniciado | 0% |
 
 ```mermaid
@@ -178,7 +178,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 
 ## FASE 7 — Knowledge: RAG + Grafo (P1)
-**Status:** Em validação — parte 1 integrada (PR #9); parte 2 (busca semântica, vetores e grafo) em `feature/07-semantic-graph`, aguardando revisão do PR
+**Status:** Concluído — parte 1 (PR #9), spikes (PR #10) e parte 2 (PR #11) integrados em `release`
 - **Objetivo:** indexar projetos localmente e responder consultas com referências verificáveis.
 - **Escopo:** spikes **S-02** (Graphify) e **S-03** (vetores + embeddings) · `EmbeddingProvider` (ONNX, Ollama) · `VectorStore` · exclusões · chunking · consulta com referências · remover/reconstruir índice · `CodeGraphProvider`.
 - **Entregáveis:**
@@ -208,12 +208,21 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-04 (Graphify/Python), R-05 (CPU/RAM).
 
 ## FASE 8 — Hardening e Validação
-**Status:** Não iniciado
+**Status:** Em validação — relatório da DoD pronto ([[MVP_DOD_VALIDATION]]), aguardando aprovação humana e revisão do PR (`feature/08-hardening`)
 - **Objetivo:** provar a Definition of MVP Done.
 - **Escopo:** E2E das jornadas · instalação em Linux limpo · testes de persistência/upgrade · revisão de segurança completa · documentação de instalação/operação · validação em projeto real Angular + Spring Boot.
 - **Entregáveis:** relatório de validação da DoD (12 itens).
+  - [x] Tour do dashboard real no Chrome com o `srm-credit-engine` (Angular + Spring Boot): projetos, terminal (`git log`, `top`), conhecimento, provedores, cotas, agentes e diagnóstico
+  - [x] Correções achadas no tour: stack em subpastas (`backend/`, `frontend/`), seletor de projeto nas telas Agentes e Conhecimento, 404 para arquivo estático inexistente
+  - [x] Instalação limpa do pacote num contêiner Debian sem compilador (`scripts/smoke-install.sh`, também no CI)
+  - [x] Upgrade de cada versão do banco com dados; banco mais novo recusado (D-23)
+  - [x] E2E da jornada completa (`journey.spec.ts`)
+  - [x] Revisão de segurança completa ([[SECURITY_REVIEW_F8]]): S-01 bloqueante corrigido
+  - [x] Documentação de instalação e operação ([[OPERATIONS]]); Graphify e Transformers.js no doctor (TD-20); rotação do log (TD-03)
+  - [x] Relatório dos 12 itens da DoD ([[MVP_DOD_VALIDATION]])
 - **Dependências:** Fases 5, 6, 7.
-- **Critérios de aceite:** todos os 12 itens da DoD em [[MVP_SCOPE]] verificados.
+- **Critérios de aceite:** todos os 12 itens da DoD em [[MVP_SCOPE]] verificados — ✅ 12/12 no relatório, aguardando aprovação.
+- **Decisões da fase:** D-22 (fase autorizada), D-23 (banco mais novo recusado).
 - **DoD:** relatório aprovado pelo humano.
 - **Riscos:** descoberta tardia de problemas de empacotamento → mitigado por `pnpm pack` no CI desde a Fase 2.
 

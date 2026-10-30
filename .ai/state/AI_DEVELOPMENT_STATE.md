@@ -4,16 +4,27 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 7 — Knowledge: RAG + Grafo (em validação) |
-| Etapa atual | Parte 2 (busca semântica, vetores e grafo) pronta; aguarda revisão do PR |
-| Branch atual | `feature/07-semantic-graph` |
-| Última entrega | `VectorStore` (sqlite-vec), `EmbeddingProvider` (Ollama loopback, Transformers.js sob demanda), busca híbrida, `CodeGraphProvider` (Graphify), cartões na tela Conhecimento |
-| Última decisão | D-20 (HG-07) e D-21 (modelos padrão) |
+| Fase atual | FASE 8 — Hardening e Validação (em validação) |
+| Etapa atual | Relatório da DoD pronto (12/12); aguarda aprovação humana e revisão do PR |
+| Branch atual | `feature/08-hardening` |
+| Última entrega | Instalação limpa no CI, upgrade de migrações, E2E da jornada, revisão de segurança (S-01 corrigido), guia de operação, TD-03/TD-20 pagos |
+| Última decisão | D-23 (banco de versão mais nova recusado) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
 | Bloqueios | Nenhum |
-| Próxima ação | Humano revisa o PR da parte 2; Fase 8 só com autorização (HG-14) |
-| Testes atuais | `pnpm test` (132 servidor + 15 web), `pnpm test:e2e` (14), `validate:bootstrap` |
+| Próxima ação | Humano aprova o relatório e o PR; decide TD-02 e TD-13; Fase 9 só com autorização (HG-14) |
+| Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 8) — Claude Code (Opus)
+
+**Contexto:** Fase 7 integrada (PR #11); Fase 8 autorizada pelo humano (D-22). Branch `feature/08-hardening` a partir de `release`.
+**Estado:** em validação. Relatório `vault/08_TESTING/MVP_DOD_VALIDATION.md` com os 12 itens verificados; testes locais verdes (144 servidor, 15 web, 15 E2E, instalação limpa).
+**Alterações:** stack em subpastas; seletor de projeto (`[selected]`); 404 para arquivo estático inexistente; doctor com Graphify configurável e Transformers.js; **autenticação pela rota casada (S-01: `/%61pi/...` escapava da sessão)**; recusa de banco mais novo (D-23); rotação do `server.log`; `scripts/smoke-install.sh` (+ CI); `tests/e2e/journey.spec.ts`; `test/migrations.test.ts`; `OPERATIONS.md`; `SECURITY_REVIEW_F8.md`.
+**Pendências:** decisões humanas sobre TD-02 (rotação do segredo) e TD-13 (retenção do histórico); chore do vite (só dev).
+**Próximo passo:** aprovação do relatório e do PR. **Não iniciar a Fase 9 sem autorização.**
+**Arquivos relevantes:** `vault/08_TESTING/MVP_DOD_VALIDATION.md`, `vault/07_SECURITY/SECURITY_REVIEW_F8.md`, `apps/server/src/core/security.ts`, `scripts/smoke-install.sh`.
 
 ---
 

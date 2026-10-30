@@ -2,7 +2,7 @@
 
 Camada **local-first** de integração, observabilidade e conhecimento para desenvolvimento assistido por IA. Reúne Claude Code, Codex e modelos locais em um dashboard web que roda na sua máquina, com terminal real, monitor de agentes, monitor de cotas, RAG local e observabilidade, sem substituir nenhum desses assistentes.
 
-> **Status:** Fase 7 (Conhecimento) em validação: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto, monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados, monitor de cotas (janelas de 5 h e semanal, com fonte e frescor) e conhecimento local do projeto: busca textual por arquivo e linhas, busca semântica opcional (embeddings locais) e grafo de código (Graphify). Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
+> **Status:** Fase 8 (Hardening e Validação) em validação, com os 12 itens da DoD do MVP verificados; Fases 1–7 concluídas: servidor local seguro, projetos, diagnóstico, terminal real no navegador, detecção de Claude Code, Codex e Ollama com login via comandos oficiais, atalho para abrir Claude/Codex no projeto, monitor de agentes e subagentes (estado, tokens, ferramentas, histórico) lido das transcrições locais, só com metadados, monitor de cotas (janelas de 5 h e semanal, com fonte e frescor) e conhecimento local do projeto: busca textual por arquivo e linhas, busca semântica opcional (embeddings locais) e grafo de código (Graphify). Nenhum pacote publicado ainda. Roadmap: [`vault/11_ROADMAP/DEVELOPMENT_PLAN.md`](vault/11_ROADMAP/DEVELOPMENT_PLAN.md) · [visual](docs/development-plan.html)
 
 ## Produto
 
@@ -33,7 +33,7 @@ pnpm start          # = devtools start: sobe em 127.0.0.1:4317 e abre o dashboar
 - Para o diagnóstico, use `node apps/server/dist/cli.js doctor`.
 - Os dados ficam em `~/.dev-tools-ai-suite/` (diretório 0700, segredo 0600).
 
-Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`.
+Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`. Guia de operação (variáveis, dados, backup, atualização, problemas comuns): [`vault/09_OPERATIONS/OPERATIONS.md`](vault/09_OPERATIONS/OPERATIONS.md).
 
 ### Conhecimento (opcional)
 
@@ -53,6 +53,7 @@ pnpm dev:web                          # recompila o dashboard a cada alteração
 pnpm dev:server                       # servidor com recarga automática (sem abrir o navegador)
 pnpm lint && pnpm typecheck && pnpm test
 pnpm test:e2e                         # requer `pnpm build` e `pnpm exec playwright install chromium`
+scripts/smoke-install.sh <pacote.tgz>  # instalação limpa num contêiner Debian (requer Docker)
 ```
 
 ## Onde está a documentação
