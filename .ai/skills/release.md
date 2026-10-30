@@ -10,4 +10,4 @@ Fluxo completo em `.ai/workflow/DEPLOY.md`. **Cada passo de publicação exige g
 6. Tag e GitHub pré-release com o `.tgz`; validar com `scripts/smoke-install.sh <URL>`.
 7. Marcar como estável; atualizar `vault/12_RELEASES/RELEASES.md`, `PROJECT_STATUS.md` e HANDOFF.
 
-Registro npm (HG-03) só quando houver conta (D-26).
+8. HG-03: o humano publica o mesmo `.tgz` no npm pelo terminal; conferir shasum e `scripts/smoke-install.sh devtools-ai-suite` (D-27).

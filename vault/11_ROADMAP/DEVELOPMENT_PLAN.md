@@ -22,7 +22,7 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 6 | AI Quota Monitor (SUG02) | P1 | Concluído | 100% |
 | 7 | Knowledge (RAG + Grafo) | P1 | Concluído | 100% |
 | 8 | Hardening e Validação | — | Concluído | 100% |
-| 9 | MVP Release | — | Em andamento | 60% |
+| 9 | MVP Release | — | Concluído | 100% |
 
 ```mermaid
 flowchart LR
@@ -227,20 +227,21 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** descoberta tardia de problemas de empacotamento → mitigado por `pnpm pack` no CI desde a Fase 2.
 
 ## FASE 9 — MVP Release
-**Status:** Em andamento — autorizada pelo humano (D-24), branch `feature/09-mvp-release`
+**Status:** Concluído — `v0.1.0` publicada em 2026-10-30 na GitHub Release e no npm (D-27)
 - **Objetivo:** publicar `v0.1.0`.
-- **Escopo:** merge `release → main` · tag `v0.1.0` · GitHub pré-release com o `.tgz` → validação pela URL → release estável · notas de release (D-26; registro npm adiado).
+- **Escopo:** merge `release → main` · tag `v0.1.0` · GitHub pré-release com o `.tgz` → validação pela URL → release estável · notas de release · publicação no registro npm com o mesmo `.tgz` (D-26, D-27).
 - **Entregáveis:**
   - [x] Nome `devtools-ai-suite` livre no npm (R-08)
   - [x] Pacote pronto: versão `0.1.0`, README do pacote, licença no pacote, metadados, trava `prepack` contra build de desenvolvimento
   - [x] `scripts/release-pack.sh`: pacote gerado num worktree limpo do commit e testado com instalação limpa
   - [x] `CHANGELOG.md` e notas da versão
   - [x] Distribuição revista: GitHub Release com o `.tgz` em vez do registro npm (sem conta no npm, D-26)
-  - [ ] HG-01: merge `release → main` (pelo humano)
-  - [ ] HG-02: tag `v0.1.0` e GitHub pré-release com o `.tgz` gerado em `main`
-  - [ ] Instalação limpa pela URL da release (`scripts/smoke-install.sh <URL>`) e release marcada como estável
+  - [x] HG-01: merge `release → main` (pelo humano, PR #15)
+  - [x] HG-02: tag `v0.1.0` e GitHub pré-release com o `.tgz` gerado em `main`
+  - [x] Instalação limpa pela URL da release (`scripts/smoke-install.sh <URL>`) e release marcada como estável
+  - [x] HG-03: `npm publish` do mesmo `.tgz` pelo humano; instalação limpa pelo registro (`scripts/smoke-install.sh devtools-ai-suite`) (D-27)
 - **Dependências:** Fase 8.
-- **Decisões da fase:** D-24 (fase autorizada), D-25 (publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico), D-26 (GitHub Release no lugar do registro npm).
-- **Critérios de aceite:** instalação pela URL da release em máquina limpa reproduz a jornada principal (D-26).
-- **DoD:** HG-01 e HG-02 aprovados (HG-03 só com registro npm, D-26); [[RELEASES]] atualizado.
+- **Decisões da fase:** D-24 (fase autorizada), D-25 (publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico), D-26 (GitHub Release no lugar do registro npm), D-27 (registro npm somado à GitHub Release).
+- **Critérios de aceite:** instalação pela URL da release e pelo registro npm em máquina limpa reproduz a jornada principal (D-26, D-27).
+- **DoD:** HG-01, HG-02 e HG-03 aprovados; [[RELEASES]] atualizado.
 - **Riscos:** nome do pacote (H-03).

@@ -4,9 +4,9 @@ tags: [infra, distribuicao]
 
 # Distribuição
 
-Interface do MVP (D-26): o pacote npm vai anexado à GitHub Release de cada versão.
+Interface do MVP (D-27): pacote `devtools-ai-suite` no registro npm; o mesmo `.tgz` fica anexado à GitHub Release de cada versão (alternativa: `npm install -g <URL do .tgz>`).
 ```bash
-npm install -g https://github.com/daniilooo/dev-tools-ai-suite/releases/download/v0.1.0/devtools-ai-suite-0.1.0.tgz
+npm install -g devtools-ai-suite
 devtools start      # inicia em 127.0.0.1 e abre o dashboard
 devtools doctor     # diagnóstico
 ```
@@ -19,12 +19,14 @@ Verificar dependências · detectar Claude Code, Codex, Ollama · criar `~/.dev-
 |---|---|
 | Pré-release no GitHub | versão publicada para validação (instalação pela URL num ambiente limpo) |
 | Release estável no GitHub | depois da validação, a mesma release deixa de ser pré-release |
-| Registro npm (`next`/`latest`) | futuro, quando houver conta no npm (ADR-0008, D-26) |
+| Registro npm (`latest`) | depois da validação da pré-release, o humano publica o mesmo `.tgz` (HG-03, D-27); `next` não é usado no MVP |
 
-O `.tgz` anexado é sempre o gerado e testado por `scripts/release-pack.sh`, com o SHA-256 nas notas da release.
+O `.tgz` anexado e o publicado no registro são sempre o mesmo arquivo, gerado e testado por `scripts/release-pack.sh`, com o SHA-256 nas notas da release.
+
+O npm CLI 11 publica em etapas: o registro mostra primeiro um marcador `0.0.0-stage` ("Temporary package placeholder for staged publishing") e a versão real aparece minutos depois. O marcador é do próprio npm: não despublicar.
 
 ## Plataformas
 Linux homologado no MVP; Windows e macOS considerados na arquitetura e no build (prebuilds de `node-pty`), homologação pós-MVP.
 
 ## Riscos
-Nome do pacote no npm estava livre em 2026-10-29; publicar no registro exige conta (D-26). Dependências nativas → spike S-01.
+Publicar no registro exige a conta do humano com 2FA; com chave de acesso (passkey), o `npm publish` precisa de um terminal interativo (D-27). Dependências nativas → spike S-01.

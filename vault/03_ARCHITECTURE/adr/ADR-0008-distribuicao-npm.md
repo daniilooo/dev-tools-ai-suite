@@ -15,7 +15,10 @@ Pacote npm público `devtools-ai-suite` (nome a confirmar disponibilidade) com b
 ## Revisão 2026-10-30 (D-26)
 Sem conta no registro npm, o MVP é distribuído como o **mesmo pacote npm** (`.tgz` gerado por `scripts/release-pack.sh`) anexado a uma **GitHub Release**, instalado com `npm install -g <URL do .tgz>`. O binário, os requisitos e o fluxo continuam iguais; a pré-release do GitHub faz o papel do canal `next` e a release estável o do `latest`. A publicação no registro npm fica para quando houver conta (o nome `devtools-ai-suite` estava livre em 2026-10-29).
 
+## Revisão 2026-10-30 (D-27)
+Com a conta criada, o **mesmo `.tgz`** testado e anexado à GitHub Release foi publicado no registro (`npm publish <arquivo>.tgz`, pelo humano, com 2FA). Os dois canais coexistem: o registro npm é a instalação principal (`npm install -g devtools-ai-suite`) e a GitHub Release guarda o `.tgz` com o SHA-256 e as notas. Sem dist-tag `next` no MVP: a pré-release do GitHub segue fazendo a validação antes da publicação no registro.
+
 ## Consequências
 - + Instalação em um comando para quem tem Node.
 - − Exige Node 22 instalado; dependências nativas exigem prebuilds (S-01).
-- − Nome do pacote pode estar ocupado → verificar antes da primeira publicação.
+- − Nome do pacote pode estar ocupado → resolvido: `devtools-ai-suite` publicado em 2026-10-30.
