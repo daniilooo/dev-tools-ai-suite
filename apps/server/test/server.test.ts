@@ -1,0 +1,101 @@
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { createTestApp, HOST, login, tempDir } from "./helpers.js";
+import type { TestContext } from "./helpers.js";
+import { extractVersion } from "../src/modules/integrations/provider-adapter.js";
+
+let ctx: TestContext | undefined;
+afterEach(async () => ctx?.close());
+
+describe("servidor", () => {
+  it("escuta somente em 127.0.0.1", async () => {
+    ctx = await createTestApp();
+    await ctx.server.listen({ host: "127.0.0.1", port: 0 });
+    const addresses = ctx.server.addresses();
+    expect(addresses.length).toBeGreaterThan(0);
+    for (const address of addresses) expect(address.address).toBe("127.0.0.1");
+  });
+
+  it("inicia o Core sem módulos opcionais e reporta o estado", async () => {
+    ctx = await createTestApp();
+    const { cookie } = await login(ctx);
+    const health = await ctx.server.inject({
+      method: "GET",
+      url: "/api/v1/health",
+      headers: { host: HOST, cookie },
+    });
+    expect(health.json().modules.core).toBe("ok");
+    const doctor = await ctx.server.inject({
+      method: "GET",
+      url: "/api/v1/doctor",
+      headers: { host: HOST, cookie },
+    });
+    const report = doctor.json();
+    expect(report.checks.find((c: { id: string }) => c.id === "database").status).toBe("ok");
+    // Login nunca é inventado (INV-03): ou não se aplica, ou vem de comando oficial, ou é INDISPONÍVEL.
+    for (const tool of report.tools) {
+      if (tool.auth === null) continue;
+      if (tool.auth.state === "unavailable") expect(tool.auth.category).toBe("unavailable");
+      else expect(tool.auth.category).toBe("official");
+    }
+  });
+
+  it("aplica cabeçalhos de segurança", async () => {
+    ctx = await createTestApp();
+    const response = await ctx.server.inject({ method: "GET", url: "/", headers: { host: HOST } });
+    expect(response.headers["x-frame-options"]).toBe("DENY");
+    expect(response.headers["x-content-type-options"]).toBe("nosniff");
+  });
+
+  it("doctor mostra os complementos do conhecimento: Graphify configurado e Transformers.js", async () => {
+    const dataDir = tempDir();
+    const bin = join(tempDir("devtools-bin-"), "graphify-custom");
+    writeFileSync(bin, '#!/bin/sh\necho "graphify 0.9.97"\n');
+    chmodSync(bin, 0o755);
+    const addon = join(dataDir, "addons", "node_modules", "@huggingface", "transformers");
+    mkdirSync(addon, { recursive: true });
+    writeFileSync(
+      join(addon, "package.json"),
+      JSON.stringify({ name: "@huggingface/transformers", version: "4.3.2" }),
+    );
+    ctx = await createTestApp(dataDir, true, { env: { DEVTOOLS_GRAPHIFY_BIN: bin } });
+    const { cookie } = await login(ctx);
+    const report = (
+      await ctx.server.inject({ method: "GET", url: "/api/v1/doctor", headers: { host: HOST, cookie } })
+    ).json();
+    const tool = (id: string) => report.tools.find((t: { id: string }) => t.id === id);
+    expect(tool("graphify")).toMatchObject({ installed: true, version: "0.9.97", optional: true });
+    expect(tool("transformers")).toMatchObject({
+      installed: true,
+      version: "4.3.2",
+      optional: true,
+      auth: null,
+    });
+  });
+
+  it("devolve o dashboard nas rotas da SPA, mas 404 para arquivo inexistente", async () => {
+    const publicDir = tempDir("devtools-public-");
+    writeFileSync(join(publicDir, "index.html"), "<!doctype html><title>SPA</title>");
+    writeFileSync(join(publicDir, "styles.css"), "body{}");
+    ctx = await createTestApp(undefined, true, { publicDir });
+    const get = (url: string) => ctx!.server.inject({ method: "GET", url, headers: { host: HOST } });
+
+    expect((await get("/styles.css")).headers["content-type"]).toContain("text/css");
+    const route = await get("/conhecimento?projeto=1");
+    expect(route.statusCode).toBe(200);
+    expect(route.body).toContain("<title>SPA</title>");
+    expect((await get("/chunk-inexistente.js")).statusCode).toBe(404);
+    expect((await get("/fonte.woff2?v=2")).statusCode).toBe(404);
+  });
+});
+
+describe("extractVersion", () => {
+  it.each([
+    ["git version 2.43.0", "2.43.0"],
+    ["2.1.312 (Claude Code)", "2.1.312"],
+    ["codex-cli 0.162.0", "0.162.0"],
+    ["ollama version is 0.40.0", "0.40.0"],
+    ["sem versão", null],
+  ])("%s → %s", (input, expected) => expect(extractVersion(input)).toBe(expected));
+});

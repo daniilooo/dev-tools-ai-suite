@@ -1,0 +1,59 @@
+{
+  "name": "devtools-ai-suite",
+  "version": "0.1.0",
+  "description": "Camada local-first de integração, observabilidade e conhecimento para desenvolvimento assistido por IA.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/daniilooo/dev-tools-ai-suite#readme",
+  "bugs": {
+    "url": "https://github.com/daniilooo/dev-tools-ai-suite/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "ai",
+    "terminal",
+    "dashboard",
+    "local-first",
+    "rag",
+    "developer-tools"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniilooo/dev-tools-ai-suite.git",
+    "directory": "apps/server"
+  },
+  "type": "module",
+  "bin": {
+    "devtools": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22.22.3"
+  },
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.build.json && node scripts/copy-web.mjs",
+    "dev": "tsx watch src/cli.ts start --no-open",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "vitest run",
+    "prepack": "node scripts/prepack.mjs"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.5",
+    "@fastify/static": "10.1.8",
+    "@fastify/websocket": "11.3.4",
+    "@lydell/node-pty": "1.2.0-beta.18",
+    "better-sqlite3": "13.0.3",
+    "commander": "15.0.0",
+    "fastify": "5.12.7",
+    "sqlite-vec": "0.1.9"
+  },
+  "devDependencies": {
+    "@devtools/shared": "workspace:*",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/ws": "8.18.2",
+    "tsx": "4.23.15",
+    "ws": "8.22.0"
+  }
+}
