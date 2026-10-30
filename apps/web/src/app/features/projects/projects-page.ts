@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import type { Project } from "@devtools/shared";
 import { firstValueFrom } from "rxjs";
@@ -9,7 +8,7 @@ import { StackChips } from "./stack-chips";
 
 @Component({
   selector: "dt-projects-page",
-  imports: [FormsModule, RouterLink, StackChips],
+  imports: [RouterLink, StackChips],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="mb-6">
@@ -20,7 +19,12 @@ import { StackChips } from "./stack-chips";
       </p>
     </header>
 
-    <form class="card mb-6 grid gap-3 p-4 md:grid-cols-[2fr_1fr_auto] md:items-end" (ngSubmit)="add()">
+    <!-- Signals com [value]/(input), não ngModel: o valor inicial assíncrono do ngModel apagava o que era
+         digitado logo após a navegação. -->
+    <form
+      class="card mb-6 grid gap-3 p-4 md:grid-cols-[2fr_1fr_auto] md:items-end"
+      (submit)="$event.preventDefault(); add()"
+    >
       <div>
         <label class="text-sm font-medium" for="path">Caminho absoluto</label>
         <input
@@ -28,15 +32,23 @@ import { StackChips } from "./stack-chips";
           name="path"
           class="input mt-1 font-mono"
           placeholder="/home/voce/projetos/app"
-          [(ngModel)]="path"
+          [value]="path()"
+          (input)="path.set($any($event.target).value)"
           required
         />
       </div>
       <div>
         <label class="text-sm font-medium" for="name">Nome (opcional)</label>
-        <input id="name" name="name" class="input mt-1" placeholder="Nome da pasta" [(ngModel)]="name" />
+        <input
+          id="name"
+          name="name"
+          class="input mt-1"
+          placeholder="Nome da pasta"
+          [value]="name()"
+          (input)="name.set($any($event.target).value)"
+        />
       </div>
-      <button type="submit" class="btn btn-primary justify-center" [disabled]="busy() || !path.trim()">
+      <button type="submit" class="btn btn-primary justify-center" [disabled]="busy() || !path().trim()">
         Adicionar projeto
       </button>
       @if (error()) {
@@ -90,8 +102,8 @@ export class ProjectsPage {
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly confirming = signal<string | null>(null);
-  protected path = "";
-  protected name = "";
+  protected readonly path = signal("");
+  protected readonly name = signal("");
 
   constructor() {
     void this.load();
@@ -112,10 +124,10 @@ export class ProjectsPage {
     this.error.set(null);
     try {
       await firstValueFrom(
-        this.api.createProject({ path: this.path.trim(), name: this.name.trim() || undefined }),
+        this.api.createProject({ path: this.path().trim(), name: this.name().trim() || undefined }),
       );
-      this.path = "";
-      this.name = "";
+      this.path.set("");
+      this.name.set("");
       await this.load();
     } catch (error) {
       this.error.set(apiErrorMessage(error));
