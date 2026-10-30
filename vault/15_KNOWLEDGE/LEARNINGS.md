@@ -36,3 +36,6 @@ Registrar o que evita investigação futura: comportamentos inesperados de ferra
 | 2026-10-29 | O Graphify grava `edges` sem agrupamento (`--no-cluster`) e `links` com agrupamento; o adaptador aceita os dois. Por padrão grava `graphify-out/` dentro do projeto, então `--out` é obrigatório. | Fase 7 |
 | 2026-10-29 | Embeddings na CPU sofrem muito com outra carga na máquina (a primeira medição real foi 30× mais lenta com builds Java de outra sessão rodando): medir isolado antes de concluir que o código está lento. | Fase 7 |
 | 2026-10-29 | Busca textual com todos os termos obrigatórios não acha nada para perguntas longas em linguagem natural; a semântica e a híbrida cobrem esse caso. | Fase 7 |
+| 2026-10-30 | Com 2FA por chave de acesso (passkey), `npm publish` abre a autenticação no navegador e exige terminal interativo: num shell não interativo (como o `!` do Claude Code) termina em EOTP. O humano publica pelo próprio terminal. | Fase 9 |
+| 2026-10-30 | O npm CLI 11 publica em etapas: o registro mostra só o marcador `0.0.0-stage` por um ou dois minutos antes da versão real; validar com polling, não concluir que falhou. | Fase 9 |
+| 2026-10-30 | `gh release create --target` exige o SHA completo do commit (o curto retorna HTTP 422). | Fase 9 |

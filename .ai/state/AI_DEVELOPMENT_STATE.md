@@ -4,16 +4,24 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 9 — MVP Release (em andamento) |
-| Etapa atual | Distribuição revista para GitHub Release (D-26); `0.1.0` preparada |
-| Branch atual | `feature/09-github-release` |
-| Última entrega | PR #13 (preparação do pacote); revisão da distribuição sem registro npm |
-| Última decisão | D-26 (GitHub Release no lugar do registro npm) |
+| Fase atual | FASE 9 — MVP Release (concluída); MVP publicado |
+| Etapa atual | `v0.1.0` na GitHub Release e no npm; docs da publicação (D-27) |
+| Branch atual | `docs/09-npm-publicacao` |
+| Última entrega | PR #15 (`release → main`), tag `v0.1.0`, GitHub Release estável, `devtools-ai-suite@0.1.0` no npm |
+| Última decisão | D-27 (registro npm somado à GitHub Release) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
 | Bloqueios | Nenhum |
-| Próxima ação | Merge do PR; PR `release → main` (HG-01, humano); `release-pack.sh` em `main`; HG-02: tag `v0.1.0` + pré-release; `smoke-install.sh <URL>`; marcar estável |
+| Próxima ação | Merge deste PR. Trabalho pós-MVP só com nova autorização |
 | Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
-| Release atual | nenhuma publicada; `0.1.0` preparada |
+| Release atual | `0.1.0` (npm `latest` + GitHub Release) |
+
+---
+
+## HANDOFF — 2026-10-30 (Fase 9, publicação) — Claude Code (Opus)
+
+**Contexto:** PRs #14 e #15 integrados (`main` em `f37b034`). `release-pack.sh` gerou o `.tgz` (SHA-256 `44fb1c8d…9555`); tag `v0.1.0` e pré-release criadas (HG-02), instalação pela URL validada e release marcada como estável. O humano criou conta no npm, ativou 2FA (passkey) e publicou o mesmo `.tgz` pelo próprio terminal (HG-03). O registro serviu primeiro o marcador `0.0.0-stage`; a `0.1.0` apareceu como `latest` ~80 s depois, com shasum idêntico ao do arquivo testado, e `scripts/smoke-install.sh devtools-ai-suite` passou.
+**Alterações:** D-27; ADR-0008, `DISTRIBUTION.md`, `DEPLOY.md` (passo HG-03 e rollback npm), skill `release`, gates, CI/CD, READMEs e `OPERATIONS.md` com `npm install -g devtools-ai-suite`; RELEASES, aprendizados e status (Fase 9 concluída).
+**Próximo passo:** merge deste PR pelo humano. Não iniciar trabalho pós-MVP sem autorização. Não despublicar `0.0.0-stage` (marcador do npm).
 
 ---
 

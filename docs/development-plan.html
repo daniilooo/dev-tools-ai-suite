@@ -97,7 +97,7 @@ code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.85
 </div>
 
 <script>
-const UPDATED = "2026-10-29";
+const UPDATED = "2026-10-30";
 const STATUS = {
   "Não iniciado": "--st-none",
   "Em andamento": "--st-progress",
@@ -158,10 +158,10 @@ const PHASES = [
    deliverables:[["E2E das jornadas",1],["Instalação em Linux limpo",1],["Revisão de segurança completa",1],["Validação em projeto Angular + Spring Boot",1],["Relatório dos 12 itens da DoD",1]],
    deps:["Fases 5, 6 e 7"],criteria:[["12 itens da DoD verificados",1]],
    risks:["Problemas tardios de empacotamento"],blockers:[]},
-  {n:9,name:"MVP Release",prio:"—",status:"Em andamento",progress:60,
+  {n:9,name:"MVP Release",prio:"—",status:"Concluído",progress:100,
    goal:"Publicar v0.1.0.",
-   deliverables:[["0.1.0-next.N no canal next",0],["Promoção para latest",0],["Merge release → main + tag",0],["Notas de release",0]],
-   deps:["Fase 8"],criteria:[["Instalação via npm reproduz a jornada principal",0],["Gates HG-01, HG-02 e HG-03 aprovados",0]],
+   deliverables:[["Pacote 0.1.0 e release-pack.sh",1],["Merge release → main + tag v0.1.0",1],["GitHub Release validada e estável",1],["npm latest com o mesmo .tgz",1],["Notas de release",1]],
+   deps:["Fase 8"],criteria:[["Instalação via npm e via URL reproduz a jornada principal",1],["Gates HG-01, HG-02 e HG-03 aprovados",1]],
    risks:["R-08 nome do pacote npm"],blockers:[]}
 ];
 
