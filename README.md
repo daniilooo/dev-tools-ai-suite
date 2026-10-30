@@ -33,7 +33,7 @@ pnpm start          # = devtools start: sobe em 127.0.0.1:4317 e abre o dashboar
 - Para o diagnóstico, use `node apps/server/dist/cli.js doctor`.
 - Os dados ficam em `~/.dev-tools-ai-suite/` (diretório 0700, segredo 0600).
 
-Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`.
+Interface final, depois da publicação: `npm install -g devtools-ai-suite`, `devtools start` e `devtools doctor`. Guia de operação (variáveis, dados, backup, atualização, problemas comuns): [`vault/09_OPERATIONS/OPERATIONS.md`](vault/09_OPERATIONS/OPERATIONS.md).
 
 ### Conhecimento (opcional)
 
@@ -53,6 +53,7 @@ pnpm dev:web                          # recompila o dashboard a cada alteração
 pnpm dev:server                       # servidor com recarga automática (sem abrir o navegador)
 pnpm lint && pnpm typecheck && pnpm test
 pnpm test:e2e                         # requer `pnpm build` e `pnpm exec playwright install chromium`
+scripts/smoke-install.sh <pacote.tgz>  # instalação limpa num contêiner Debian (requer Docker)
 ```
 
 ## Onde está a documentação
