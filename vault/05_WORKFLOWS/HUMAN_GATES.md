@@ -23,7 +23,7 @@ E aguarda resposta. Silêncio não é aprovação. Aprovação vale para a açã
 |---|---|
 | HG-01 | Merge em `main` |
 | HG-02 | Criação de releases e tags oficiais |
-| HG-03 | Publicação no npm (qualquer dist-tag) |
+| HG-03 | Publicação no npm (qualquer dist-tag); no MVP a distribuição é pela GitHub Release (HG-02, D-26) |
 | HG-04 | Alterações arquiteturais relevantes ou mudança de ADR aceito |
 | HG-05 | Alterações nos mecanismos de segurança do Core |
 | HG-06 | Mudanças em autenticação, WebSocket e controle de PTY |
