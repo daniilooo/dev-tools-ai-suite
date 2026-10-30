@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 import { Command } from "commander";
 import type { DoctorReport, ProviderAuth } from "@devtools/shared";
-import { createWriteStream } from "node:fs";
-import { join } from "node:path";
 import { buildApp } from "./app.js";
 import { openBrowser } from "./browser.js";
 import { cliAuthorizationHeader } from "./core/cli-auth.js";
 import { loadConfig } from "./core/config.js";
 import type { AppConfig } from "./core/config.js";
 import { ensureDataDir } from "./core/data-dir.js";
+import { openLogFile } from "./core/log-file.js";
 import { openDatabase } from "./core/database.js";
 import { InstallSecret } from "./core/secret.js";
 import { runDoctor } from "./modules/system/doctor.js";
@@ -72,7 +71,7 @@ async function start(config: AppConfig, open: boolean): Promise<void> {
   const base = `http://${config.host}:${config.port}`;
 
   const db = openDatabase(layout.database);
-  const logFile = createWriteStream(join(layout.logs, "server.log"), { flags: "a", mode: 0o600 });
+  const logFile = openLogFile(layout.logs);
   const { server, codes } = await buildApp({ config, layout, secret, db, logStream: logFile });
 
   try {
