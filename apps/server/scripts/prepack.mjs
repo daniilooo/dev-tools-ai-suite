@@ -1,6 +1,6 @@
 // Roda antes de `pnpm pack`/`npm publish`: recusa empacotar um build incompleto ou de
 // desenvolvimento e coloca a licença do repositório dentro do pacote.
-import { copyFileSync, existsSync, readdirSync } from "node:fs";
+import { copyFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 
 const dist = new URL("../dist/", import.meta.url);
 const publicDir = new URL("public/", dist);
@@ -14,11 +14,12 @@ if (!existsSync(new URL("cli.js", dist))) fail("dist/cli.js ausente. Rode `pnpm 
 if (!existsSync(new URL("index.html", publicDir))) {
   fail("dashboard ausente em dist/public. Rode `pnpm build` na raiz (não só o do servidor).");
 }
-// O build de produção do Angular não gera source maps; o de desenvolvimento (watcher) gera.
+// O build de desenvolvimento do Angular (watcher) gera source maps e carrega `main.js` sem hash.
 const maps = readdirSync(publicDir, { recursive: true }).filter((file) => String(file).endsWith(".map"));
-if (maps.length > 0) {
+const unhashed = /src="main\.js"/.test(readFileSync(new URL("index.html", publicDir), "utf8"));
+if (maps.length > 0 || unhashed) {
   fail(
-    "dist/public tem source maps: é o build de desenvolvimento do dashboard. Use `scripts/release-pack.sh`.",
+    "dist/public é o build de desenvolvimento do dashboard (source maps ou main.js sem hash). Use `scripts/release-pack.sh`.",
   );
 }
 
