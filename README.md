@@ -28,6 +28,7 @@ devtools doctor     # diagnóstico da instalação e das ferramentas de IA
 
 - Se o navegador não abrir, acesse `http://127.0.0.1:4317` e digite o **código curto** mostrado no terminal. Ele vale uma vez e expira em 60 s.
 - Para gerar um novo código, rode `devtools start` de novo. Se a suíte já estiver rodando, ele apenas emite outro código.
+- Passo a passo de cada tela, com prints: [manual do usuário](docs/manual/README.md).
 - Os dados ficam em `~/.dev-tools-ai-suite/` (diretório 0700, segredo 0600).
 - Guia de operação (variáveis, dados, backup, atualização, problemas comuns): [`vault/09_OPERATIONS/OPERATIONS.md`](vault/09_OPERATIONS/OPERATIONS.md).
 
@@ -51,6 +52,7 @@ pnpm dev:web                          # recompila o dashboard a cada alteração
 pnpm dev:server                       # servidor com recarga automática (sem abrir o navegador)
 pnpm lint && pnpm typecheck && pnpm test
 pnpm test:e2e                         # requer `pnpm build` e `pnpm exec playwright install chromium`
+pnpm manual:screenshots               # regera os prints do manual (requer `pnpm build`)
 scripts/smoke-install.sh <pacote.tgz>  # instalação limpa num contêiner Debian (requer Docker)
 ```
 
@@ -58,6 +60,7 @@ scripts/smoke-install.sh <pacote.tgz>  # instalação limpa num contêiner Debia
 
 | Conteúdo | Local |
 |---|---|
+| Manual do usuário, com prints | [`docs/manual/`](docs/manual/README.md) |
 | Fonte da verdade (produto, regras, arquitetura, ADRs, roadmap) | [`vault/`](vault/00_HOME/START_HERE.md) |
 | Workflow de IA (agentes, contratos, skills, hooks) | [`.ai/`](.ai/README.md) |
 | Roadmap visual | [`docs/development-plan.html`](docs/development-plan.html) |

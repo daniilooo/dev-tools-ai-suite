@@ -5,6 +5,8 @@ atualizado: 2026-10-29
 
 # Operações (usuário final)
 
+Passo a passo com prints de cada tela: [manual do usuário](../../docs/manual/README.md).
+
 Guia de instalação e operação do pacote `devtools-ai-suite`, distribuído pelas [GitHub Releases](https://github.com/daniilooo/dev-tools-ai-suite/releases) (D-26). Instalação validada em contêiner Debian 12 limpo, sem compilador (`scripts/smoke-install.sh`, também no CI).
 
 ## Requisitos
