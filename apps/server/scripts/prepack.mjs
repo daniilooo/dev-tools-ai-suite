@@ -1,4 +1,4 @@
-// Roda antes de `pnpm pack`/`npm publish`: recusa empacotar um build incompleto ou de
+// Roda antes de `pnpm pack`: recusa empacotar um build incompleto ou de
 // desenvolvimento e coloca a licença do repositório dentro do pacote.
 import { copyFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
 

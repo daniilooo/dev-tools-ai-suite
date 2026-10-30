@@ -1,10 +1,10 @@
 # Changelog
 
-Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); versões seguem [SemVer](https://semver.org/lang/pt-BR/). Pacote npm: `devtools-ai-suite`.
+Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/); versões seguem [SemVer](https://semver.org/lang/pt-BR/). Pacote `devtools-ai-suite`, distribuído pelas GitHub Releases.
 
-## [0.1.0-next.0] — 2026-10-29
+## [0.1.0] — 2026-10-30
 
-Primeira versão de pré-lançamento do MVP (canal `next`). Valida os 12 itens da Definition of MVP Done (`vault/08_TESTING/MVP_DOD_VALIDATION.md`).
+Primeira versão do MVP. Valida os 12 itens da Definition of MVP Done (`vault/08_TESTING/MVP_DOD_VALIDATION.md`).
 
 ### Adicionado
 - **CLI `devtools`:** `start` (servidor em `127.0.0.1`, dashboard aberto já autenticado, código curto como alternativa) e `doctor` (Node, dados, banco, PTY e ferramentas de IA).
@@ -26,4 +26,4 @@ Primeira versão de pré-lançamento do MVP (canal `next`). Valida os 12 itens d
 - Busca semântica com Transformers.js é lenta na CPU (TD-19).
 - Rotação do segredo de instalação é manual: parar a suíte e remover `~/.dev-tools-ai-suite/secret` (TD-02).
 
-[0.1.0-next.0]: https://www.npmjs.com/package/devtools-ai-suite/v/0.1.0-next.0
+[0.1.0]: https://github.com/daniilooo/dev-tools-ai-suite/releases/tag/v0.1.0

@@ -9,7 +9,7 @@ tags: [produto]
 
 ```mermaid
 flowchart LR
-  A[npm install -g devtools-ai-suite] --> B[devtools start]
+  A[npm install -g URL da release] --> B[devtools start]
   B --> C{Doctor: dependências<br/>Claude / Codex / Ollama}
   C --> D[Dashboard em 127.0.0.1]
   D --> E[Cadastrar/abrir projeto]

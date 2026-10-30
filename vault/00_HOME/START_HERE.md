@@ -12,13 +12,13 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 | Pergunta | Resposta |
 |---|---|
 | Estado atual | Fase 9 (MVP Release) em andamento → [[PROJECT_STATUS]] |
-| Versão | `0.1.0-next.0` preparada (nada publicado ainda) |
+| Versão | `0.1.0` preparada (nada publicado ainda) |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 9 — pacote pronto; publicação no canal `next` (HG-03) |
-| Última decisão | Publicação manual pelo humano (D-25) → [[DECISION_LOG]] |
-| Próxima ação | Publicar `0.1.0-next.0` no npm (gate HG-03) |
+| Etapa atual | FASE 9 — pacote pronto; GitHub Release (HG-01/HG-02) |
+| Última decisão | Distribuição pela GitHub Release (D-26) → [[DECISION_LOG]] |
+| Próxima ação | Merge em `main` e GitHub Release da `v0.1.0` |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

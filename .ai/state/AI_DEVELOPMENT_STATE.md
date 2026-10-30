@@ -5,15 +5,23 @@
 | Campo | Valor |
 |---|---|
 | Fase atual | FASE 9 — MVP Release (em andamento) |
-| Etapa atual | Pacote `0.1.0-next.0` preparado e testado; aguarda HG-03 (publicação pelo humano) |
-| Branch atual | `feature/09-mvp-release` |
-| Última entrega | Fase 8 concluída (PR #12); preparação do pacote npm, CHANGELOG, `release-pack.sh` |
-| Última decisão | D-25 (publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico) |
+| Etapa atual | Distribuição revista para GitHub Release (D-26); `0.1.0` preparada |
+| Branch atual | `feature/09-github-release` |
+| Última entrega | PR #13 (preparação do pacote); revisão da distribuição sem registro npm |
+| Última decisão | D-26 (GitHub Release no lugar do registro npm) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
-| Bloqueios | Publicação depende do humano (npm não logado na máquina; a LLM não usa credenciais) |
-| Próxima ação | Merge do PR de preparação; `scripts/release-pack.sh` em `release`; humano publica o `.tgz` com `--tag next`; validação com `scripts/smoke-install.sh devtools-ai-suite@next` |
+| Bloqueios | Nenhum |
+| Próxima ação | Merge do PR; PR `release → main` (HG-01, humano); `release-pack.sh` em `main`; HG-02: tag `v0.1.0` + pré-release; `smoke-install.sh <URL>`; marcar estável |
 | Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
-| Release atual | nenhuma publicada; `0.1.0-next.0` preparada |
+| Release atual | nenhuma publicada; `0.1.0` preparada |
+
+---
+
+## HANDOFF — 2026-10-30 (Fase 9, distribuição) — Claude Code (Opus)
+
+**Contexto:** PR #13 integrado. O humano não tem conta no npm; escolheu distribuir pela GitHub Release (D-26). Nada foi publicado; o `npm login` foi interrompido.
+**Alterações:** versão `0.1.0`; ADR-0008 revista; `DEPLOY.md`, skill `release`, `DISTRIBUTION.md`, `OPERATIONS.md`, READMEs, CHANGELOG e gates com instalação pela URL do `.tgz`; mensagem do banco mais novo sem citar npm.
+**Próximo passo:** HG-01 (merge `release → main` pelo humano) → `scripts/release-pack.sh` em `main` → HG-02 (tag `v0.1.0`, `gh release create --prerelease` com o `.tgz`) → `scripts/smoke-install.sh <URL>` → `gh release edit v0.1.0 --prerelease=false --latest`.
 
 ---
 

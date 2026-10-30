@@ -1,6 +1,6 @@
 {
   "name": "devtools-ai-suite",
-  "version": "0.1.0-next.0",
+  "version": "0.1.0",
   "description": "Camada local-first de integração, observabilidade e conhecimento para desenvolvimento assistido por IA.",
   "license": "Apache-2.0",
   "homepage": "https://github.com/daniilooo/dev-tools-ai-suite#readme",

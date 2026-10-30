@@ -6,6 +6,6 @@ tags: [releases]
 
 | Versão | Data | Canal | Resumo |
 |---|---|---|---|
-| 0.1.0-next.0 | — | `next` | Preparada, aguardando publicação (HG-03). Notas: `CHANGELOG.md` |
+| 0.1.0 | — | GitHub Release | Preparada, aguardando HG-01/HG-02. Notas: `CHANGELOG.md` |
 
 Processo: `.ai/workflow/DEPLOY.md` · Versionamento: [[VERSIONING]].

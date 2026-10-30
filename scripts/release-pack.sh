@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Gera o pacote npm de uma versão a partir do commit atual, num worktree limpo, e testa a
-# instalação limpa. O .tgz gerado é exatamente o que será publicado (`npm publish <tgz>`).
+# instalação limpa. O .tgz gerado é exatamente o que vai anexado à GitHub Release (D-26).
 #
 # Uso: scripts/release-pack.sh <diretório de saída>
 #

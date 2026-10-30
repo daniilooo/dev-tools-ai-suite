@@ -5,7 +5,7 @@ atualizado: 2026-10-29
 
 # Operações (usuário final)
 
-Guia de instalação e operação do pacote `devtools-ai-suite`. Instalação validada em contêiner Debian 12 limpo, sem compilador (`scripts/smoke-install.sh`, também no CI).
+Guia de instalação e operação do pacote `devtools-ai-suite`, distribuído pelas [GitHub Releases](https://github.com/daniilooo/dev-tools-ai-suite/releases) (D-26). Instalação validada em contêiner Debian 12 limpo, sem compilador (`scripts/smoke-install.sh`, também no CI).
 
 ## Requisitos
 - Linux homologado (glibc, x64) · Node.js **22.22.3** ou superior · `git`.
@@ -15,7 +15,7 @@ Guia de instalação e operação do pacote `devtools-ai-suite`. Instalação va
 ## Instalar e iniciar
 | Tarefa | Como |
 |---|---|
-| Instalar | `npm install -g devtools-ai-suite` (antes da publicação: `pnpm pack` em `apps/server` e `npm install -g <arquivo .tgz>`) |
+| Instalar | `npm install -g https://github.com/daniilooo/dev-tools-ai-suite/releases/download/v0.1.0/devtools-ai-suite-0.1.0.tgz` (URL do `.tgz` na página de cada [release](https://github.com/daniilooo/dev-tools-ai-suite/releases)) |
 | Iniciar | `devtools start` abre o navegador já autenticado. Opções: `--port`, `--data-dir`, `--no-open` |
 | Entrar sem o navegador automático | abrir `http://127.0.0.1:4317` e digitar o **código curto** mostrado no terminal (uso único, 60 s) |
 | Novo código de acesso | rodar `devtools start` de novo: com a suíte já rodando, só gera outro código |
@@ -62,7 +62,7 @@ Nada é gravado dentro dos projetos (INV-05).
 | Tarefa | Como |
 |---|---|
 | Backup | parar a suíte e copiar o diretório de dados |
-| Atualizar | `npm install -g devtools-ai-suite@latest`; as migrações do banco rodam sozinhas ao iniciar (só aditivas) |
+| Atualizar | `npm install -g <URL do .tgz da release mais nova>`; as migrações do banco rodam sozinhas ao iniciar (só aditivas) |
 | Voltar de versão | não suportado sobre os mesmos dados: um banco de versão mais nova é recusado sem alteração (D-23). Restaure o backup feito antes da atualização |
 | Rotacionar segredo e sessões | parar a suíte e remover `secret` (comando dedicado previsto — TD-02) |
 | Remover índice ou grafo de um projeto | **Conhecimento** → Remover índice / Remover grafo; remover o projeto apaga também os índices |

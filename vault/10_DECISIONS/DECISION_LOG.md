@@ -45,3 +45,4 @@ tags: [decisoes]
 | 2026-10-29 | D-23 | Banco criado por versão mais nova da suíte é recusado ao abrir (sem alterá-lo), com instrução para atualizar em vez de voltar de versão | Proposto pela LLM | [[DATA_MODEL]] |
 | 2026-10-29 | D-24 | Relatório da DoD do MVP aprovado e Fase 9 autorizada pelo humano (HG-14) | Aceito (gate) | [[MVP_DOD_VALIDATION]] |
 | 2026-10-29 | D-25 | Publicação no npm feita pelo humano no terminal (a LLM não usa credenciais); TD-02 (`auth rotate`) fica para depois da v0.1.0; TD-13: histórico de agentes mantido sem limpeza automática | Aceito (escolha do humano) | [[DEVELOPMENT_PLAN]] |
+| 2026-10-30 | D-26 | Sem conta no npm: a v0.1.0 é distribuída como o `.tgz` do pacote anexado à GitHub Release (pré-release para validar, depois estável), instalado com `npm install -g <URL>`; registro npm fica para depois | Aceito (escolha do humano) | [[ADR-0008-distribuicao-npm]] |

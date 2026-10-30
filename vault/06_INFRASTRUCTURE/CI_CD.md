@@ -15,7 +15,7 @@ flowchart LR
 - Validar build e testes com **PTY real** no runner.
 - Relatórios de falha e artefatos (Playwright report, logs).
 - **Nunca** publicar a partir de PR.
-- Workflow de release (manual, `workflow_dispatch`) com environment protegido exigindo aprovação humana → `npm publish --tag next`; promoção para `latest` também manual.
+- Release (D-26): manual, pelo `scripts/release-pack.sh` e `gh release`, com gate humano (`.ai/workflow/DEPLOY.md`). Workflow automatizado de publicação fica para quando houver registro npm.
 - Checks obrigatórios configurados na proteção de `main` e `release`.
 
 ## Etapas implementadas

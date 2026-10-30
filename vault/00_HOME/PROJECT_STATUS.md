@@ -9,14 +9,14 @@ atualizado: 2026-10-29
 |---|---|
 | Fase atual | **FASE 9 — MVP Release** |
 | Status da fase | Em andamento |
-| Etapa | Pacote `0.1.0-next.0` preparado e testado; aguarda gate HG-03 (publicação pelo humano) |
-| Branch atual | `feature/09-mvp-release` |
-| Versão / release | `0.1.0-next.0` preparada — nenhuma publicação ainda |
+| Etapa | Distribuição revista para GitHub Release (D-26); `0.1.0` preparada |
+| Branch atual | `feature/09-github-release` |
+| Versão / release | `0.1.0` preparada — nenhuma publicação ainda |
 | Última entrega | Fase 8 concluída (PR #12); preparação do pacote npm, CHANGELOG e `release-pack.sh` |
-| Última decisão | Publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico (D-25) |
+| Última decisão | Sem conta no npm: distribuição pelo `.tgz` na GitHub Release (D-26) |
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | HG-03: humano publica `0.1.0-next.0` com `--tag next`; depois validação a partir do registro |
+| Próxima ação | Merge deste PR e de `release → main` (HG-01); depois tag e pré-release (HG-02) e validação pela URL |
 | Testes atuais | 144 servidor + 15 web + 15 E2E + instalação limpa, todos passando localmente |
 
 ## Progresso por fase
