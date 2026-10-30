@@ -19,6 +19,6 @@ flowchart LR
 - Checks obrigatórios configurados na proteção de `main` e `release`.
 
 ## Etapas implementadas
-`pnpm install --frozen-lockfile` → `format:check` → `lint` → `typecheck` → `test` → `build` → `check:secrets` → `pnpm audit --prod --audit-level high` → `validate:bootstrap` → Playwright (Chromium) → `test:e2e` → `pnpm pack` com verificação do conteúdo do pacote (sem publicar). Relatório do Playwright é anexado em caso de falha.
+`pnpm install --frozen-lockfile` → `format:check` → `lint` → `typecheck` → `test` → `build` → `check:secrets` → `pnpm audit --prod --audit-level high` → `validate:bootstrap` → Playwright (Chromium) → `test:e2e` → `pnpm pack` com verificação do conteúdo do pacote (sem publicar) → instalação limpa do pacote num contêiner `node:22-bookworm-slim` sem compilador (`scripts/smoke-install.sh`: doctor, login, projeto, índice, reinício com dados preservados, projeto do usuário intocado). Relatório do Playwright é anexado em caso de falha.
 
 Ainda não implementado: workflow de release com environment protegido (Fase 9).
