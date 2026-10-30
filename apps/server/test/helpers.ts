@@ -37,6 +37,8 @@ export interface TestAppOptions {
   /** Embeddings e grafo falsos; por padrão nenhum (testes não tocam o Ollama nem o Graphify reais). */
   embeddings?: AppDeps["embeddings"];
   graphExtractor?: AppDeps["graphExtractor"];
+  /** Pasta do dashboard; por padrão nenhuma. */
+  publicDir?: string;
   /** Variáveis lidas pela configuração (ex.: DEVTOOLS_CLAUDE_STATUSLINE). */
   env?: NodeJS.ProcessEnv;
 }
@@ -56,7 +58,7 @@ export async function createTestApp(
     layout,
     secret,
     db,
-    publicDir: null,
+    publicDir: options.publicDir ?? null,
     logStream: { write: (chunk: string) => logs.push(chunk) },
     pty: options.pty,
     terminalOptions: options.terminalOptions,

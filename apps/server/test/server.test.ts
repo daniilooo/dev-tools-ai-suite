@@ -1,5 +1,7 @@
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createTestApp, HOST, login } from "./helpers.js";
+import { createTestApp, HOST, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 import { extractVersion } from "../src/modules/integrations/provider-adapter.js";
 
@@ -44,6 +46,21 @@ describe("servidor", () => {
     const response = await ctx.server.inject({ method: "GET", url: "/", headers: { host: HOST } });
     expect(response.headers["x-frame-options"]).toBe("DENY");
     expect(response.headers["x-content-type-options"]).toBe("nosniff");
+  });
+
+  it("devolve o dashboard nas rotas da SPA, mas 404 para arquivo inexistente", async () => {
+    const publicDir = tempDir("devtools-public-");
+    writeFileSync(join(publicDir, "index.html"), "<!doctype html><title>SPA</title>");
+    writeFileSync(join(publicDir, "styles.css"), "body{}");
+    ctx = await createTestApp(undefined, true, { publicDir });
+    const get = (url: string) => ctx!.server.inject({ method: "GET", url, headers: { host: HOST } });
+
+    expect((await get("/styles.css")).headers["content-type"]).toContain("text/css");
+    const route = await get("/conhecimento?projeto=1");
+    expect(route.statusCode).toBe(200);
+    expect(route.body).toContain("<title>SPA</title>");
+    expect((await get("/chunk-inexistente.js")).statusCode).toBe(404);
+    expect((await get("/fonte.woff2?v=2")).statusCode).toBe(404);
   });
 });
 
