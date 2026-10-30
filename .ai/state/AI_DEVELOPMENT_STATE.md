@@ -4,27 +4,27 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 8 — Hardening e Validação (em andamento) |
-| Etapa atual | Validação da DoD: tour no Chrome feito; faltam instalação limpa, persistência/upgrade, E2E da jornada, revisão de segurança e documentação |
+| Fase atual | FASE 8 — Hardening e Validação (em validação) |
+| Etapa atual | Relatório da DoD pronto (12/12); aguarda aprovação humana e revisão do PR |
 | Branch atual | `feature/08-hardening` |
-| Última entrega | Fase 7 concluída (PRs #9, #10, #11); correções do tour: stack em subpastas, seletor de projeto, 404 de arquivo estático |
-| Última decisão | D-22 (Fase 8 autorizada) |
-| Tarefas em andamento | Itens da DoD da Fase 8; ambiente de dev rodando desacoplado |
+| Última entrega | Instalação limpa no CI, upgrade de migrações, E2E da jornada, revisão de segurança (S-01 corrigido), guia de operação, TD-03/TD-20 pagos |
+| Última decisão | D-23 (banco de versão mais nova recusado) |
+| Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
 | Bloqueios | Nenhum |
-| Próxima ação | Concluir os itens da DoD e entregar o relatório de validação (aprovação humana) |
-| Testes atuais | `pnpm test` (134 servidor + 15 web), `pnpm test:e2e` (14), `validate:bootstrap` |
+| Próxima ação | Humano aprova o relatório e o PR; decide TD-02 e TD-13; Fase 9 só com autorização (HG-14) |
+| Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
 
 ---
 
-## HANDOFF — 2026-10-29 (Fase 8, início) — Claude Code (Opus)
+## HANDOFF — 2026-10-29 (Fase 8) — Claude Code (Opus)
 
 **Contexto:** Fase 7 integrada (PR #11); Fase 8 autorizada pelo humano (D-22). Branch `feature/08-hardening` a partir de `release`.
-**Estado:** em andamento. Tour do dashboard real no Chrome com o `srm-credit-engine` (Angular + Spring Boot) em todas as telas.
-**Alterações:** `projects/stack-detection.ts` procura manifestos até 2 níveis abaixo; `<select>` de projeto nas telas Agentes e Conhecimento usa `[selected]` por opção; fallback da SPA devolve 404 para caminho com extensão.
-**Pendências:** instalação limpa do pacote, testes de persistência/upgrade, E2E da jornada, revisão de segurança, documentação, TD-20, relatório dos 12 itens da DoD. Vulnerabilidade do vite (só dev, via vitest) fica para um chore separado.
-**Próximo passo:** seguir os itens da DoD. **Não iniciar a Fase 9 sem autorização.**
-**Arquivos relevantes:** `vault/01_PRODUCT/MVP_SCOPE.md` (DoD), `vault/11_ROADMAP/DEVELOPMENT_PLAN.md` (Fase 8).
+**Estado:** em validação. Relatório `vault/08_TESTING/MVP_DOD_VALIDATION.md` com os 12 itens verificados; testes locais verdes (144 servidor, 15 web, 15 E2E, instalação limpa).
+**Alterações:** stack em subpastas; seletor de projeto (`[selected]`); 404 para arquivo estático inexistente; doctor com Graphify configurável e Transformers.js; **autenticação pela rota casada (S-01: `/%61pi/...` escapava da sessão)**; recusa de banco mais novo (D-23); rotação do `server.log`; `scripts/smoke-install.sh` (+ CI); `tests/e2e/journey.spec.ts`; `test/migrations.test.ts`; `OPERATIONS.md`; `SECURITY_REVIEW_F8.md`.
+**Pendências:** decisões humanas sobre TD-02 (rotação do segredo) e TD-13 (retenção do histórico); chore do vite (só dev).
+**Próximo passo:** aprovação do relatório e do PR. **Não iniciar a Fase 9 sem autorização.**
+**Arquivos relevantes:** `vault/08_TESTING/MVP_DOD_VALIDATION.md`, `vault/07_SECURITY/SECURITY_REVIEW_F8.md`, `apps/server/src/core/security.ts`, `scripts/smoke-install.sh`.
 
 ---
 
