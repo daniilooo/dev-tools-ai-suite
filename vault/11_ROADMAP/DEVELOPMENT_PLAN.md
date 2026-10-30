@@ -20,8 +20,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 4 | Provider Integration | P0 | Concluído | 100% |
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Concluído | 100% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Concluído | 100% |
-| 7 | Knowledge (RAG + Grafo) | P1 | Em andamento | 40% |
-| 8 | Hardening e Validação | — | Não iniciado | 0% |
+| 7 | Knowledge (RAG + Grafo) | P1 | Concluído | 100% |
+| 8 | Hardening e Validação | — | Em andamento | 20% |
 | 9 | MVP Release | — | Não iniciado | 0% |
 
 ```mermaid
@@ -178,7 +178,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-02 (pouca informação oficial para planos de assinatura).
 
 ## FASE 7 — Knowledge: RAG + Grafo (P1)
-**Status:** Em validação — parte 1 integrada (PR #9); parte 2 (busca semântica, vetores e grafo) em `feature/07-semantic-graph`, aguardando revisão do PR
+**Status:** Concluído — parte 1 (PR #9), spikes (PR #10) e parte 2 (PR #11) integrados em `release`
 - **Objetivo:** indexar projetos localmente e responder consultas com referências verificáveis.
 - **Escopo:** spikes **S-02** (Graphify) e **S-03** (vetores + embeddings) · `EmbeddingProvider` (ONNX, Ollama) · `VectorStore` · exclusões · chunking · consulta com referências · remover/reconstruir índice · `CodeGraphProvider`.
 - **Entregáveis:**
@@ -208,10 +208,18 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-04 (Graphify/Python), R-05 (CPU/RAM).
 
 ## FASE 8 — Hardening e Validação
-**Status:** Não iniciado
+**Status:** Em andamento — autorizada pelo humano (D-22), branch `feature/08-hardening`
 - **Objetivo:** provar a Definition of MVP Done.
 - **Escopo:** E2E das jornadas · instalação em Linux limpo · testes de persistência/upgrade · revisão de segurança completa · documentação de instalação/operação · validação em projeto real Angular + Spring Boot.
 - **Entregáveis:** relatório de validação da DoD (12 itens).
+  - [x] Tour do dashboard real no Chrome com o `srm-credit-engine` (Angular + Spring Boot): projetos, terminal (`git log`, `top`), conhecimento, provedores, cotas, agentes e diagnóstico
+  - [x] Correções achadas no tour: stack em subpastas (`backend/`, `frontend/`), seletor de projeto nas telas Agentes e Conhecimento, 404 para arquivo estático inexistente
+  - [ ] Instalação limpa do pacote (`pnpm pack`) em ambiente isolado
+  - [ ] Testes de persistência e de upgrade das migrações
+  - [ ] E2E da jornada completa
+  - [ ] Revisão de segurança completa
+  - [ ] Documentação de instalação e operação; Graphify e Transformers.js no doctor (TD-20)
+  - [ ] Relatório dos 12 itens da DoD
 - **Dependências:** Fases 5, 6, 7.
 - **Critérios de aceite:** todos os 12 itens da DoD em [[MVP_SCOPE]] verificados.
 - **DoD:** relatório aprovado pelo humano.

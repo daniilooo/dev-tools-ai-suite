@@ -4,16 +4,27 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 7 — Knowledge: RAG + Grafo (em validação) |
-| Etapa atual | Parte 2 (busca semântica, vetores e grafo) pronta; aguarda revisão do PR |
-| Branch atual | `feature/07-semantic-graph` |
-| Última entrega | `VectorStore` (sqlite-vec), `EmbeddingProvider` (Ollama loopback, Transformers.js sob demanda), busca híbrida, `CodeGraphProvider` (Graphify), cartões na tela Conhecimento |
-| Última decisão | D-20 (HG-07) e D-21 (modelos padrão) |
-| Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
+| Fase atual | FASE 8 — Hardening e Validação (em andamento) |
+| Etapa atual | Validação da DoD: tour no Chrome feito; faltam instalação limpa, persistência/upgrade, E2E da jornada, revisão de segurança e documentação |
+| Branch atual | `feature/08-hardening` |
+| Última entrega | Fase 7 concluída (PRs #9, #10, #11); correções do tour: stack em subpastas, seletor de projeto, 404 de arquivo estático |
+| Última decisão | D-22 (Fase 8 autorizada) |
+| Tarefas em andamento | Itens da DoD da Fase 8; ambiente de dev rodando desacoplado |
 | Bloqueios | Nenhum |
-| Próxima ação | Humano revisa o PR da parte 2; Fase 8 só com autorização (HG-14) |
-| Testes atuais | `pnpm test` (132 servidor + 15 web), `pnpm test:e2e` (14), `validate:bootstrap` |
+| Próxima ação | Concluir os itens da DoD e entregar o relatório de validação (aprovação humana) |
+| Testes atuais | `pnpm test` (134 servidor + 15 web), `pnpm test:e2e` (14), `validate:bootstrap` |
 | Release atual | nenhuma (`v0.0.0`) |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 8, início) — Claude Code (Opus)
+
+**Contexto:** Fase 7 integrada (PR #11); Fase 8 autorizada pelo humano (D-22). Branch `feature/08-hardening` a partir de `release`.
+**Estado:** em andamento. Tour do dashboard real no Chrome com o `srm-credit-engine` (Angular + Spring Boot) em todas as telas.
+**Alterações:** `projects/stack-detection.ts` procura manifestos até 2 níveis abaixo; `<select>` de projeto nas telas Agentes e Conhecimento usa `[selected]` por opção; fallback da SPA devolve 404 para caminho com extensão.
+**Pendências:** instalação limpa do pacote, testes de persistência/upgrade, E2E da jornada, revisão de segurança, documentação, TD-20, relatório dos 12 itens da DoD. Vulnerabilidade do vite (só dev, via vitest) fica para um chore separado.
+**Próximo passo:** seguir os itens da DoD. **Não iniciar a Fase 9 sem autorização.**
+**Arquivos relevantes:** `vault/01_PRODUCT/MVP_SCOPE.md` (DoD), `vault/11_ROADMAP/DEVELOPMENT_PLAN.md` (Fase 8).
 
 ---
 
