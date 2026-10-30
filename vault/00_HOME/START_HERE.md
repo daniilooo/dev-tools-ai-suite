@@ -11,14 +11,14 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 ## Resposta rápida
 | Pergunta | Resposta |
 |---|---|
-| Estado atual | Fase 8 (Hardening e Validação) em validação → [[PROJECT_STATUS]] |
-| Versão | `v0.0.0` (nada publicado) |
+| Estado atual | Fase 9 (MVP Release) em andamento → [[PROJECT_STATUS]] |
+| Versão | `0.1.0-next.0` preparada (nada publicado ainda) |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 8 — relatório da DoD pronto → [[MVP_DOD_VALIDATION]] |
-| Última decisão | Banco de versão mais nova é recusado (D-23) → [[DECISION_LOG]] |
-| Próxima ação | Aprovar o relatório da DoD e o PR da Fase 8 |
+| Etapa atual | FASE 9 — pacote pronto; publicação no canal `next` (HG-03) |
+| Última decisão | Publicação manual pelo humano (D-25) → [[DECISION_LOG]] |
+| Próxima ação | Publicar `0.1.0-next.0` no npm (gate HG-03) |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |

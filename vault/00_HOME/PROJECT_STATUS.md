@@ -7,16 +7,16 @@ atualizado: 2026-10-29
 
 | Campo | Valor |
 |---|---|
-| Fase atual | **FASE 8 — Hardening e Validação** |
-| Status da fase | Em validação |
-| Etapa | Relatório da DoD pronto (12/12); aguarda aprovação humana e revisão do PR |
-| Branch atual | `feature/08-hardening` |
-| Versão / release | `v0.0.0` — nenhuma publicação |
-| Última entrega | Hardening: instalação limpa no CI, upgrade de migrações, E2E da jornada, revisão de segurança (S-01 corrigido), guia de operação, relatório da DoD |
-| Última decisão | Banco de versão mais nova é recusado (D-23) |
+| Fase atual | **FASE 9 — MVP Release** |
+| Status da fase | Em andamento |
+| Etapa | Pacote `0.1.0-next.0` preparado e testado; aguarda gate HG-03 (publicação pelo humano) |
+| Branch atual | `feature/09-mvp-release` |
+| Versão / release | `0.1.0-next.0` preparada — nenhuma publicação ainda |
+| Última entrega | Fase 8 concluída (PR #12); preparação do pacote npm, CHANGELOG e `release-pack.sh` |
+| Última decisão | Publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico (D-25) |
 | Tarefas em andamento | Nenhuma |
 | Bloqueios | Nenhum |
-| Próxima ação | Humano aprova o relatório ([[MVP_DOD_VALIDATION]]) e o PR; decide TD-02 e TD-13; Fase 9 só com autorização (HG-14) |
+| Próxima ação | HG-03: humano publica `0.1.0-next.0` com `--tag next`; depois validação a partir do registro |
 | Testes atuais | 144 servidor + 15 web + 15 E2E + instalação limpa, todos passando localmente |
 
 ## Progresso por fase
@@ -30,8 +30,8 @@ atualizado: 2026-10-29
 | 5 — Agent Monitor + Telemetria | Concluído |
 | 6 — AI Quota Monitor | Concluído |
 | 7 — Knowledge (RAG + Grafo) | Concluído |
-| 8 — Hardening e Validação | Em validação |
-| 9 — MVP Release | Não iniciado |
+| 8 — Hardening e Validação | Concluído |
+| 9 — MVP Release | Em andamento |
 
 ## Hipóteses abertas
 - **H-01:** sem prazo fixo; roadmap guiado por fases, não por datas. Dedicação semanal não informada. → [[INTAKE_RECORD]]

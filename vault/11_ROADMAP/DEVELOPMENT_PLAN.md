@@ -21,8 +21,8 @@ Status possíveis: `Não iniciado` · `Em andamento` · `Bloqueado` · `Em valid
 | 5 | Agent Monitor + Telemetria (SUG01) | P1 | Concluído | 100% |
 | 6 | AI Quota Monitor (SUG02) | P1 | Concluído | 100% |
 | 7 | Knowledge (RAG + Grafo) | P1 | Concluído | 100% |
-| 8 | Hardening e Validação | — | Em validação | 95% |
-| 9 | MVP Release | — | Não iniciado | 0% |
+| 8 | Hardening e Validação | — | Concluído | 100% |
+| 9 | MVP Release | — | Em andamento | 30% |
 
 ```mermaid
 flowchart LR
@@ -208,7 +208,7 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Riscos:** R-04 (Graphify/Python), R-05 (CPU/RAM).
 
 ## FASE 8 — Hardening e Validação
-**Status:** Em validação — relatório da DoD pronto ([[MVP_DOD_VALIDATION]]), aguardando aprovação humana e revisão do PR (`feature/08-hardening`)
+**Status:** Concluído — PR #12 integrado; relatório da DoD aprovado pelo humano ([[MVP_DOD_VALIDATION]])
 - **Objetivo:** provar a Definition of MVP Done.
 - **Escopo:** E2E das jornadas · instalação em Linux limpo · testes de persistência/upgrade · revisão de segurança completa · documentação de instalação/operação · validação em projeto real Angular + Spring Boot.
 - **Entregáveis:** relatório de validação da DoD (12 itens).
@@ -221,16 +221,25 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
   - [x] Documentação de instalação e operação ([[OPERATIONS]]); Graphify e Transformers.js no doctor (TD-20); rotação do log (TD-03)
   - [x] Relatório dos 12 itens da DoD ([[MVP_DOD_VALIDATION]])
 - **Dependências:** Fases 5, 6, 7.
-- **Critérios de aceite:** todos os 12 itens da DoD em [[MVP_SCOPE]] verificados — ✅ 12/12 no relatório, aguardando aprovação.
+- **Critérios de aceite:** todos os 12 itens da DoD em [[MVP_SCOPE]] verificados — ✅ 12/12, aprovado.
 - **Decisões da fase:** D-22 (fase autorizada), D-23 (banco mais novo recusado).
 - **DoD:** relatório aprovado pelo humano.
 - **Riscos:** descoberta tardia de problemas de empacotamento → mitigado por `pnpm pack` no CI desde a Fase 2.
 
 ## FASE 9 — MVP Release
-**Status:** Não iniciado
+**Status:** Em andamento — autorizada pelo humano (D-24), branch `feature/09-mvp-release`
 - **Objetivo:** publicar `v0.1.0`.
 - **Escopo:** `0.1.0-next.N` no canal `next` → validação → promoção `latest` · merge `release → main` · tag · notas de release.
+- **Entregáveis:**
+  - [x] Nome `devtools-ai-suite` livre no npm (R-08)
+  - [x] Pacote pronto para publicar: versão `0.1.0-next.0`, README para o npm, licença no pacote, metadados, trava `prepack` contra build de desenvolvimento
+  - [x] `scripts/release-pack.sh`: pacote gerado num worktree limpo do commit e testado com instalação limpa
+  - [x] `CHANGELOG.md` e notas da versão
+  - [ ] HG-03: publicação de `0.1.0-next.0` com `--tag next` (pelo humano, D-25)
+  - [ ] Instalação limpa a partir do registro (`scripts/smoke-install.sh devtools-ai-suite@next`)
+  - [ ] HG-01/HG-02: merge `release → main`, tag `v0.1.0`, promoção para `latest`
 - **Dependências:** Fase 8.
+- **Decisões da fase:** D-24 (fase autorizada), D-25 (publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico).
 - **Critérios de aceite:** instalação via npm em máquina limpa reproduz a jornada principal.
 - **DoD:** HG-01, HG-02, HG-03 aprovados; [[RELEASES]] atualizado.
 - **Riscos:** nome do pacote (H-03).

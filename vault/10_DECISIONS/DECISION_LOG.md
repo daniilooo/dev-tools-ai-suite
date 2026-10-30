@@ -43,3 +43,5 @@ tags: [decisoes]
 | 2026-10-29 | D-21 | Modelos padrão: `embeddinggemma` no Ollama (multilíngue, baixado pelo humano) e `Xenova/multilingual-e5-small` no Transformers.js (validado no S-03 em PT-BR); configuráveis por `DEVTOOLS_OLLAMA_EMBED_MODEL` e `DEVTOOLS_TRANSFORMERS_MODEL` | Proposto pela LLM | [[ADR-0006-rag-local]] |
 | 2026-10-29 | D-22 | Fase 8 autorizada pelo humano (HG-14) após o merge da Fase 7 (PR #11) | Aceito (gate) | [[DEVELOPMENT_PLAN]] |
 | 2026-10-29 | D-23 | Banco criado por versão mais nova da suíte é recusado ao abrir (sem alterá-lo), com instrução para atualizar em vez de voltar de versão | Proposto pela LLM | [[DATA_MODEL]] |
+| 2026-10-29 | D-24 | Relatório da DoD do MVP aprovado e Fase 9 autorizada pelo humano (HG-14) | Aceito (gate) | [[MVP_DOD_VALIDATION]] |
+| 2026-10-29 | D-25 | Publicação no npm feita pelo humano no terminal (a LLM não usa credenciais); TD-02 (`auth rotate`) fica para depois da v0.1.0; TD-13: histórico de agentes mantido sem limpeza automática | Aceito (escolha do humano) | [[DEVELOPMENT_PLAN]] |

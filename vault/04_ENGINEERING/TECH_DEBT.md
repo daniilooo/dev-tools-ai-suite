@@ -7,7 +7,7 @@ tags: [engenharia, divida]
 | ID | Descrição | Origem | Impacto | Plano |
 |---|---|---|---|---|
 | TD-01 | `@lydell/node-pty` é fork em beta (ADR-0012) | S-01 | Médio | Reavaliar na Fase 8; fallback para `node-pty` oficial |
-| TD-02 | `devtools auth rotate` não implementado; rotação = remover o arquivo `secret` | Fase 2 | Baixo | Implementar antes do MVP Release |
+| TD-02 | `devtools auth rotate` não implementado; rotação = remover o arquivo `secret` | Fase 2 | Baixo | Adiado para depois da v0.1.0 (D-25); rotação manual documentada em [[OPERATIONS]] |
 | TD-03 | Logs em `logs/server.log` sem rotação de arquivo | Fase 2 | Baixo | **Pago na Fase 8:** ao iniciar, `server.log` com mais de 10 MiB vira `server.log.1` (`core/log-file.ts`) |
 | TD-04 | Avisos de peer (`@emnapi/*`) no toolchain de build do Angular/Tailwind | Fase 2 | Nenhum em runtime | Acompanhar atualizações do Angular |
 | TD-05 | Rate limit da troca de código é global e em memória | Fase 2 | Baixo (servidor local) | Suficiente para monousuário; rever no modo Team |
@@ -18,7 +18,7 @@ tags: [engenharia, divida]
 | TD-10 | Fixture de "não logado" do Claude Code não foi capturada de uma saída real (máquina de referência está logada) | Fase 4 | Baixo | Capturar ao testar em máquina sem login |
 | TD-11 | Agent Monitor faz varredura periódica (2 s) em vez de observar o sistema de arquivos; atraso de até 2 s | Fase 5 | Baixo | Avaliar `fs.watch` na Fase 8 se o custo aparecer |
 | TD-12 | Sessão principal nunca vira `Concluído`: transcrições não registram o fim (fica `Aguardando` → `Desconhecido`) | Fase 5 | Baixo | Hooks do Claude Code com opt-in (pós-MVP, RN-05) |
-| TD-13 | Histórico de `agent_runs` sem limpeza automática; descoberta limitada a 30 dias | Fase 5 | Baixo | Política de retenção na Fase 8 |
+| TD-13 | Histórico de `agent_runs` sem limpeza automática; descoberta limitada a 30 dias | Fase 5 | Baixo | Manter tudo por enquanto (D-25); reavaliar com uso real |
 | TD-14 | Vínculo terminal ↔ Codex por janela de tempo (sem flag de id de sessão no Codex 0.165) | Fase 5 | Baixo | Trocar por flag oficial quando existir |
 | TD-15 | Nas sessões do Claude abertas pela suíte, a status line da suíte substitui uma status line própria do usuário | Fase 6 | Baixo | `DEVTOOLS_CLAUDE_STATUSLINE=off`; avaliar encadear a status line do usuário (pós-MVP) |
 | TD-16 | Cotas lidas por varredura (5 s), sem histórico persistido de leituras | Fase 6 | Baixo | Persistir histórico se surgir necessidade de gráfico de consumo (pós-MVP) |
