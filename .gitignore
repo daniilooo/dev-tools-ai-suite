@@ -36,3 +36,6 @@ test-results/
 Thumbs.db
 *.swp
 .idea/
+
+# Cópia da licença feita pelo prepack do pacote npm
+apps/server/LICENSE

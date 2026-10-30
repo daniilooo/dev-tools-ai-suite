@@ -4,16 +4,26 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 8 — Hardening e Validação (em validação) |
-| Etapa atual | Relatório da DoD pronto (12/12); aguarda aprovação humana e revisão do PR |
-| Branch atual | `feature/08-hardening` |
-| Última entrega | Instalação limpa no CI, upgrade de migrações, E2E da jornada, revisão de segurança (S-01 corrigido), guia de operação, TD-03/TD-20 pagos |
-| Última decisão | D-23 (banco de versão mais nova recusado) |
+| Fase atual | FASE 9 — MVP Release (em andamento) |
+| Etapa atual | Pacote `0.1.0-next.0` preparado e testado; aguarda HG-03 (publicação pelo humano) |
+| Branch atual | `feature/09-mvp-release` |
+| Última entrega | Fase 8 concluída (PR #12); preparação do pacote npm, CHANGELOG, `release-pack.sh` |
+| Última decisão | D-25 (publicação manual pelo humano; TD-02 adiada; TD-13 mantém o histórico) |
 | Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
-| Bloqueios | Nenhum |
-| Próxima ação | Humano aprova o relatório e o PR; decide TD-02 e TD-13; Fase 9 só com autorização (HG-14) |
+| Bloqueios | Publicação depende do humano (npm não logado na máquina; a LLM não usa credenciais) |
+| Próxima ação | Merge do PR de preparação; `scripts/release-pack.sh` em `release`; humano publica o `.tgz` com `--tag next`; validação com `scripts/smoke-install.sh devtools-ai-suite@next` |
 | Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
-| Release atual | nenhuma (`v0.0.0`) |
+| Release atual | nenhuma publicada; `0.1.0-next.0` preparada |
+
+---
+
+## HANDOFF — 2026-10-29 (Fase 9, preparação) — Claude Code (Opus)
+
+**Contexto:** PR #12 integrado; DoD aprovada e Fase 9 autorizada (D-24). Decisões do humano (D-25): ele publica pelo terminal; TD-02 depois da v0.1.0; TD-13 mantém o histórico.
+**Estado:** pacote preparado em `feature/09-mvp-release`; nome `devtools-ai-suite` livre no npm.
+**Alterações:** `apps/server/package.json` (versão `0.1.0-next.0`, metadados, `prepack`), `apps/server/scripts/prepack.mjs` (recusa build de desenvolvimento, copia a LICENSE), `apps/server/README.md` (página do npm), `CHANGELOG.md`, `scripts/release-pack.sh` (worktree limpo → build → pack → instalação limpa), `scripts/smoke-install.sh` aceita versão do registro.
+**Próximo passo:** HG-03 com o humano. Publicar sempre o `.tgz` gerado pelo `release-pack.sh` a partir de `release` (`npm publish <tgz> --tag next`). Depois: HG-01/HG-02 (merge em `main`, tag `v0.1.0`, `latest`).
+**Arquivos relevantes:** `.ai/workflow/DEPLOY.md`, `CHANGELOG.md`, `scripts/release-pack.sh`.
 
 ---
 
