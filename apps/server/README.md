@@ -18,10 +18,10 @@ Não precisa de compilador: os módulos nativos vêm prontos.
 
 ## Instalar e usar
 
-Baixe da [página de releases](https://github.com/daniilooo/dev-tools-ai-suite/releases) ou instale direto pela URL do pacote:
+Instale pelo npm (o mesmo pacote também fica anexado a cada [release no GitHub](https://github.com/daniilooo/dev-tools-ai-suite/releases)):
 
 ```bash
-npm install -g https://github.com/daniilooo/dev-tools-ai-suite/releases/download/v0.1.0/devtools-ai-suite-0.1.0.tgz
+npm install -g devtools-ai-suite
 devtools start      # sobe em 127.0.0.1:4317 e abre o dashboard já autenticado
 devtools doctor     # diagnóstico da instalação e das ferramentas
 ```
@@ -40,7 +40,7 @@ Opções: `--port`, `--data-dir`, `--no-open`. Variáveis de ambiente, dados, ba
 ## Atualizar e remover
 
 ```bash
-npm install -g <URL do .tgz da release mais nova>   # migrações do banco rodam sozinhas
+npm install -g devtools-ai-suite@latest            # migrações do banco rodam sozinhas
 npm uninstall -g devtools-ai-suite                  # os dados ficam até você apagar ~/.dev-tools-ai-suite
 ```
 

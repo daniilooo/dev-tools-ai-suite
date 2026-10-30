@@ -14,6 +14,7 @@ tags: [decisoes]
 | 2026-10-28 | ADR-0006 | RAG local (ONNX/Ollama, sqlite-vec/LanceDB, Graphify) | Proposto | [[ADR-0006-rag-local]] |
 | 2026-10-28 | ADR-0007 | Segurança local e sessão do navegador | Aceito (HG-05/06) | [[ADR-0007-seguranca-local]] |
 | 2026-10-28 | ADR-0008 | Distribuição npm sem Docker | Aceito | [[ADR-0008-distribuicao-npm]] |
+| 2026-10-30 | D-27 | Com conta no npm, o humano publicou no registro o mesmo `.tgz` da GitHub Release (`devtools-ai-suite@0.1.0`, `latest`); os dois canais passam a ser usados, e a instalação documentada volta a ser `npm install -g devtools-ai-suite` | Aceito (HG-02 e HG-03 aprovados) | [[ADR-0008-distribuicao-npm]] |
 | 2026-10-28 | ADR-0009 | GitFlow simplificado | Aceito | [[ADR-0009-gitflow-simplificado]] |
 | 2026-10-28 | ADR-0010 | Fontes de dados de provedores | Aceito | [[ADR-0010-fontes-dados-provedores]] |
 | 2026-10-28 | ADR-0011 | Vault + workflow multi-LLM | Aceito | [[ADR-0011-vault-e-workflow-multi-llm]] |

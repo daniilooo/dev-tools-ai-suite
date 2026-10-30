@@ -22,14 +22,16 @@ function vectorize(text: string): number[] {
 }
 
 /** Ollama falso em loopback com a API documentada (`/api/tags`, `/api/embed`). */
-export async function startFakeOllama(): Promise<{ url: string; stop(): Promise<void> }> {
+export async function startFakeOllama(
+  model = FAKE_EMBED_MODEL,
+): Promise<{ url: string; stop(): Promise<void> }> {
   const server = createServer((request, response) => {
     let body = "";
     request.on("data", (chunk: Buffer) => (body += chunk.toString()));
     request.on("end", () => {
       response.setHeader("content-type", "application/json");
       if (request.url === "/api/tags") {
-        response.end(JSON.stringify({ models: [{ name: `${FAKE_EMBED_MODEL}:latest` }] }));
+        response.end(JSON.stringify({ models: [{ name: `${model}:latest` }] }));
       } else if (request.url === "/api/embed") {
         const { input } = JSON.parse(body) as { input: string[] };
         response.end(JSON.stringify({ embeddings: input.map(vectorize) }));

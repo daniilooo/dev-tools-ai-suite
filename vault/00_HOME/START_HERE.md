@@ -1,6 +1,6 @@
 ---
 tags: [home]
-atualizado: 2026-10-28
+atualizado: 2026-10-30
 ---
 
 # 🧭 START HERE — Dev Tools AI Suite
@@ -11,14 +11,14 @@ Camada **local-first** de integração, observabilidade e conhecimento sobre Cla
 ## Resposta rápida
 | Pergunta | Resposta |
 |---|---|
-| Estado atual | Fase 9 (MVP Release) em andamento → [[PROJECT_STATUS]] |
-| Versão | `0.1.0` preparada (nada publicado ainda) |
+| Estado atual | MVP publicado; Fases 0–9 concluídas → [[PROJECT_STATUS]] |
+| Versão | `0.1.0` — npm (`devtools-ai-suite`) e GitHub Release → [[RELEASES]] |
 | Arquitetura | Monólito modular, portas apenas nas bordas externas → [[ARCHITECTURE]] |
 | Stack | Angular + Tailwind · Node.js + Fastify + TS · xterm.js + node-pty · SQLite · RAG local → [[SYSTEM_OVERVIEW]] |
 | Roadmap | 10 fases finitas (0–9) → [[DEVELOPMENT_PLAN]] |
-| Etapa atual | FASE 9 — pacote pronto; GitHub Release (HG-01/HG-02) |
-| Última decisão | Distribuição pela GitHub Release (D-26) → [[DECISION_LOG]] |
-| Próxima ação | Merge em `main` e GitHub Release da `v0.1.0` |
+| Etapa atual | Pós-MVP, aguardando autorização |
+| Última decisão | Registro npm + GitHub Release (D-27) → [[DECISION_LOG]] |
+| Próxima ação | Definir com o humano o próximo ciclo ([[POST_MVP_BACKLOG]], TD-02) |
 
 ## Mapa do Vault
 | Pasta | Conteúdo |
