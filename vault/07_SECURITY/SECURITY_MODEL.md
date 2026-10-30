@@ -39,6 +39,9 @@ tags: [seguranca]
 | Vazamento de configuração da suíte para o shell | variáveis `DEVTOOLS_*` e a identidade/token de uma sessão do Claude Code que tenha iniciado o servidor removidas do ambiente do PTY; saída do terminal não vai para logs nem disco | RN-02 |
 | Dependência comprometida | lockfile, `pnpm audit` no CI, revisão de deps nativas (HG-07) | CI |
 
+## Revisões
+- Fase 8: revisão completa do servidor → [[SECURITY_REVIEW_F8]] (S-01, desvio de autenticação com caminho codificado, corrigido).
+
 ## Fora de escopo do MVP
 Proteção contra malware já executando como o mesmo usuário (equivale a acesso total à conta).
 

@@ -26,5 +26,6 @@ tags: [engenharia, divida]
 | TD-18 | Indexação acompanhada por consulta a cada 1 s e sem reindexação incremental (refaz o projeto todo) | Fase 7 | Baixo | Evento em `/ws/events` e reindexação só dos arquivos alterados |
 | TD-19 | Embeddings na CPU são lentos (~0,5 s por trecho com o modelo multilíngue; dezenas de minutos em projetos grandes) | Fase 7 | Médio | Reaproveitamento por hash já evita recálculo; avaliar modelo menor, GPU ou prioridade baixa do processo |
 | TD-20 | Graphify e Transformers.js não aparecem no `devtools doctor` (a disponibilidade só aparece na tela Conhecimento) | Fase 7 | Baixo | **Pago na Fase 8:** doctor mostra Graphify (respeitando `DEVTOOLS_GRAPHIFY_BIN`) e Transformers.js (versão do complemento em `addons/`) |
+| TD-21 | Limite de tentativas da troca de código é global: um processo local pode atrasar o login do navegador por até 1 min ([[SECURITY_REVIEW_F8]] S-03) | Fase 8 | Baixo | Limitar por código emitido ou aceitar (só loopback) |
 
 Registrar aqui atalhos conscientes tomados para entregar o MVP, com plano de pagamento.
