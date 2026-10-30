@@ -58,6 +58,7 @@ program
       db,
       { backend: pty.backend?.name ?? null, error: pty.error },
       providers,
+      config.knowledge.graphifyBin,
     );
     db.close();
     if (options.json) console.log(JSON.stringify(report, null, 2));

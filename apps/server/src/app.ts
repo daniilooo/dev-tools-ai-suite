@@ -137,7 +137,13 @@ export async function buildApp(deps: AppDeps): Promise<App> {
   const projects = new ProjectsService(new ProjectsRepository(deps.db));
   const providers = deps.providers ?? new ProvidersService();
   registerSessionRoutes(server, { codes, sessions });
-  registerSystemRoutes(server, { layout: deps.layout, db: deps.db, terminals, providers });
+  registerSystemRoutes(server, {
+    layout: deps.layout,
+    db: deps.db,
+    terminals,
+    providers,
+    graphifyBin: deps.config.knowledge.graphifyBin,
+  });
   registerProviderRoutes(server, providers);
   const knowledgeConfig = deps.config.knowledge;
   const knowledge = new KnowledgeService(deps.db, projects, deps.layout.indexes, {

@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { createTestApp, HOST, login, tempDir } from "./helpers.js";
@@ -46,6 +46,32 @@ describe("servidor", () => {
     const response = await ctx.server.inject({ method: "GET", url: "/", headers: { host: HOST } });
     expect(response.headers["x-frame-options"]).toBe("DENY");
     expect(response.headers["x-content-type-options"]).toBe("nosniff");
+  });
+
+  it("doctor mostra os complementos do conhecimento: Graphify configurado e Transformers.js", async () => {
+    const dataDir = tempDir();
+    const bin = join(tempDir("devtools-bin-"), "graphify-custom");
+    writeFileSync(bin, '#!/bin/sh\necho "graphify 0.9.97"\n');
+    chmodSync(bin, 0o755);
+    const addon = join(dataDir, "addons", "node_modules", "@huggingface", "transformers");
+    mkdirSync(addon, { recursive: true });
+    writeFileSync(
+      join(addon, "package.json"),
+      JSON.stringify({ name: "@huggingface/transformers", version: "4.3.2" }),
+    );
+    ctx = await createTestApp(dataDir, true, { env: { DEVTOOLS_GRAPHIFY_BIN: bin } });
+    const { cookie } = await login(ctx);
+    const report = (
+      await ctx.server.inject({ method: "GET", url: "/api/v1/doctor", headers: { host: HOST, cookie } })
+    ).json();
+    const tool = (id: string) => report.tools.find((t: { id: string }) => t.id === id);
+    expect(tool("graphify")).toMatchObject({ installed: true, version: "0.9.97", optional: true });
+    expect(tool("transformers")).toMatchObject({
+      installed: true,
+      version: "4.3.2",
+      optional: true,
+      auth: null,
+    });
   });
 
   it("devolve o dashboard nas rotas da SPA, mas 404 para arquivo inexistente", async () => {

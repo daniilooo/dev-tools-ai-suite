@@ -247,11 +247,11 @@ export interface DoctorCheck {
 }
 
 export interface DoctorTool {
-  id: "git" | "claude" | "codex" | "ollama" | "graphify";
+  id: "git" | "claude" | "codex" | "ollama" | "graphify" | "transformers";
   label: string;
   installed: boolean;
   version: string | null;
-  /** Login do provedor via comando oficial; null quando não se aplica (git, graphify, ollama). */
+  /** Login do provedor via comando oficial; null quando não se aplica (git, graphify, ollama, transformers). */
   auth: ProviderAuth | null;
   optional: boolean;
 }
