@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Instalação limpa do pacote npm num Linux sem nada da máquina de desenvolvimento (DoD 1 e 9).
 #
-# Uso: scripts/smoke-install.sh <devtools-ai-suite-X.Y.Z.tgz | devtools-ai-suite@next> [imagem]
+# Uso: scripts/smoke-install.sh <devtools-ai-suite-X.Y.Z.tgz | URL do .tgz | pacote@versão> [imagem]
 #
-# Com um .tgz, instala o arquivo local; senão, instala a versão do registro npm.
+# Com um arquivo local, monta-o no contêiner; senão, o npm instala pela URL ou pelo registro.
 #
 # Sobe um contêiner Debian com Node 22 (sem compilador nem python: os módulos nativos
 # precisam vir prontos), instala o pacote como usuário comum, roda `devtools doctor`,

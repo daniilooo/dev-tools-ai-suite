@@ -18,8 +18,10 @@ Não precisa de compilador: os módulos nativos vêm prontos.
 
 ## Instalar e usar
 
+Baixe da [página de releases](https://github.com/daniilooo/dev-tools-ai-suite/releases) ou instale direto pela URL do pacote:
+
 ```bash
-npm install -g devtools-ai-suite@next
+npm install -g https://github.com/daniilooo/dev-tools-ai-suite/releases/download/v0.1.0/devtools-ai-suite-0.1.0.tgz
 devtools start      # sobe em 127.0.0.1:4317 e abre o dashboard já autenticado
 devtools doctor     # diagnóstico da instalação e das ferramentas
 ```
@@ -38,8 +40,8 @@ Opções: `--port`, `--data-dir`, `--no-open`. Variáveis de ambiente, dados, ba
 ## Atualizar e remover
 
 ```bash
-npm install -g devtools-ai-suite@next   # migrações do banco rodam sozinhas
-npm uninstall -g devtools-ai-suite      # os dados ficam até você apagar ~/.dev-tools-ai-suite
+npm install -g <URL do .tgz da release mais nova>   # migrações do banco rodam sozinhas
+npm uninstall -g devtools-ai-suite                  # os dados ficam até você apagar ~/.dev-tools-ai-suite
 ```
 
-Esta é uma versão de pré-lançamento (`next`) do MVP. Código-fonte, arquitetura e decisões: [github.com/daniilooo/dev-tools-ai-suite](https://github.com/daniilooo/dev-tools-ai-suite). Licença Apache-2.0.
+Esta é a primeira versão do MVP. Código-fonte, arquitetura e decisões: [github.com/daniilooo/dev-tools-ai-suite](https://github.com/daniilooo/dev-tools-ai-suite). Licença Apache-2.0.

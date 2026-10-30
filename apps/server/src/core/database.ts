@@ -155,7 +155,7 @@ export function migrate(db: Db, target = SCHEMA_VERSION): number {
   if (current > SCHEMA_VERSION) {
     throw new Error(
       `O banco de dados é da migração ${current}, mais nova que a desta versão da suíte (${SCHEMA_VERSION}). ` +
-        "Atualize a suíte (npm install -g devtools-ai-suite) em vez de voltar para uma versão anterior.",
+        "Instale a versão mais recente da suíte em vez de voltar para uma anterior.",
     );
   }
   const pending = MIGRATIONS.filter((m) => m.version > current && m.version <= target);
