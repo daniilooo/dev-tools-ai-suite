@@ -82,12 +82,14 @@ function nodeCheck(): DoctorCheck {
 function dataDirChecks(layout: DataDirLayout): DoctorCheck[] {
   const checks: DoctorCheck[] = [];
   const posix = process.platform !== "win32";
+  // No Windows os bits POSIX não valem: a proteção é a ACL do perfil do usuário (ADR-0015).
+  const protection = (mode: number) => (posix ? modeString(mode) : "ACL do perfil do usuário");
   const dirMode = existsSync(layout.root) ? permissionsOf(layout.root) : null;
   checks.push({
     id: "data-dir",
     label: "Diretório de dados",
     status: dirMode === null ? "error" : posix && (dirMode & 0o077) !== 0 ? "warning" : "ok",
-    detail: dirMode === null ? `${layout.root} não existe` : `${layout.root} (${modeString(dirMode)})`,
+    detail: dirMode === null ? `${layout.root} não existe` : `${layout.root} (${protection(dirMode)})`,
     hint:
       posix && dirMode !== null && (dirMode & 0o077) !== 0 ? `Execute: chmod 700 ${layout.root}` : undefined,
   });
@@ -96,7 +98,7 @@ function dataDirChecks(layout: DataDirLayout): DoctorCheck[] {
     id: "secret",
     label: "Segredo de instalação",
     status: secretMode === null ? "error" : posix && secretMode !== 0o600 ? "warning" : "ok",
-    detail: secretMode === null ? "ausente" : `presente (${modeString(secretMode)})`,
+    detail: secretMode === null ? "ausente" : `presente (${protection(secretMode)})`,
     hint: secretMode === null ? "Execute `devtools start` para gerar." : undefined,
   });
   return checks;
