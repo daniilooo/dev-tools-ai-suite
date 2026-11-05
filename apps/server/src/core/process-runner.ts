@@ -104,7 +104,7 @@ function resolveTarget(
   const file = findExecutable(command, env);
   if (!file) throw new Error(`spawn ${command} ENOENT`);
   if (!isBatchFile(file)) return { file, args, verbatim: false };
-  const comspec = envValue(env, "ComSpec") ?? "cmd.exe";
+  const comspec = envValue(env, "ComSpec") ?? process.env.ComSpec ?? "cmd.exe";
   return { file: comspec, args: ["/d", "/s", "/c", batchCommandLine(file, args)], verbatim: true };
 }
 

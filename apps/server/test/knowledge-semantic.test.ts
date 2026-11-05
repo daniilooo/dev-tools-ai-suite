@@ -5,16 +5,7 @@ import type {
   Project,
   SemanticProviderInfo,
 } from "@devtools/shared";
-import {
-  appendFileSync,
-  chmodSync,
-  existsSync,
-  readFileSync,
-  readdirSync,
-  realpathSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { appendFileSync, existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { loadConfig } from "../src/core/config.js";
@@ -23,7 +14,7 @@ import type { GraphExtractor } from "../src/modules/knowledge/code-graph.js";
 import type { EmbeddingProvider } from "../src/modules/knowledge/embeddings.js";
 import { SemanticService } from "../src/modules/knowledge/semantic.service.js";
 import { FIXTURE_SECRET } from "./agent-fixtures.js";
-import { createTestApp, HOST, login, ORIGIN, tempDir } from "./helpers.js";
+import { createTestApp, expectMode, HOST, login, ORIGIN, tempDir, writeFakeBin } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 import { makeProject } from "./knowledge-fixtures.js";
 
@@ -232,7 +223,7 @@ describe("busca semântica e grafo de código", () => {
     expect(s.semantic.total).toBe(s.chunks);
 
     const vec = ctx.knowledge.semantic.vectorPath(project.id);
-    expect(statSync(vec).mode & 0o777).toBe(0o600);
+    expectMode(vec, 0o600);
     expect(readFileSync(vec).includes(FIXTURE_SECRET)).toBe(false);
 
     const semantic = await query("total com desconto dos itens do pedido", "semantic");
@@ -308,7 +299,7 @@ describe("busca semântica e grafo de código", () => {
     expect(built).toMatchObject({ state: "built", repos: 2 });
     expect(graph.calls).toEqual([project.path, join(project.path, "backend", "api")]);
     const file = ctx.knowledge.graph.graphPath(project.id);
-    expect(statSync(file).mode & 0o777).toBe(0o600);
+    expectMode(file, 0o600);
     // Exclusões valem para o grafo; a raiz não duplica o repositório aninhado.
     const raw = readFileSync(file, "utf8");
     expect(raw).not.toContain("ChaveSecreta");
@@ -369,18 +360,22 @@ describe("Graphify externo", () => {
     const dir = realpathSync(tempDir("devtools-graphify-"));
     const envDump = join(dir, "env.txt");
     const bin = join(dir, "graphify");
-    writeFileSync(
-      bin,
-      `#!/bin/sh
-if [ "$1" = "--version" ]; then echo "graphify 0.9.97"; exit 0; fi
-env > "${envDump}"
-echo "$@" >> "${envDump}"
-while [ "$1" != "--out" ]; do shift; done
-mkdir -p "$2/graphify-out"
-echo '{"nodes":[{"id":"a","label":"A","source_file":"a.ts","source_location":"L3"}],"edges":[]}' > "$2/graphify-out/graph.json"
+    // Registra o ambiente recebido e grava o grafo em `--out`, como o Graphify real.
+    writeFakeBin(
+      dir,
+      "graphify",
+      `import { appendFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+const args = process.argv.slice(2);
+if (args[0] === "--version") { console.log("graphify 0.9.97"); process.exit(0); }
+const dump = ${JSON.stringify(envDump)};
+writeFileSync(dump, Object.entries(process.env).map(([k, v]) => k + "=" + v).join("\\n") + "\\n");
+appendFileSync(dump, args.join(" ") + "\\n");
+const out = args[args.indexOf("--out") + 1];
+mkdirSync(join(out, "graphify-out"), { recursive: true });
+writeFileSync(join(out, "graphify-out", "graph.json"), JSON.stringify({ nodes: [{ id: "a", label: "A", source_file: "a.ts", source_location: "L3" }], edges: [] }));
 `,
     );
-    chmodSync(bin, 0o755);
     const repo = makeProject();
     const before = readdirSync(repo).sort();
     const extractor = new GraphifyExtractor(bin, join(dir, "home"));

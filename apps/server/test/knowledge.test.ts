@@ -1,5 +1,5 @@
 import type { KnowledgeQueryResponse, KnowledgeStatus, Project } from "@devtools/shared";
-import { appendFileSync, existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { Socket } from "node:net";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,7 +8,7 @@ import { listProjectFiles } from "../src/modules/knowledge/indexer.js";
 import { KnowledgeService } from "../src/modules/knowledge/knowledge.service.js";
 import { FIXTURE_SECRET } from "./agent-fixtures.js";
 import { makeProject } from "./knowledge-fixtures.js";
-import { createTestApp, HOST, login, ORIGIN, tempDir } from "./helpers.js";
+import { createTestApp, expectMode, HOST, login, ORIGIN, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
 describe("exclusões de indexação", () => {
@@ -135,7 +135,7 @@ describe("conhecimento no servidor", () => {
     }
     const index = ctx.knowledge.indexPath(project.id);
     expect(readFileSync(index).includes(FIXTURE_SECRET)).toBe(false);
-    expect(statSync(index).mode & 0o777).toBe(0o600);
+    expectMode(index, 0o600);
     expect((await query("chave")).hits[0]?.snippet).toContain("[REDIGIDO]");
   });
 

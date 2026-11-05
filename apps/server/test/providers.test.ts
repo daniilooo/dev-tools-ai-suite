@@ -1,5 +1,5 @@
 import type { ProvidersResponse } from "@devtools/shared";
-import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseClaudeAuthStatus } from "../src/modules/integrations/claude-code.adapter.js";
@@ -7,7 +7,7 @@ import { parseCodexLoginStatus } from "../src/modules/integrations/codex.adapter
 import type { DetectContext } from "../src/modules/integrations/provider-adapter.js";
 import { versionSupport } from "../src/modules/integrations/provider-adapter.js";
 import { ProvidersService } from "../src/modules/integrations/providers.service.js";
-import { createTestApp, HOST, login, ORIGIN, tempDir } from "./helpers.js";
+import { createTestApp, fakePath, HOST, login, ORIGIN, tempDir, writeFakeBin } from "./helpers.js";
 
 const FIXTURES = join(import.meta.dirname, "fixtures");
 const NOW = new Date("2026-10-28T12:00:00.000Z");
@@ -30,31 +30,36 @@ function fakeInstall(options: { claude?: boolean; codex?: boolean; ollama?: bool
   writeFileSync(join(home, ".claude", ".credentials.json"), '{"token":"ISCA-CREDENCIAL-CLAUDE"}');
   writeFileSync(join(home, ".codex", "auth.json"), '{"token":"ISCA-CREDENCIAL-CODEX"}');
 
-  const script = (name: string, cases: string) => {
-    const file = join(bin, name);
-    writeFileSync(
-      file,
-      `#!/bin/sh\necho "${name} $*" >> "${calls}"\ncase "$*" in\n${cases}\n  *) echo "uso inválido" >&2; exit 2;;\nesac\n`,
+  // Cada binário registra a invocação e responde com a fixture do comando oficial.
+  const script = (name: string, cases: Record<string, string>) =>
+    writeFakeBin(
+      bin,
+      name,
+      `import { appendFileSync, readFileSync } from "node:fs";
+const args = process.argv.slice(2).join(" ");
+appendFileSync(${JSON.stringify(calls)}, ${JSON.stringify(name)} + " " + args + "\\n");
+const file = ${JSON.stringify(cases)}[args];
+if (file) process.stdout.write(readFileSync(file, "utf8"));
+else { process.stderr.write("uso inválido\\n"); process.exit(2); }
+`,
     );
-    chmodSync(file, 0o755);
-  };
   if (options.claude !== false) {
-    script(
-      "claude",
-      `  "--version") cat "${FIXTURES}/claude-code/2.1.312/version.txt";;\n  "auth status --json") cat "${FIXTURES}/claude-code/2.1.312/auth-status.json";;`,
-    );
+    script("claude", {
+      "--version": join(FIXTURES, "claude-code/2.1.312/version.txt"),
+      "auth status --json": join(FIXTURES, "claude-code/2.1.312/auth-status.json"),
+    });
   }
   if (options.codex !== false) {
-    script(
-      "codex",
-      `  "--version") cat "${FIXTURES}/codex/0.165.0/version.txt";;\n  "login status") cat "${FIXTURES}/codex/0.165.0/login-status.txt";;`,
-    );
+    script("codex", {
+      "--version": join(FIXTURES, "codex/0.165.0/version.txt"),
+      "login status": join(FIXTURES, "codex/0.165.0/login-status.txt"),
+    });
   }
   if (options.ollama !== false) {
-    script("ollama", `  "--version") cat "${FIXTURES}/ollama/0.40.0/version.txt";;`);
+    script("ollama", { "--version": join(FIXTURES, "ollama/0.40.0/version.txt") });
   }
 
-  const env = { PATH: `${bin}:/usr/bin:/bin`, HOME: home };
+  const env = { PATH: fakePath(bin), HOME: home };
   return { env, calls: () => readFileSync(calls, "utf8").trim().split("\n") };
 }
 

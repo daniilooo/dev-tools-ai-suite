@@ -1,7 +1,7 @@
-import { chmodSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { createTestApp, HOST, login, tempDir } from "./helpers.js";
+import { createTestApp, HOST, login, tempDir, writeFakeBin } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 import { extractVersion } from "../src/modules/integrations/provider-adapter.js";
 
@@ -50,9 +50,9 @@ describe("servidor", () => {
 
   it("doctor mostra os complementos do conhecimento: Graphify configurado e Transformers.js", async () => {
     const dataDir = tempDir();
-    const bin = join(tempDir("devtools-bin-"), "graphify-custom");
-    writeFileSync(bin, '#!/bin/sh\necho "graphify 0.9.97"\n');
-    chmodSync(bin, 0o755);
+    const binDir = tempDir("devtools-bin-");
+    writeFakeBin(binDir, "graphify-custom", 'console.log("graphify 0.9.97");\n');
+    const bin = join(binDir, "graphify-custom");
     const addon = join(dataDir, "addons", "node_modules", "@huggingface", "transformers");
     mkdirSync(addon, { recursive: true });
     writeFileSync(

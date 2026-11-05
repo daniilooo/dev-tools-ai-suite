@@ -1,6 +1,6 @@
 import type { QuotaResponse, ServerEvent } from "@devtools/shared";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,7 +20,7 @@ import { buildQuota, freshnessOf } from "../src/modules/quota/quota-monitor.js";
 import type { QuotaInputs } from "../src/modules/quota/quota-monitor.js";
 import { extractRateLimits, renderLine } from "../src/statusline.js";
 import { FIXTURE_NOW, FIXTURE_SECRET, installQuotaFixtures, statusLineInput } from "./agent-fixtures.js";
-import { createTestApp, login, tempDir } from "./helpers.js";
+import { createTestApp, expectMode, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
 const SCRIPT = fileURLToPath(new URL("../src/statusline.ts", import.meta.url));
@@ -58,7 +58,7 @@ describe("status line da suíte", () => {
       encoding: "utf8",
     });
     expect(line).toBe("Opus 5.5 · 5 h: 24% · semana: 61%");
-    expect(statSync(out).mode & 0o777).toBe(0o600);
+    expectMode(out, 0o600);
     const saved = readFileSync(out, "utf8");
     for (const leaked of ["/home/pessoa", "transcript", "total_cost_usd", "session", "Opus"]) {
       expect(saved).not.toContain(leaked);
@@ -278,7 +278,7 @@ describe("Quota Monitor no servidor", () => {
     expect(command).toContain(quoteForTerminal(settingsPath));
     expect(providers.launchSpec("codex").command).toBe("codex");
 
-    expect(statSync(settingsPath).mode & 0o777).toBe(0o600);
+    expectMode(settingsPath, 0o600);
     const settings = JSON.parse(readFileSync(settingsPath, "utf8")) as { statusLine: { command: string } };
     expect(Object.keys(settings)).toEqual(["statusLine"]);
     expect(settings.statusLine.command).toContain("statusline.ts");
