@@ -94,17 +94,24 @@ export function fakeGraphifyBin(): string {
       },
     ],
   };
+  // Script Node chamado por shim `sh` ou `.cmd` (o mesmo formato do Graphify instalado pelo pipx/npm).
+  const script = join(dir, "graphify.mjs");
   writeFileSync(
-    bin,
-    `#!/bin/sh
-if [ "$1" = "--version" ]; then echo "graphify 0.9.97"; exit 0; fi
-while [ "$1" != "--out" ]; do shift; done
-mkdir -p "$2/graphify-out"
-cat > "$2/graphify-out/graph.json" <<'JSON'
-${JSON.stringify(graph)}
-JSON
+    script,
+    `import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+const args = process.argv.slice(2);
+if (args[0] === "--version") { console.log("graphify 0.9.97"); process.exit(0); }
+const out = join(args[args.indexOf("--out") + 1], "graphify-out");
+mkdirSync(out, { recursive: true });
+writeFileSync(join(out, "graph.json"), ${JSON.stringify(JSON.stringify(graph))});
 `,
   );
-  chmodSync(bin, 0o755);
+  if (process.platform === "win32") {
+    writeFileSync(`${bin}.cmd`, `@"${process.execPath}" "${script}" %*\r\n`);
+  } else {
+    writeFileSync(bin, `#!/bin/sh\nexec "${process.execPath}" "${script}" "$@"\n`);
+    chmodSync(bin, 0o755);
+  }
   return bin;
 }
