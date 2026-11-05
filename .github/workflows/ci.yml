@@ -121,6 +121,13 @@ jobs:
           $tgz = Get-ChildItem "$env:RUNNER_TEMP/devtools-ai-suite-*.tgz" | Select-Object -First 1
           pwsh scripts/smoke-install.ps1 $tgz.FullName
 
+      - name: Pacote para homologação manual
+        uses: actions/upload-artifact@v4
+        with:
+          name: devtools-ai-suite-tgz
+          path: ${{ runner.temp }}/devtools-ai-suite-*.tgz
+          retention-days: 7
+
       - name: Relatório do Playwright
         if: failure()
         uses: actions/upload-artifact@v4

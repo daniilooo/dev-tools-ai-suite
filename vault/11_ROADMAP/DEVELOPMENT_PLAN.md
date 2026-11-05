@@ -253,8 +253,8 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Entregáveis:**
   - [x] `core/platform.ts` com as regras de plataforma e testes que simulam o Windows
   - [x] Provedores falsos dos testes multiplataforma (Node + shim `sh`/`.cmd`) e `.gitattributes` com LF
-  - [ ] Job "Validação (Windows)" verde: testes, build, E2E e `scripts/smoke-install.ps1`
-  - [ ] Documentação: requisitos, manual, operação e distribuição com Windows
+  - [x] Job "Validação (Windows)" verde: testes, build, E2E e `scripts/smoke-install.ps1`
+  - [x] Documentação: requisitos, manual, operação e distribuição com Windows
   - [ ] Homologação manual pelo humano no Windows: terminal, Claude Code, Codex, cotas e conhecimento
 - **Dependências:** Fase 9.
 - **Decisões da fase:** D-28 (escopo, shell, arquitetura e homologação).
