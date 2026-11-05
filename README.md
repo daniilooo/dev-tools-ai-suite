@@ -18,7 +18,7 @@ Princípios: tudo roda local por padrão, nenhuma credencial dos provedores é t
 
 ## Como executar
 
-Requisitos: Linux x64, Node 22.22.3 ou superior e `git`. Instale pelo npm (não precisa de compilador; o mesmo pacote fica anexado à [release no GitHub](https://github.com/daniilooo/dev-tools-ai-suite/releases)):
+Requisitos: Linux x64 ou Windows 10/11 x64, Node 22.22.3 ou superior e `git`. Instale pelo npm (não precisa de compilador; o mesmo pacote fica anexado à [release no GitHub](https://github.com/daniilooo/dev-tools-ai-suite/releases)):
 
 ```bash
 npm install -g devtools-ai-suite

@@ -10,7 +10,8 @@ Passo a passo com prints de cada tela: [manual do usuário](../../docs/manual/RE
 Guia de instalação e operação do pacote `devtools-ai-suite`, distribuído pelas [GitHub Releases](https://github.com/daniilooo/dev-tools-ai-suite/releases) (D-26). Instalação validada em contêiner Debian 12 limpo, sem compilador (`scripts/smoke-install.sh`, também no CI).
 
 ## Requisitos
-- Linux homologado (glibc, x64) · Node.js **22.22.3** ou superior · `git`.
+- Linux homologado (glibc, x64) ou **Windows 10/11 x64** nativo ([[ADR-0015-suporte-windows]]) · Node.js **22.22.3** ou superior · `git`.
+- No Windows: comandos no PowerShell; terminais da suíte no `pwsh` 7 (se instalado) ou no Windows PowerShell 5.1; dados em `%USERPROFILE%\.dev-tools-ai-suite`, protegidos pela ACL do perfil (sem `chmod`). WSL2 também funciona, como Linux.
 - Opcionais: Claude Code, Codex CLI, Ollama, Graphify, Transformers.js. A suíte funciona sem eles e mostra o que falta em **Diagnóstico**.
 - Não precisa de compilador nem de python: os módulos nativos (`better-sqlite3`, `sqlite-vec`, `@lydell/node-pty`) vêm prontos.
 
@@ -74,7 +75,9 @@ Nada é gravado dentro dos projetos (INV-05).
 | Sintoma | Causa e solução |
 |---|---|
 | `Erro: O banco de dados é da migração N, mais nova…` | Suíte mais antiga que os dados: atualize a suíte ou restaure o backup |
-| Terminal (PTY) com erro no doctor | Reinstale a suíte; se persistir, instale `build-essential` e `python3` |
+| Terminal (PTY) com erro no doctor | Reinstale a suíte; se persistir, no Linux instale `build-essential` e `python3` |
+| Windows: provedor "não encontrado" | `where.exe claude` no PowerShell que roda `devtools start`; a suíte resolve `.exe` e shims `.cmd` do npm pelo PATH |
+| Windows: cota do Claude INDISPONÍVEL | O Claude Code executa a status line pelo Git Bash: instale o Git for Windows |
 | Provedor "não encontrado" mas abre no terminal | O PATH do servidor difere do PATH do shell (TD-09): inicie a suíte num shell com o PATH completo |
 | Porta ocupada | Se for a própria suíte, `devtools start` só gera um novo código; senão use `--port` |
 | Busca semântica lenta | Embeddings na CPU (TD-19); prefira o Ollama ou deixe rodando em segundo plano |

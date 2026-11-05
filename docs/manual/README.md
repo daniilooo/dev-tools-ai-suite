@@ -21,7 +21,9 @@ Versão `0.1.0`. A suíte reúne terminal, Claude Code, Codex, monitor de agente
 
 ## 1. Instalar e iniciar
 
-Requisitos: Linux x64, Node.js 22.22.3 ou superior e `git`. Não precisa de compilador.
+Requisitos: Linux x64 ou Windows 10/11 x64, Node.js 22.22.3 ou superior e `git`. Não precisa de compilador.
+
+No Windows, rode os comandos no PowerShell. Os terminais da suíte abrem no PowerShell 7 (`pwsh`) se ele estiver instalado; senão, no Windows PowerShell do sistema. Os dados ficam em `%USERPROFILE%\.dev-tools-ai-suite`. Também dá para usar a suíte dentro do WSL2, como no Linux; nesse caso, ela enxerga o Claude Code e o Codex instalados no WSL, não os do Windows.
 
 ```bash
 npm install -g devtools-ai-suite
@@ -187,7 +189,9 @@ No terminal, `devtools doctor --json` gera a mesma saída para scripts. O comand
 | Porta ocupada | Se for a própria suíte, `devtools start` só gera um novo código; senão use `--port` |
 | Provedor "não encontrado", mas funciona no seu terminal | Inicie a suíte num shell com o PATH completo |
 | Cota do Claude como INDISPONÍVEL | Abra o Claude Code **pela suíte** e envie uma mensagem; login por chave de API não tem janelas de uso |
-| Terminal (PTY) com erro no Diagnóstico | Reinstale a suíte; se persistir, instale `build-essential` e `python3` |
+| Terminal (PTY) com erro no Diagnóstico | Reinstale a suíte; se persistir, no Linux instale `build-essential` e `python3` |
+| Windows: `claude` ou `codex` "não encontrado" | Confira se `where.exe claude` acha o executável no PowerShell em que você roda `devtools start` |
+| Windows: cota do Claude sempre INDISPONÍVEL | O Claude Code no Windows roda a status line pelo Git Bash: confira se o Git for Windows está instalado |
 | Busca semântica lenta | Os embeddings rodam na CPU; prefira o Ollama ou deixe indexando em segundo plano |
 | `O banco de dados é da migração N, mais nova…` | A suíte é mais antiga que os dados: atualize-a (`npm install -g devtools-ai-suite@latest`) ou restaure o backup |
 
