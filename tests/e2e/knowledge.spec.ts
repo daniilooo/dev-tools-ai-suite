@@ -16,7 +16,7 @@ let ollama: Awaited<ReturnType<typeof startFakeOllama>>;
 test.beforeAll(async () => {
   // Embeddings e grafo com ferramentas falsas: o E2E não depende do Ollama nem do Graphify da máquina.
   ollama = await startFakeOllama();
-  const dataDir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-")));
+  const dataDir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-")));
   server = await startServer(PORT, dataDir, {
     ...process.env,
     CLAUDE_CONFIG_DIR: join(dataDir, "no-claude"),
@@ -32,7 +32,7 @@ test.afterAll(async () => {
 });
 
 async function addProject(page: Page, name: string): Promise<string> {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-know-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-know-")));
   execFileSync("git", ["-C", dir, "init", "-q"]);
   mkdirSync(join(dir, "src"));
   writeFileSync(

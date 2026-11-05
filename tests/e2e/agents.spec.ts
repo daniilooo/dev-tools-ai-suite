@@ -30,7 +30,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("monitor de agentes mostra sessões, subagentes, telemetria e atualiza ao vivo", async ({ page }) => {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-agents-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-agents-")));
   const roots = { claude: env.CLAUDE_CONFIG_DIR!, codex: env.CODEX_HOME! };
   const paths = installAgentFixtures(roots, dir, { codexDay: new Date() });
 
@@ -79,7 +79,7 @@ test("monitor de agentes mostra sessões, subagentes, telemetria e atualiza ao v
 });
 
 test("ver terminal abre só o terminal do agente, sem as abas do projeto", async ({ page }) => {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-agterm-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-agterm-")));
   await page.goto(`${server.base}/#code=${await server.launchToken()}`);
   await page.getByLabel("Caminho absoluto").fill(dir);
   await page.getByLabel("Nome (opcional)").fill("proj-agente-terminal");

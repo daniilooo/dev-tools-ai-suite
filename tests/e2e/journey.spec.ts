@@ -49,7 +49,7 @@ test.afterEach(async ({ page }) => {
 
 /** Projeto guarda-chuva como os reais: Angular em `frontend/`, Spring Boot em `backend/`. */
 function umbrellaProject(): string {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-journey-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-journey-")));
   const files: Record<string, string> = {
     "frontend/package.json": JSON.stringify({ dependencies: { "@angular/core": "22.0.0" } }),
     "frontend/angular.json": "{}",

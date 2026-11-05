@@ -1,4 +1,4 @@
-import { chmodSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { expect } from "vitest";
@@ -59,7 +59,9 @@ export const TEST_SHELL = IS_WINDOWS
   : { file: "/bin/bash", args: ["--norc", "--noprofile"] };
 
 export function tempDir(prefix = "devtools-test-"): string {
-  return mkdtempSync(join(tmpdir(), prefix));
+  const dir = mkdtempSync(join(tmpdir(), prefix));
+  // No Windows o TEMP do runner vem em nome curto (RUNNER~1); a suíte guarda o nome longo.
+  return IS_WINDOWS ? realpathSync.native(dir) : dir;
 }
 
 export interface TestAppOptions {

@@ -24,7 +24,7 @@ import type { RunningServer } from "../e2e/support/server";
 const OUT = join(import.meta.dirname, "../../docs/manual/img");
 const PORT = 4433;
 /** Caminhos fixos e legíveis nas imagens (recriados a cada execução). */
-const HOME = join(realpathSync(tmpdir()), "devtools-manual");
+const HOME = join(realpathSync.native(tmpdir()), "devtools-manual");
 let server: RunningServer;
 let ollama: Awaited<ReturnType<typeof startFakeOllama>>;
 
