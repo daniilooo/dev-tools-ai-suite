@@ -1,6 +1,7 @@
 import type { LaunchableProviderId, ProviderId, ProviderInfo, ProvidersResponse } from "@devtools/shared";
 import { randomUUID } from "node:crypto";
 import { badRequest } from "../../core/errors.js";
+import { findExecutable, IS_WINDOWS, quoteForTerminal } from "../../core/platform.js";
 import { claudeCodeAdapter } from "./claude-code.adapter.js";
 import { codexAdapter } from "./codex.adapter.js";
 import { ollamaAdapter } from "./ollama.adapter.js";
@@ -56,11 +57,21 @@ export class ProvidersService {
       throw badRequest("Provedor inválido para iniciar no terminal.", { id });
     }
     const externalId = adapter.sessionIdFlag ? randomUUID() : null;
-    const parts = [adapter.launchCommand];
+    const parts = [this.launchExecutable(adapter.launchCommand)];
     if (externalId) parts.push(adapter.sessionIdFlag!, externalId);
     const extra = this.launchArgs.get(id);
     if (extra) parts.push(extra);
     return { providerId: id, command: parts.join(" "), externalId };
+  }
+
+  /**
+   * No Windows (PowerShell), chama o executável pelo caminho resolvido no PATH: o nome puro
+   * cairia no shim `.ps1` do npm, bloqueado pela política de execução padrão (ADR-0015).
+   */
+  private launchExecutable(command: string): string {
+    if (!IS_WINDOWS) return command;
+    const file = findExecutable(command, this.context.env);
+    return file ? `& ${quoteForTerminal(file)}` : command;
   }
 
   /** Define argumentos montados pelo servidor (nunca vindos do navegador), já escapados. */

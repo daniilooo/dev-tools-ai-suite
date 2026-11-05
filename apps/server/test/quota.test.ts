@@ -14,7 +14,8 @@ import {
   parseCodexRecord,
   QuotaSources,
 } from "../src/modules/integrations/sources/quota-sources.js";
-import { readClaudeStatusLine, shellQuote } from "../src/modules/quota/claude-statusline.js";
+import { quoteForTerminal } from "../src/core/platform.js";
+import { readClaudeStatusLine, statusLineCommand } from "../src/modules/quota/claude-statusline.js";
 import { buildQuota, freshnessOf } from "../src/modules/quota/quota-monitor.js";
 import type { QuotaInputs } from "../src/modules/quota/quota-monitor.js";
 import { extractRateLimits, renderLine } from "../src/statusline.js";
@@ -80,7 +81,11 @@ describe("status line da suíte", () => {
   });
 
   it("escapa caminhos para o shell", () => {
-    expect(shellQuote("/tmp/it's here")).toBe(`'/tmp/it'\\''s here'`);
+    expect(quoteForTerminal("/tmp/it's here", false)).toBe(`'/tmp/it'\\''s here'`);
+    expect(quoteForTerminal("C:\\Users\\o'neil\\a.json", true)).toBe(`'C:\\Users\\o''neil\\a.json'`);
+    expect(statusLineCommand(["C:\\Program Files\\nodejs\\node.exe", "C:\\d\\s.js"], true)).toBe(
+      `"C:/Program Files/nodejs/node.exe" "C:/d/s.js"`,
+    );
   });
 });
 
@@ -270,7 +275,7 @@ describe("Quota Monitor no servidor", () => {
     const settingsPath = join(dataDir, "quota", "claude-settings.json");
     const command = providers.launchSpec("claude-code").command;
     expect(command).toMatch(/^claude --session-id [0-9a-f-]{36} --settings '.+claude-settings\.json'$/);
-    expect(command).toContain(shellQuote(settingsPath));
+    expect(command).toContain(quoteForTerminal(settingsPath));
     expect(providers.launchSpec("codex").command).toBe("codex");
 
     expect(statSync(settingsPath).mode & 0o777).toBe(0o600);

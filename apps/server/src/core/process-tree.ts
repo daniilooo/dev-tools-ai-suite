@@ -56,7 +56,9 @@ export function killProcessTree(
   { graceMs = 1500, includeRoot = true }: { graceMs?: number; includeRoot?: boolean } = {},
 ): Promise<void> {
   if (process.platform === "win32") {
-    spawn("taskkill", ["/pid", String(rootPid), "/T", "/F"], { windowsHide: true });
+    // O `taskkill /T` parte da raiz: se ela já saiu, o PID pode ser de outro processo — não
+    // há o que encerrar com segurança (o ConPTY fecha o console e os filhos ligados a ele).
+    if (includeRoot) spawn("taskkill", ["/pid", String(rootPid), "/T", "/F"], { windowsHide: true });
     return Promise.resolve();
   }
   // Sem a raiz quando ela já saiu: o PID pode ter sido reutilizado por outro processo.

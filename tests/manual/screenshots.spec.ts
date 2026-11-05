@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -96,14 +96,7 @@ test("prints do manual", async ({ page }) => {
     codexDay: new Date(),
   });
   // A aba do Claude simulado mostra um aviso neutro em vez do marcador dos testes.
-  const claudeBin = join(env.PATH!.split(":")[0]!, "claude");
-  writeFileSync(
-    claudeBin,
-    readFileSync(claudeBin, "utf8").replaceAll(
-      'echo "claude-falso-interativo"',
-      'printf "\\n  Claude Code (simulado para o manual) aberto em %s\\n\\n" "$PWD"',
-    ),
-  );
+  env.FAKE_CLAUDE_BANNER = "\n  Claude Code (simulado para o manual) aberto em {cwd}\n";
   server = await startServer(PORT, join(HOME, ".dev-tools-ai-suite"), env);
 
   // 1. Acesso com o código curto do terminal.

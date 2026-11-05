@@ -6,6 +6,7 @@ import { CodexSessionParser, readCodexMeta } from "./codex-session.js";
 import { JsonlTail } from "./jsonl-tail.js";
 import type { LocalSourceFiles } from "./local-files.js";
 import { claudeProjectDirName } from "./local-files.js";
+import { isPathWithin, samePath } from "../../../core/platform.js";
 import type { RunSnapshot } from "./run-snapshot.js";
 
 /** Arquivos sem alteração há mais que isso só são lidos se já estavam sendo acompanhados. */
@@ -132,7 +133,11 @@ export class AgentSources {
       feed: (records) => {
         parser.feed(records);
         // O nome do diretório é ambíguo ("/a-b" e "/a/b"): confirma pelo cwd registrado.
-        if (parser.snapshot.kind === "agent" && parser.snapshot.cwd && parser.snapshot.cwd !== project.path) {
+        if (
+          parser.snapshot.kind === "agent" &&
+          parser.snapshot.cwd &&
+          !samePath(parser.snapshot.cwd, project.path)
+        ) {
           this.ignored.add(path);
           // A sessão e seus subagentes (`<sessão>/subagents/…`) saem do acompanhamento.
           const sessionDir = path.slice(0, -".jsonl".length) + sep;
@@ -179,7 +184,7 @@ export class AgentSources {
         if (this.tracked.has(path)) continue;
         const meta = this.codexMetaOf(path);
         if (!meta?.cwd) continue;
-        const project = projects.find((p) => meta.cwd === p.path || meta.cwd!.startsWith(p.path + sep));
+        const project = projects.find((p) => isPathWithin(meta.cwd!, p.path));
         if (!project) continue;
         let parser = new CodexSessionParser(meta);
         this.tracked.set(path, {
