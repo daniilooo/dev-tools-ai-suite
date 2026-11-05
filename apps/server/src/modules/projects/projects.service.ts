@@ -1,6 +1,7 @@
 import type { CreateProjectRequest, Project } from "@devtools/shared";
 import { accessSync, constants, realpathSync, statSync } from "node:fs";
 import { basename, isAbsolute } from "node:path";
+import { IS_WINDOWS } from "../../core/platform.js";
 import { AppError, badRequest, notFound } from "../../core/errors.js";
 import type { ProjectsRepository } from "./projects.repository.js";
 import { detectStack } from "./stack-detection.js";
@@ -26,7 +27,9 @@ export class ProjectsService {
 
     let path: string;
     try {
-      path = realpathSync(rawPath);
+      // No Windows, o caminho canônico do sistema: nome longo (não `RUNNER~1`) e maiúsculas
+      // reais — o mesmo cwd que o PowerShell, o Claude Code e o Codex registram (ADR-0015).
+      path = IS_WINDOWS ? realpathSync.native(rawPath) : realpathSync(rawPath);
       if (!statSync(path).isDirectory()) throw new Error("not a directory");
       accessSync(path, constants.R_OK | constants.X_OK);
     } catch {

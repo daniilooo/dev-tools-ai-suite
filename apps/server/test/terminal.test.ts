@@ -176,7 +176,7 @@ describe("terminal (PTY real + WebSocket)", { timeout: IS_WINDOWS ? 60_000 : 500
     await socket.opened;
     socket.send(`${SH.sumAndPwd}\r`);
     await socket.waitFor(/resultado-42/);
-    await socket.waitFor(pathPattern(projectDir));
+    await socket.waitFor(pathPattern(project.path));
     socket.close();
   });
 
@@ -189,7 +189,7 @@ describe("terminal (PTY real + WebSocket)", { timeout: IS_WINDOWS ? 60_000 : 500
     await socket.opened;
     await socket.waitFor(/lancou-42/);
     socket.send(`${SH.pwd}\r`);
-    await socket.waitFor(pathPattern(projectDir));
+    await socket.waitFor(pathPattern(project.path));
     socket.close();
 
     for (const launch of ["codex", "rm -rf /", "ollama"]) {
