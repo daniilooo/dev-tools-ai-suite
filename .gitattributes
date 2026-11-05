@@ -1,0 +1,7 @@
+# Finais de linha LF em todas as plataformas (fixtures, snapshots e Prettier dependem disso).
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf

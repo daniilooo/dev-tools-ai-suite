@@ -1,6 +1,7 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { chmodSync, mkdtempSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { delimiter, join } from "node:path";
+import { expect } from "vitest";
 import { buildApp } from "../src/app.js";
 import type { App, AppDeps } from "../src/app.js";
 import { loadConfig } from "../src/core/config.js";
@@ -23,8 +24,44 @@ export interface TestContext extends App {
   close(): Promise<void>;
 }
 
+export const IS_WINDOWS = process.platform === "win32";
+
+/** Permissões POSIX; no Windows não há bits de modo (vale a ACL do perfil — ADR-0015). */
+export function expectMode(path: string, mode: number): void {
+  if (!IS_WINDOWS) expect(statSync(path).mode & 0o777).toBe(mode);
+}
+
+/**
+ * Executável falso multiplataforma: `source` é um módulo Node (ESM) que recebe os argumentos
+ * em `process.argv.slice(2)`. Chamado por um shim `sh` ou `.cmd` (formato dos shims do npm).
+ */
+export function writeFakeBin(dir: string, name: string, source: string): void {
+  const script = join(dir, `${name}.fake.mjs`);
+  writeFileSync(script, source);
+  if (IS_WINDOWS) {
+    writeFileSync(join(dir, `${name}.cmd`), `@"${process.execPath}" "${script}" %*\r\n`);
+  } else {
+    writeFileSync(join(dir, name), `#!/bin/sh\nexec "${process.execPath}" "${script}" "$@"\n`);
+    chmodSync(join(dir, name), 0o755);
+  }
+}
+
+/** PATH mínimo: os falsos primeiro e só o sistema (no Windows, o System32 e o git do runner). */
+export function fakePath(bin: string): string {
+  return IS_WINDOWS
+    ? [bin, process.env.Path ?? process.env.PATH ?? ""].join(delimiter)
+    : `${bin}:/usr/bin:/bin`;
+}
+
+/** Shell dos testes de terminal: bash sem rc no Linux, PowerShell sem perfil no Windows. */
+export const TEST_SHELL = IS_WINDOWS
+  ? { file: "powershell.exe", args: ["-NoLogo", "-NoProfile"] }
+  : { file: "/bin/bash", args: ["--norc", "--noprofile"] };
+
 export function tempDir(prefix = "devtools-test-"): string {
-  return mkdtempSync(join(tmpdir(), prefix));
+  const dir = mkdtempSync(join(tmpdir(), prefix));
+  // No Windows o TEMP do runner vem em nome curto (RUNNER~1); a suíte guarda o nome longo.
+  return IS_WINDOWS ? realpathSync.native(dir) : dir;
 }
 
 export interface TestAppOptions {

@@ -27,7 +27,7 @@ test.afterEach(async ({ page }) => {
 });
 
 async function openProjectTerminal(page: Page, name: string): Promise<string> {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-term-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-term-")));
   await page.goto(`${server.base}/#code=${await server.launchToken()}`);
   await page.getByLabel("Caminho absoluto").fill(dir);
   await page.getByLabel("Nome (opcional)").fill(name);

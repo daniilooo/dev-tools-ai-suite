@@ -15,6 +15,9 @@ export const FIXTURE_SECRET = ["sk", "ant", "api03", "Zx9".repeat(10)].join("-")
 /** Instante de referência das fixtures (último evento do Claude + 1 min). */
 export const FIXTURE_NOW = Date.parse("2026-10-28T11:01:00.000Z");
 
+/** O caminho entra dentro de strings JSON: no Windows, `\` precisa de escape. */
+const jsonText = (value: string) => JSON.stringify(value).slice(1, -1);
+
 function render(file: string, vars: Record<string, string>): string {
   let text = readFileSync(join(FIXTURES, file), "utf8");
   for (const [key, value] of Object.entries(vars)) text = text.split(key).join(value);
@@ -32,7 +35,7 @@ export function installAgentFixtures(
   { codexDay = new Date(FIXTURE_NOW), claudeSessionId = CLAUDE_SESSION_ID } = {},
 ): { claudeSession: string; claudeSubagent: string; codexMain: string; codexSub: string } {
   const vars = {
-    __CWD__: projectPath,
+    __CWD__: jsonText(projectPath),
     __SESSION__: claudeSessionId,
     __MAIN__: CODEX_MAIN_ID,
     __SUB__: CODEX_SUB_ID,
@@ -73,7 +76,7 @@ export function installQuotaFixtures(
   { codexDay = new Date(FIXTURE_NOW), claudeSessionId = CLAUDE_SESSION_ID } = {},
 ): { codexRollout: string; claudeTranscript: string } {
   const vars = {
-    __CWD__: projectPath,
+    __CWD__: jsonText(projectPath),
     __SESSION__: claudeSessionId,
     __MAIN__: CODEX_MAIN_ID,
     __SECRET__: FIXTURE_SECRET,

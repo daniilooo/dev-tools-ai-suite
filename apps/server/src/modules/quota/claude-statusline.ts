@@ -2,6 +2,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "n
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { DataDirLayout } from "../../core/data-dir.js";
+import { IS_WINDOWS, quoteForTerminal } from "../../core/platform.js";
 import type { StatusLineSnapshot } from "../../statusline.js";
 
 const SNAPSHOT_MAX_BYTES = 64 * 1024;
@@ -33,12 +34,12 @@ export function prepareClaudeStatusLine(
   const settings = {
     statusLine: {
       type: "command",
-      command: [nodePath, script, snapshotPath].map(shellQuote).join(" "),
+      command: statusLineCommand([nodePath, script, snapshotPath]),
       padding: 0,
     },
   };
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + "\n", { mode: 0o600 });
-  return { settingsPath, snapshotPath, launchArgs: `--settings ${shellQuote(settingsPath)}` };
+  return { settingsPath, snapshotPath, launchArgs: `--settings ${quoteForTerminal(settingsPath)}` };
 }
 
 /** Script compilado (`dist/statusline.js`) ou, em desenvolvimento, o fonte executado pelo Node. */
@@ -72,7 +73,13 @@ export function readClaudeStatusLine(path: string): StatusLineSnapshot | null {
   }
 }
 
-/** Aspas simples POSIX: o caminho é digitado no shell do terminal. */
-export function shellQuote(value: string): string {
-  return `'${value.replace(/'/g, `'\\''`)}'`;
+/**
+ * Linha executada pelo próprio Claude Code. No Windows ele usa o Git Bash (ou o cmd), então
+ * vão aspas duplas e `/` — formato aceito pelos dois; caminhos do Windows não contêm `"`.
+ * Nos demais sistemas, aspas simples POSIX.
+ */
+export function statusLineCommand(parts: string[], platformIsWindows = IS_WINDOWS): string {
+  return parts
+    .map((p) => (platformIsWindows ? `"${p.replace(/\\/g, "/")}"` : quoteForTerminal(p, false)))
+    .join(" ");
 }

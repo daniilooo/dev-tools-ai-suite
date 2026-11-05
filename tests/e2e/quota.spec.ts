@@ -91,7 +91,7 @@ test("cotas mostram fonte e frescor; abrir o Claude pela suíte traz o uso dele"
   await expect(page.locator("main")).not.toContainText(FIXTURE_SECRET);
 
   // Abre o Claude pela suíte: a status line da suíte grava os limites e a tela atualiza sozinha.
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-quota-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-quota-")));
   await page.getByRole("link", { name: "Projetos" }).click();
   await page.getByLabel("Caminho absoluto").fill(dir);
   await page.getByLabel("Nome (opcional)").fill("proj-cotas");

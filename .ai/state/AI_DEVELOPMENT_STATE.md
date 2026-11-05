@@ -4,18 +4,49 @@
 
 | Campo | Valor |
 |---|---|
-| Fase atual | FASE 9 — MVP Release (concluída); MVP publicado |
-| Etapa atual | `v0.1.0` na GitHub Release e no npm; docs da publicação (D-27) |
-| Branch atual | `docs/09-npm-publicacao` |
-| Última entrega | PR #15 (`release → main`), tag `v0.1.0`, GitHub Release estável, `devtools-ai-suite@0.1.0` no npm |
-| Última decisão | D-27 (registro npm somado à GitHub Release) |
-| Tarefas em andamento | Nenhuma; ambiente de dev rodando desacoplado |
+| Fase atual | FASE 10 — Suporte ao Windows (pós-MVP, D-28) |
+| Etapa atual | PR #19 com CI verde nos dois sistemas; aguarda homologação manual no Windows |
+| Branch atual | `feature/10-windows` |
+| Última entrega | Suporte nativo ao Windows x64 ([[ADR-0015-suporte-windows]]) e job "Validação (Windows)" |
+| Última decisão | D-28 (Windows nativo x64, PowerShell, homologação humana) |
+| Tarefas em andamento | Homologação manual pelo humano |
 | Bloqueios | Nenhum |
-| Próxima ação | Merge deste PR. Trabalho pós-MVP só com nova autorização |
-| Testes atuais | `pnpm test` (144 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh`, `validate:bootstrap` |
+| Próxima ação | Homologação no Windows → merge do PR #19 → `0.2.0` (HG-01/02/03) |
+| Testes atuais | `pnpm test` (149 servidor + 15 web), `pnpm test:e2e` (15), `scripts/smoke-install.sh` e `scripts/smoke-install.ps1`, `validate:bootstrap` |
 | Release atual | `0.1.0` (npm `latest` + GitHub Release) |
 
 ---
+
+## HANDOFF — 2026-11-05 (Fase 10, Windows) — Claude Code (Opus)
+- **Feito:** `apps/server/src/core/platform.ts` concentra as regras de plataforma:
+  - `findExecutable` (PATH/PATHEXT, sem `.ps1`);
+  - `batchCommandLine` (`.cmd` via `cmd.exe /d /s /c`, recusando metacaracteres);
+  - `samePath`/`isPathWithin`/`relativeInside`;
+  - `quoteForTerminal`.
+- **Usos de `platform.ts`:**
+  - `process-runner` executa os shims `.cmd`;
+  - o shell padrão no Windows é PowerShell (`pwsh` → 5.1);
+  - o lançamento chama o executável por `& '<caminho>'`;
+  - a status line usa aspas duplas e `/`;
+  - `taskkill` só é usado com a raiz viva;
+  - o navegador abre com `rundll32 url.dll`;
+  - o projeto é cadastrado com `realpathSync.native` (nome longo).
+- **Testes:**
+  - os falsos são Node + shim `sh`/`.cmd` (`writeFakeBin`, `fakeProvidersEnv`, `fakeGraphifyBin`);
+  - `expectMode` ignora bits POSIX no Windows;
+  - os testes de terminal têm comandos bash e PowerShell.
+- **CI:** job "Validação (Windows)" (`windows-2025`) e `scripts/smoke-install.ps1`.
+- **Aprendizados do CI:**
+  - o TEMP do runner vem em nome curto 8.3 (`RUNNER~1`), resolvido com `realpathSync.native`;
+  - o PowerShell leva segundos para abrir (timeouts maiores só no Windows);
+  - caminhos dentro de fixtures JSON precisam de escape.
+- **Pendente:**
+  - homologação manual pelo humano: terminal interativo, Claude Code (status line via Git Bash), Codex, cotas e conhecimento;
+  - merge do PR #19;
+  - versão `0.2.0`.
+- **Riscos:**
+  - não confirmados no CI: a status line executada pelo Claude Code no Windows e a digitação antecipada no ConPTY;
+  - filhos de um shell que já saiu não são encerrados no Windows.
 
 ## HANDOFF — 2026-10-30 (Fase 9, publicação) — Claude Code (Opus)
 

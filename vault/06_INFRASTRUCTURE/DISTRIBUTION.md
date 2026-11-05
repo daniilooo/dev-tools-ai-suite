@@ -26,7 +26,7 @@ O `.tgz` anexado e o publicado no registro são sempre o mesmo arquivo, gerado e
 O npm CLI 11 publica em etapas: o registro mostra primeiro um marcador `0.0.0-stage` ("Temporary package placeholder for staged publishing") e a versão real aparece minutos depois. O marcador é do próprio npm: não despublicar.
 
 ## Plataformas
-Linux homologado no MVP; Windows e macOS considerados na arquitetura e no build (prebuilds de `node-pty`), homologação pós-MVP.
+Linux homologado no MVP. Windows 10/11 **x64** nativo a partir da Fase 10 ([[ADR-0015-suporte-windows]]): mesmos binários prontos (`@lydell/node-pty`, `better-sqlite3`, `sqlite-vec`), job "Validação (Windows)" no CI e instalação limpa com `scripts/smoke-install.ps1`. macOS e Windows arm64 seguem pós-MVP.
 
 ## Riscos
 Publicar no registro exige a conta do humano com 2FA; com chave de acesso (passkey), o `npm publish` precisa de um terminal interativo (D-27). Dependências nativas → spike S-01.

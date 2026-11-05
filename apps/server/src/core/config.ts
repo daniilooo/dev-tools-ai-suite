@@ -89,6 +89,7 @@ function parseLogLevel(raw: string | undefined): LogLevel {
 }
 
 export function expandHome(path: string): string {
-  const expanded = path === "~" || path.startsWith("~/") ? join(homedir(), path.slice(1)) : path;
+  const expanded =
+    path === "~" || path.startsWith("~/") || path.startsWith("~\\") ? join(homedir(), path.slice(1)) : path;
   return isAbsolute(expanded) ? expanded : resolve(expanded);
 }

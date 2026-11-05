@@ -19,7 +19,7 @@ Ideias registradas para **não** inflar o MVP. Entrar no MVP exige gate humano H
 | Integração avançada GitHub/GitLab/Jira | Intake B1 | |
 | Monitor de modelos locais e recursos computacionais | Intake B1 | |
 | Marketplace de skills e plugins | Intake B1 | |
-| Instaladores validados Windows/macOS | Intake B1 | |
+| Instaladores validados Windows/macOS | Intake B1 | Windows x64 na Fase 10 (D-28, ADR-0015); macOS e arm64 pendentes |
 | Distribuição e atualização automática de módulos | Intake B1 | |
 | Provedores externos de embeddings (opt-in) | Intake B2 | HG-13 |
 | Suporte a outros CLIs (Gemini, Qwen Code…) | Bootstrap | via `ProviderAdapter` |

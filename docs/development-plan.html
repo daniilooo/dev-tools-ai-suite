@@ -97,7 +97,7 @@ code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:.85
 </div>
 
 <script>
-const UPDATED = "2026-10-30";
+const UPDATED = "2026-11-05";
 const STATUS = {
   "Não iniciado": "--st-none",
   "Em andamento": "--st-progress",
@@ -162,7 +162,12 @@ const PHASES = [
    goal:"Publicar v0.1.0.",
    deliverables:[["Pacote 0.1.0 e release-pack.sh",1],["Merge release → main + tag v0.1.0",1],["GitHub Release validada e estável",1],["npm latest com o mesmo .tgz",1],["Notas de release",1]],
    deps:["Fase 8"],criteria:[["Instalação via npm e via URL reproduz a jornada principal",1],["Gates HG-01, HG-02 e HG-03 aprovados",1]],
-   risks:["R-08 nome do pacote npm"],blockers:[]}
+   risks:["R-08 nome do pacote npm"],blockers:[]},
+  {n:10,name:"Suporte ao Windows (pós-MVP)",prio:"—",status:"Em validação",progress:80,
+   goal:"Instalar e usar a suíte no Windows x64 nativo com a mesma jornada do Linux.",
+   deliverables:[["core/platform.ts (PATHEXT, shims .cmd, caminhos, aspas) e ADR-0015",1],["PowerShell nos terminais",1],["Testes multiplataforma e .gitattributes",1],["Job Validação (Windows) e smoke-install.ps1",1],["Documentação com Windows",1],["Homologação manual no Windows",0]],
+   deps:["Fase 9"],criteria:[["CI verde no Linux e no Windows",1],["Instalação limpa no Windows reproduz a jornada pela API",1],["Homologação manual aprovada pelo humano",0]],
+   risks:["Status line executada pelo Claude Code no Windows (Git Bash)","Digitação antecipada no ConPTY"],blockers:[]}
 ];
 
 const $ = s => document.querySelector(s);

@@ -22,7 +22,7 @@ import {
   FIXTURE_SECRET,
   installAgentFixtures,
 } from "./agent-fixtures.js";
-import { createTestApp, login, tempDir } from "./helpers.js";
+import { createTestApp, login, tempDir, TEST_SHELL } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
 type AgentRunEvent = Extract<ServerEvent, { type: "agent.run.state" }>;
@@ -230,7 +230,7 @@ describe("rotas de agentes e /ws/events", () => {
     ctx = await createTestApp(dataDir, true, {
       port,
       agentSourceRoots: roots,
-      terminalOptions: { shell: { file: "/bin/bash", args: ["--norc", "--noprofile"] } },
+      terminalOptions: { shell: TEST_SHELL },
       // Provedor falso com o mesmo vínculo do Claude Code real (--session-id).
       providers: new ProvidersService({
         adapters: [

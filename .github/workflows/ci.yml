@@ -80,3 +80,60 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  windows:
+    name: Validação (Windows)
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Testes unitários e de integração
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Instalar navegador do Playwright
+        run: pnpm exec playwright install chromium
+
+      - name: Testes E2E
+        run: pnpm test:e2e
+
+      - name: Instalação limpa do pacote (Windows, prefixo e perfil temporários)
+        run: |
+          cd apps/server
+          pnpm pack --pack-destination "$env:RUNNER_TEMP"
+          cd ../..
+          $tgz = Get-ChildItem "$env:RUNNER_TEMP/devtools-ai-suite-*.tgz" | Select-Object -First 1
+          pwsh scripts/smoke-install.ps1 $tgz.FullName
+
+      - name: Pacote para homologação manual
+        uses: actions/upload-artifact@v4
+        with:
+          name: devtools-ai-suite-tgz
+          path: ${{ runner.temp }}/devtools-ai-suite-*.tgz
+          retention-days: 7
+
+      - name: Relatório do Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-windows
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

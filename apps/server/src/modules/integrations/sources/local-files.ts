@@ -1,6 +1,7 @@
 import { closeSync, lstatSync, openSync, readdirSync, readSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, relative, sep } from "node:path";
+import { join } from "node:path";
+import { relativeInside } from "../../../core/platform.js";
 
 /**
  * Único ponto do módulo `integrations` que lê arquivos (exceção de lint restrita a esta pasta).
@@ -40,13 +41,13 @@ export class LocalSourceFiles {
       [this.roots.claude, CLAUDE_PATTERNS],
       [this.roots.codex, CODEX_PATTERNS],
     ] as const) {
-      const rel = relative(root, path).split(sep).join("/");
-      if (rel.startsWith("..") || rel.startsWith("/")) continue;
+      const rel = relativeInside(root, path);
+      if (rel === null) continue;
       if (!patterns.some((p) => p.test(rel))) continue;
       try {
         if (lstatSync(path).isSymbolicLink()) return false;
         const realRoot = realpathSync(root);
-        return !relative(realRoot, realpathSync(path)).startsWith("..");
+        return relativeInside(realRoot, realpathSync(path)) !== null;
       } catch {
         return false;
       }
@@ -56,10 +57,7 @@ export class LocalSourceFiles {
 
   /** Lista nomes de um diretório dentro das raízes (sem ler conteúdo). */
   list(dir: string): string[] {
-    const inside = [this.roots.claude, this.roots.codex].some((root) => {
-      const rel = relative(root, dir);
-      return !rel.startsWith("..") && !rel.startsWith("/");
-    });
+    const inside = [this.roots.claude, this.roots.codex].some((root) => relativeInside(root, dir) !== null);
     if (!inside) return [];
     try {
       return readdirSync(dir);

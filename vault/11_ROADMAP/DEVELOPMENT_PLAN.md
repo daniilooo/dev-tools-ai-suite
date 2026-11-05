@@ -245,3 +245,19 @@ F5, F6 e F7 podem correr em paralelo após suas dependências, se a capacidade p
 - **Critérios de aceite:** instalação pela URL da release e pelo registro npm em máquina limpa reproduz a jornada principal (D-26, D-27).
 - **DoD:** HG-01, HG-02 e HG-03 aprovados; [[RELEASES]] atualizado.
 - **Riscos:** nome do pacote (H-03).
+
+## FASE 10 — Suporte ao Windows (pós-MVP)
+**Status:** Em andamento — autorizada em 2026-11-05 (D-28)
+- **Objetivo:** instalar e usar a suíte no Windows x64 nativo com a mesma jornada do Linux.
+- **Escopo:** resolução de executáveis e shims `.cmd`, PowerShell nos terminais, aspas do lançamento e da status line, caminhos sem distinção de maiúsculas, encerramento seguro de processos, navegador, CI e instalação limpa no Windows ([[ADR-0015-suporte-windows]]).
+- **Entregáveis:**
+  - [x] `core/platform.ts` com as regras de plataforma e testes que simulam o Windows
+  - [x] Provedores falsos dos testes multiplataforma (Node + shim `sh`/`.cmd`) e `.gitattributes` com LF
+  - [x] Job "Validação (Windows)" verde: testes, build, E2E e `scripts/smoke-install.ps1`
+  - [x] Documentação: requisitos, manual, operação e distribuição com Windows
+  - [ ] Homologação manual pelo humano no Windows: terminal, Claude Code, Codex, cotas e conhecimento
+- **Dependências:** Fase 9.
+- **Decisões da fase:** D-28 (escopo, shell, arquitetura e homologação).
+- **Critérios de aceite:** CI verde nos dois sistemas; instalação limpa do `.tgz` no Windows reproduz a jornada pela API; homologação manual aprovada.
+- **DoD:** PR mergeado na `release`; versão `0.2.0` preparada para HG-01/02/03.
+- **Riscos:** status line executada pelo Claude Code no Windows (Git Bash); comportamento do ConPTY com digitação antecipada.

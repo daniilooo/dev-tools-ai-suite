@@ -7,7 +7,9 @@ import type {
 } from "@devtools/shared";
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { AppError, badRequest, notFound } from "../../core/errors.js";
+import { findExecutable, IS_WINDOWS } from "../../core/platform.js";
 import { killProcessTree } from "../../core/process-tree.js";
 import { OutputBuffer } from "./output-buffer.js";
 import type { PtyBackend, PtyProcess } from "./pty-backend.js";
@@ -376,9 +378,17 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, Math.trunc(value)));
 }
 
+/**
+ * Shell dos terminais. No Windows é sempre o PowerShell (ADR-0015): o 7 (`pwsh`) se estiver
+ * no PATH, senão o Windows PowerShell 5.1 que vem com o sistema. O comando de lançamento dos
+ * provedores usa as aspas dele (`quoteForTerminal`).
+ */
 export function defaultShell(): { file: string; args: string[] } {
-  if (process.platform === "win32") {
-    return { file: process.env.COMSPEC ?? "powershell.exe", args: [] };
+  if (IS_WINDOWS) {
+    const systemRoot = process.env.SystemRoot ?? "C:\\Windows";
+    const file =
+      findExecutable("pwsh") ?? join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+    return { file, args: ["-NoLogo"] };
   }
   const candidates = [process.env.SHELL, "/bin/bash", "/bin/sh"];
   const file = candidates.find((c): c is string => !!c && c.startsWith("/") && existsSync(c)) ?? "/bin/sh";

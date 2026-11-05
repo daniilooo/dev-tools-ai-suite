@@ -6,8 +6,38 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { WebSocket } from "ws";
 import { isAlive } from "../src/core/process-tree.js";
 import { ProvidersService } from "../src/modules/integrations/providers.service.js";
-import { createTestApp, login, tempDir } from "./helpers.js";
+import { createTestApp, IS_WINDOWS, login, tempDir, TEST_SHELL } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
+
+/**
+ * Comandos equivalentes em bash (Linux) e PowerShell (Windows). Nenhum contém literalmente a
+ * saída esperada, para o eco da digitação não satisfazer a espera.
+ */
+const SH = IS_WINDOWS
+  ? {
+      launch: 'echo "lancou-$(40+2)"',
+      sumAndPwd: 'echo "resultado-$(20+22)"; (Get-Location).Path',
+      pwd: "(Get-Location).Path",
+      setVar: "$env:MARCA='persistiu'; echo antes-da-queda",
+      echoVar: 'echo "valor=$env:MARCA"',
+      size: 'echo "$($Host.UI.RawUI.WindowSize.Height) $($Host.UI.RawUI.WindowSize.Width)"',
+      background:
+        "$p = Start-Process -PassThru -WindowStyle Hidden ping -ArgumentList '-n','300','127.0.0.1'; echo \"pid-filho=$($p.Id)\"",
+      leak: "echo \"[$(if ($env:DEVTOOLS_TESTE_VAZAMENTO) { $env:DEVTOOLS_TESTE_VAZAMENTO } else { 'vazio' })] $env:TERM\"",
+    }
+  : {
+      launch: "echo lancou-$((40+2))",
+      sumAndPwd: "echo resultado-$((20+22)); pwd",
+      pwd: "pwd",
+      setVar: "export MARCA=persistiu; echo antes-da-queda",
+      echoVar: "echo valor=$MARCA",
+      size: "stty size",
+      background: "sleep 300 & echo pid-filho=$!",
+      leak: 'echo "[${DEVTOOLS_TESTE_VAZAMENTO:-vazio}] $TERM"',
+    };
+
+/** Caminho como regex (barras do Windows e pontos escapados). */
+const pathPattern = (path: string) => new RegExp(path.replace(/[\\/.$^()[\]{}+*?|]/g, "\\$&"));
 
 function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -52,7 +82,7 @@ class TerminalSocket {
     this.ws.send(JSON.stringify({ type: "resize", cols, rows }));
   }
 
-  async waitFor(pattern: RegExp, timeoutMs = 5000): Promise<RegExpMatchArray> {
+  async waitFor(pattern: RegExp, timeoutMs = IS_WINDOWS ? 30_000 : 5000): Promise<RegExpMatchArray> {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       const match = pattern.exec(this.output);
@@ -67,7 +97,10 @@ class TerminalSocket {
   }
 }
 
-async function waitUntil(condition: () => boolean | Promise<boolean>, timeoutMs = 4000): Promise<void> {
+async function waitUntil(
+  condition: () => boolean | Promise<boolean>,
+  timeoutMs = IS_WINDOWS ? 20_000 : 4000,
+): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!(await condition())) {
     if (Date.now() > deadline) throw new Error("condição não atingida a tempo");
@@ -75,7 +108,8 @@ async function waitUntil(condition: () => boolean | Promise<boolean>, timeoutMs 
   }
 }
 
-describe("terminal (PTY real + WebSocket)", () => {
+// O PowerShell leva alguns segundos para abrir no runner do Windows.
+describe("terminal (PTY real + WebSocket)", { timeout: IS_WINDOWS ? 60_000 : 5000 }, () => {
   let ctx: TestContext;
   let host: string;
   let auth: { cookie: string; csrf: string };
@@ -87,14 +121,14 @@ describe("terminal (PTY real + WebSocket)", () => {
     host = `127.0.0.1:${port}`;
     ctx = await createTestApp(tempDir(), true, {
       port,
-      terminalOptions: { shell: { file: "/bin/bash", args: ["--norc", "--noprofile"] } },
+      terminalOptions: { shell: TEST_SHELL },
       // Provedor falso: o comando "lançado" só ecoa um marcador.
       providers: new ProvidersService({
         adapters: [
           {
             id: "claude-code",
             label: "Claude Code",
-            launchCommand: "echo lancou-$((40+2))",
+            launchCommand: SH.launch,
             detect: () => Promise.reject(new Error("não usado")),
           },
         ],
@@ -140,9 +174,9 @@ describe("terminal (PTY real + WebSocket)", () => {
 
     const socket = connect(terminal.id);
     await socket.opened;
-    socket.send("echo resultado-$((20+22)); pwd\r");
+    socket.send(`${SH.sumAndPwd}\r`);
     await socket.waitFor(/resultado-42/);
-    await socket.waitFor(new RegExp(projectDir.replace(/[/.]/g, "\\$&")));
+    await socket.waitFor(pathPattern(project.path));
     socket.close();
   });
 
@@ -154,8 +188,8 @@ describe("terminal (PTY real + WebSocket)", () => {
     const socket = connect(terminal.id);
     await socket.opened;
     await socket.waitFor(/lancou-42/);
-    socket.send("pwd\r");
-    await socket.waitFor(new RegExp(projectDir.replace(/[/.]/g, "\\$&")));
+    socket.send(`${SH.pwd}\r`);
+    await socket.waitFor(pathPattern(project.path));
     socket.close();
 
     for (const launch of ["codex", "rm -rf /", "ollama"]) {
@@ -180,7 +214,7 @@ describe("terminal (PTY real + WebSocket)", () => {
     const terminal = await createTerminal();
     const first = connect(terminal.id);
     await first.opened;
-    first.send("export MARCA=persistiu; echo antes-da-queda\r");
+    first.send(`${SH.setVar}\r`);
     await first.waitFor(/antes-da-queda\r?\n/);
     first.close();
     await first.closed;
@@ -193,7 +227,7 @@ describe("terminal (PTY real + WebSocket)", () => {
     await second.opened;
     await second.waitFor(/antes-da-queda/);
     expect(second.messages[0]?.type).toBe("replay");
-    second.send("echo valor=$MARCA\r");
+    second.send(`${SH.echoVar}\r`);
     await second.waitFor(/valor=persistiu/);
     second.close();
   });
@@ -217,7 +251,7 @@ describe("terminal (PTY real + WebSocket)", () => {
     const socket = connect(terminal.id);
     await socket.opened;
     socket.resize(132, 40);
-    socket.send("stty size\r");
+    socket.send(`${SH.size}\r`);
     await socket.waitFor(/40 132/);
     socket.close();
   });
@@ -226,7 +260,7 @@ describe("terminal (PTY real + WebSocket)", () => {
     const terminal = await createTerminal();
     const socket = connect(terminal.id);
     await socket.opened;
-    socket.send("sleep 300 & echo pid-filho=$!\r");
+    socket.send(`${SH.background}\r`);
     const [, rawPid] = await socket.waitFor(/pid-filho=(\d+)/);
     const childPid = Number(rawPid);
     expect(isAlive(childPid)).toBe(true);
@@ -241,12 +275,14 @@ describe("terminal (PTY real + WebSocket)", () => {
     const terminal = await createTerminal();
     const socket = connect(terminal.id);
     await socket.opened;
-    socket.send("sleep 300 & echo pid-filho=$!\r");
+    socket.send(`${SH.background}\r`);
     const childPid = Number((await socket.waitFor(/pid-filho=(\d+)/))[1]);
     socket.send("exit 3\r");
     await waitUntil(() => socket.messages.some((m) => m.type === "exit"));
     expect(socket.messages.find((m) => m.type === "exit")).toMatchObject({ exitCode: 3 });
-    await waitUntil(() => !isAlive(childPid));
+    // No Windows, filhos de um shell que já saiu não são encerrados (PID pode ter sido reutilizado — ADR-0015).
+    if (IS_WINDOWS) process.kill(childPid);
+    else await waitUntil(() => !isAlive(childPid));
 
     const listed = (await api("GET", `/api/v1/projects/${project.id}/terminals`)).json<TerminalSession[]>();
     expect(listed[0]).toMatchObject({ state: "exited", exitCode: 3 });
@@ -257,7 +293,7 @@ describe("terminal (PTY real + WebSocket)", () => {
     const terminal = await createTerminal();
     const socket = connect(terminal.id);
     await socket.opened;
-    socket.send("sleep 300 & echo pid-filho=$!\r");
+    socket.send(`${SH.background}\r`);
     const childPid = Number((await socket.waitFor(/pid-filho=(\d+)/))[1]);
     await ctx.server.close();
     await waitUntil(() => !isAlive(childPid));
@@ -278,7 +314,7 @@ describe("terminal (PTY real + WebSocket)", () => {
       const terminal = await createTerminal();
       const socket = connect(terminal.id);
       await socket.opened;
-      socket.send('echo "[${DEVTOOLS_TESTE_VAZAMENTO:-vazio}] $TERM"\r');
+      socket.send(`${SH.leak}\r`);
       await socket.waitFor(/\[vazio\] xterm-256color/);
       socket.close();
     } finally {

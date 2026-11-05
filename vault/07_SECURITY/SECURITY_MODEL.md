@@ -21,6 +21,9 @@ tags: [seguranca]
 | Segredo vazado em URL/log/bundle | código efêmero em fragmento; redator de logs | ADR-0007 |
 | Outro usuário local lê segredo | arquivo 0600 no home do usuário | RN-01 |
 | Injeção de comando em processos externos | `spawn` com array, sem shell | Convenções |
+| Injeção via shims `.cmd` no Windows (o `cmd.exe` interpreta `%`, `!`, `^`, `&`, pipe e redirecionamentos mesmo entre aspas) | executável resolvido pelo PATH/PATHEXT; `.cmd`/`.bat` só via `cmd.exe /d /s /c` com argumentos montados pelo servidor, e argumento com metacaractere é recusado; `.ps1` nunca é executado | [[ADR-0015-suporte-windows]] |
+| Permissões do diretório de dados no Windows (`chmod` sem efeito) | dados em `%USERPROFILE%\.dev-tools-ai-suite`, herdando a ACL do perfil (usuário, SYSTEM, administradores) | [[ADR-0015-suporte-windows]] |
+| `taskkill /T` num PID reaproveitado (Windows) | só encerra a árvore enquanto a raiz é o processo da suíte | [[ADR-0015-suporte-windows]] |
 | Vazamento de segredos em transcrições/índices | redator + [[INDEXING_EXCLUSIONS]] | RN-02/RN-04 |
 | Envio de código para fora | índice textual sem nenhuma chamada de rede (teste vigia `fetch` e `Socket.connect`); embeddings só locais: Ollama aceito apenas em loopback (`DEVTOOLS_OLLAMA_URL` validada) e Transformers.js no próprio processo; busca semântica desligada por padrão e ligada pelo humano por projeto; download do modelo só com consentimento explícito (400 sem ele); Graphify só com `--code-only`, ambiente sem chaves de API e `HOME` isolado; externos só com opt-in (HG-13) | INV-04 |
 | Escrita no projeto por ferramentas externas | Graphify roda com `--out` no diretório de dados (nunca grava `graphify-out/` no projeto); teste confere que o projeto fica igual | INV-05 |

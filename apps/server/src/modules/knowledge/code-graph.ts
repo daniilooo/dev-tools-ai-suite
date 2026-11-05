@@ -1,6 +1,7 @@
 import type { CodeGraphImpact, CodeGraphLink, CodeGraphNode, CodeGraphQueryResponse } from "@devtools/shared";
 import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { IS_WINDOWS } from "../../core/platform.js";
 import { runProcess } from "../../core/process-runner.js";
 import { redact } from "../../core/redact.js";
 import { exclusionFor } from "./exclusions.js";
@@ -69,12 +70,27 @@ export class GraphifyExtractor implements GraphExtractor {
 
   /** Ambiente mínimo: sem chaves de API (nada de LLM) e com HOME isolado para caches e logs. */
   private env(): NodeJS.ProcessEnv {
-    return {
+    const env: NodeJS.ProcessEnv = {
       PATH: process.env.PATH,
       HOME: this.homeDir,
       LANG: "C.UTF-8",
       GRAPHIFY_QUERY_LOG_DISABLE: "1",
     };
+    if (IS_WINDOWS) {
+      // O Python no Windows precisa do SystemRoot; o perfil e as pastas de dados também ficam isolados.
+      Object.assign(env, {
+        SystemRoot: process.env.SystemRoot,
+        PATHEXT: process.env.PATHEXT,
+        ComSpec: process.env.ComSpec,
+        USERPROFILE: this.homeDir,
+        APPDATA: join(this.homeDir, "AppData", "Roaming"),
+        LOCALAPPDATA: join(this.homeDir, "AppData", "Local"),
+        TEMP: process.env.TEMP,
+        TMP: process.env.TMP,
+        PYTHONUTF8: "1",
+      });
+    }
+    return env;
   }
 }
 
@@ -119,7 +135,9 @@ export function mergeGraphs(parts: { repo: string; graph: RawGraph }[]): Compact
 }
 
 function prefixed(repo: string, file: string): string {
-  return repo ? `${repo}/${file}` : file;
+  // No Windows o Graphify pode devolver `\`: o grafo sempre usa `/`, como o índice.
+  const normalized = file.replace(/\\/g, "/");
+  return repo ? `${repo}/${normalized}` : normalized;
 }
 
 /** A raiz não repete arquivos de repositórios aninhados; exclusões valem também para o grafo. */

@@ -1,6 +1,6 @@
 import type { QuotaResponse, ServerEvent } from "@devtools/shared";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,12 +14,13 @@ import {
   parseCodexRecord,
   QuotaSources,
 } from "../src/modules/integrations/sources/quota-sources.js";
-import { readClaudeStatusLine, shellQuote } from "../src/modules/quota/claude-statusline.js";
+import { quoteForTerminal } from "../src/core/platform.js";
+import { readClaudeStatusLine, statusLineCommand } from "../src/modules/quota/claude-statusline.js";
 import { buildQuota, freshnessOf } from "../src/modules/quota/quota-monitor.js";
 import type { QuotaInputs } from "../src/modules/quota/quota-monitor.js";
 import { extractRateLimits, renderLine } from "../src/statusline.js";
 import { FIXTURE_NOW, FIXTURE_SECRET, installQuotaFixtures, statusLineInput } from "./agent-fixtures.js";
-import { createTestApp, login, tempDir } from "./helpers.js";
+import { createTestApp, expectMode, IS_WINDOWS, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
 const SCRIPT = fileURLToPath(new URL("../src/statusline.ts", import.meta.url));
@@ -57,7 +58,7 @@ describe("status line da suíte", () => {
       encoding: "utf8",
     });
     expect(line).toBe("Opus 5.5 · 5 h: 24% · semana: 61%");
-    expect(statSync(out).mode & 0o777).toBe(0o600);
+    expectMode(out, 0o600);
     const saved = readFileSync(out, "utf8");
     for (const leaked of ["/home/pessoa", "transcript", "total_cost_usd", "session", "Opus"]) {
       expect(saved).not.toContain(leaked);
@@ -80,7 +81,11 @@ describe("status line da suíte", () => {
   });
 
   it("escapa caminhos para o shell", () => {
-    expect(shellQuote("/tmp/it's here")).toBe(`'/tmp/it'\\''s here'`);
+    expect(quoteForTerminal("/tmp/it's here", false)).toBe(`'/tmp/it'\\''s here'`);
+    expect(quoteForTerminal("C:\\Users\\o'neil\\a.json", true)).toBe(`'C:\\Users\\o''neil\\a.json'`);
+    expect(statusLineCommand(["C:\\Program Files\\nodejs\\node.exe", "C:\\d\\s.js"], true)).toBe(
+      `"C:/Program Files/nodejs/node.exe" "C:/d/s.js"`,
+    );
   });
 });
 
@@ -270,14 +275,18 @@ describe("Quota Monitor no servidor", () => {
     const settingsPath = join(dataDir, "quota", "claude-settings.json");
     const command = providers.launchSpec("claude-code").command;
     expect(command).toMatch(/^claude --session-id [0-9a-f-]{36} --settings '.+claude-settings\.json'$/);
-    expect(command).toContain(shellQuote(settingsPath));
+    expect(command).toContain(quoteForTerminal(settingsPath));
     expect(providers.launchSpec("codex").command).toBe("codex");
 
-    expect(statSync(settingsPath).mode & 0o777).toBe(0o600);
+    expectMode(settingsPath, 0o600);
     const settings = JSON.parse(readFileSync(settingsPath, "utf8")) as { statusLine: { command: string } };
     expect(Object.keys(settings)).toEqual(["statusLine"]);
     expect(settings.statusLine.command).toContain("statusline.ts");
-    expect(settings.statusLine.command).toContain(join(dataDir, "quota", "claude-statusline.json"));
+    // No Windows o comando usa `/` (aceito pelo Git Bash e pelo cmd — ADR-0015).
+    const snapshotPath = join(dataDir, "quota", "claude-statusline.json");
+    expect(settings.statusLine.command).toContain(
+      IS_WINDOWS ? snapshotPath.replace(/\\/g, "/") : snapshotPath,
+    );
     // A raiz do Claude Code continua vazia: nada é criado ou alterado lá.
     expect(readdirSync(roots.claude)).toEqual([]);
   });

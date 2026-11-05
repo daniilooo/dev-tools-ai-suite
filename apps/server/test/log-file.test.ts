@@ -1,8 +1,8 @@
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { openLogFile } from "../src/core/log-file.js";
-import { tempDir } from "./helpers.js";
+import { expectMode, tempDir } from "./helpers.js";
 
 const write = (stream: ReturnType<typeof openLogFile>, text: string) =>
   new Promise<void>((resolve) => stream.end(text, resolve));
@@ -23,6 +23,6 @@ describe("log em arquivo (TD-03)", () => {
     await write(openLogFile(dir, 1024), "novo\n");
     expect(readFileSync(join(dir, "server.log"), "utf8")).toBe("novo\n");
     expect(readFileSync(join(dir, "server.log.1"), "utf8")).toHaveLength(2048);
-    expect(statSync(join(dir, "server.log")).mode & 0o777).toBe(0o600);
+    expectMode(join(dir, "server.log"), 0o600);
   });
 });

@@ -1,4 +1,5 @@
-// Jornada pela API da suíte recém-instalada (roda dentro do contêiner de scripts/smoke-install.sh).
+// Jornada pela API da suíte recém-instalada (roda dentro do contêiner de scripts/smoke-install.sh
+// e, no Windows, chamada por scripts/smoke-install.ps1).
 // Sem dependências: só Node. Roda todas as verificações e sai com código 1 se alguma falhar.
 import { spawn, execFileSync } from "node:child_process";
 import { createHash, createHmac, randomBytes } from "node:crypto";
@@ -8,6 +9,7 @@ import { homedir } from "node:os";
 import { join, relative } from "node:path";
 
 const BASE = "http://127.0.0.1:4317";
+const IS_WINDOWS = process.platform === "win32";
 const DATA = join(homedir(), ".dev-tools-ai-suite");
 const PROJECT = join(homedir(), "loja");
 let failures = 0;
@@ -47,8 +49,20 @@ function snapshot(dir = PROJECT, out = {}) {
   return out;
 }
 
+/** `npm` e `devtools` são shims `.cmd` no Windows: só rodam via shell (argumentos fixos). */
+function run(command, args) {
+  return execFileSync(command, args, { encoding: "utf8", shell: IS_WINDOWS });
+}
+
+/** O servidor roda direto no Node (no Windows, o shim `.cmd` ficaria entre o teste e o processo). */
+function serverEntry() {
+  return join(run("npm", ["root", "-g"]).trim(), "devtools-ai-suite", "dist", "cli.js");
+}
+
 async function startServer() {
-  const child = spawn("devtools", ["start", "--no-open"], { stdio: ["ignore", "pipe", "pipe"] });
+  const child = spawn(process.execPath, [serverEntry(), "start", "--no-open"], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   let output = "";
   const code = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`servidor não subiu:\n${output}`)), 30_000);
@@ -110,11 +124,11 @@ async function main() {
   createProject();
   const before = snapshot();
 
-  const report = JSON.parse(execFileSync("devtools", ["doctor", "--json"], { encoding: "utf8" }));
+  const report = JSON.parse(run("devtools", ["doctor", "--json"]));
   for (const c of report.checks) check(`doctor: ${c.label}`, c.status === "ok", c.detail);
 
   // sqlite-vec só carrega quando a busca semântica é ligada: confere o binário pronto já aqui.
-  const globalRoot = execFileSync("npm", ["root", "-g"], { encoding: "utf8" }).trim();
+  const globalRoot = run("npm", ["root", "-g"]).trim();
   const require = createRequire(join(globalRoot, "devtools-ai-suite", "package.json"));
   const Database = require("better-sqlite3");
   const db = new Database(":memory:");
@@ -194,11 +208,13 @@ async function main() {
   check("segredo de instalação mantido", readFileSync(join(DATA, "secret"), "utf8") === secretBefore);
   await stopServer(child);
 
-  // Permissões e projeto intocado.
-  const mode = (path) => (statSync(path).mode & 0o777).toString(8);
-  check("diretório de dados 0700", mode(DATA) === "700");
-  check("segredo 0600", mode(join(DATA, "secret")) === "600");
-  check("banco 0600", mode(join(DATA, "devtools.db")) === "600");
+  // Permissões (POSIX; no Windows vale a ACL do perfil do usuário — ADR-0015) e projeto intocado.
+  if (!IS_WINDOWS) {
+    const mode = (path) => (statSync(path).mode & 0o777).toString(8);
+    check("diretório de dados 0700", mode(DATA) === "700");
+    check("segredo 0600", mode(join(DATA, "secret")) === "600");
+    check("banco 0600", mode(join(DATA, "devtools.db")) === "600");
+  }
   check("projeto do usuário não foi alterado", JSON.stringify(snapshot()) === JSON.stringify(before));
 
   console.log(failures === 0 ? "\n== Tudo certo." : `\n== ${failures} verificação(ões) falharam.`);

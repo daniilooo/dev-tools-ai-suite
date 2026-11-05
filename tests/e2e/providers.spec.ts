@@ -44,7 +44,7 @@ test("tela de provedores mostra versão, login com fonte oficial e Ollama ausent
 });
 
 test("abrir Claude Code e Codex no diretório do projeto", async ({ page }) => {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "devtools-e2e-prov-")));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), "devtools-e2e-prov-")));
   await page.goto(`${server.base}/#code=${await server.launchToken()}`);
   await page.getByLabel("Caminho absoluto").fill(dir);
   await page.getByLabel("Nome (opcional)").fill("proj-provedores");

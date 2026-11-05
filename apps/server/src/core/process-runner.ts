@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { batchCommandLine, envValue, findExecutable, IS_WINDOWS, isBatchFile } from "./platform.js";
 
 export interface RunOptions {
   cwd?: string;
@@ -36,13 +37,30 @@ export function runProcess(
     let timedOut = false;
     let settled = false;
 
-    const child = spawn(command, args, {
+    const env = options.env ?? process.env;
+    let target: { file: string; args: readonly string[]; verbatim: boolean };
+    try {
+      target = resolveTarget(command, args, env);
+    } catch (error) {
+      resolve({
+        exitCode: null,
+        signal: null,
+        stdout: "",
+        stderr: "",
+        timedOut: false,
+        spawnError: (error as Error).message,
+      });
+      return;
+    }
+
+    const child = spawn(target.file, target.args, {
       cwd: options.cwd,
-      env: options.env ?? process.env,
+      env,
       shell: false,
-      detached: process.platform !== "win32",
+      detached: !IS_WINDOWS,
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
+      windowsVerbatimArguments: target.verbatim,
     });
 
     const append = (current: string, chunk: Buffer) =>
@@ -73,10 +91,27 @@ export function runProcess(
   });
 }
 
+/**
+ * No Windows, resolve o executável pelo PATH/PATHEXT (o `spawn` sem shell não acha `.cmd`)
+ * e roda shims `.cmd`/`.bat` do npm via `cmd.exe` com argumentos validados (ADR-0015).
+ */
+function resolveTarget(
+  command: string,
+  args: readonly string[],
+  env: NodeJS.ProcessEnv,
+): { file: string; args: readonly string[]; verbatim: boolean } {
+  if (!IS_WINDOWS) return { file: command, args, verbatim: false };
+  const file = findExecutable(command, env);
+  if (!file) throw new Error(`spawn ${command} ENOENT`);
+  if (!isBatchFile(file)) return { file, args, verbatim: false };
+  const comspec = envValue(env, "ComSpec") ?? process.env.ComSpec ?? "cmd.exe";
+  return { file: comspec, args: ["/d", "/s", "/c", batchCommandLine(file, args)], verbatim: true };
+}
+
 function killTree(pid: number | undefined): void {
   if (pid === undefined) return;
   try {
-    if (process.platform === "win32") {
+    if (IS_WINDOWS) {
       spawn("taskkill", ["/pid", String(pid), "/T", "/F"], { windowsHide: true });
     } else {
       process.kill(-pid, "SIGKILL");
