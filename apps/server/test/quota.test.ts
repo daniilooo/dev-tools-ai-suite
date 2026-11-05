@@ -20,7 +20,7 @@ import { buildQuota, freshnessOf } from "../src/modules/quota/quota-monitor.js";
 import type { QuotaInputs } from "../src/modules/quota/quota-monitor.js";
 import { extractRateLimits, renderLine } from "../src/statusline.js";
 import { FIXTURE_NOW, FIXTURE_SECRET, installQuotaFixtures, statusLineInput } from "./agent-fixtures.js";
-import { createTestApp, expectMode, login, tempDir } from "./helpers.js";
+import { createTestApp, expectMode, IS_WINDOWS, login, tempDir } from "./helpers.js";
 import type { TestContext } from "./helpers.js";
 
 const SCRIPT = fileURLToPath(new URL("../src/statusline.ts", import.meta.url));
@@ -282,7 +282,11 @@ describe("Quota Monitor no servidor", () => {
     const settings = JSON.parse(readFileSync(settingsPath, "utf8")) as { statusLine: { command: string } };
     expect(Object.keys(settings)).toEqual(["statusLine"]);
     expect(settings.statusLine.command).toContain("statusline.ts");
-    expect(settings.statusLine.command).toContain(join(dataDir, "quota", "claude-statusline.json"));
+    // No Windows o comando usa `/` (aceito pelo Git Bash e pelo cmd — ADR-0015).
+    const snapshotPath = join(dataDir, "quota", "claude-statusline.json");
+    expect(settings.statusLine.command).toContain(
+      IS_WINDOWS ? snapshotPath.replace(/\\/g, "/") : snapshotPath,
+    );
     // A raiz do Claude Code continua vazia: nada é criado ou alterado lá.
     expect(readdirSync(roots.claude)).toEqual([]);
   });

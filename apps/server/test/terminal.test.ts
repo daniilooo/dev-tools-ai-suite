@@ -82,7 +82,7 @@ class TerminalSocket {
     this.ws.send(JSON.stringify({ type: "resize", cols, rows }));
   }
 
-  async waitFor(pattern: RegExp, timeoutMs = 5000): Promise<RegExpMatchArray> {
+  async waitFor(pattern: RegExp, timeoutMs = IS_WINDOWS ? 30_000 : 5000): Promise<RegExpMatchArray> {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       const match = pattern.exec(this.output);
@@ -97,7 +97,10 @@ class TerminalSocket {
   }
 }
 
-async function waitUntil(condition: () => boolean | Promise<boolean>, timeoutMs = 4000): Promise<void> {
+async function waitUntil(
+  condition: () => boolean | Promise<boolean>,
+  timeoutMs = IS_WINDOWS ? 20_000 : 4000,
+): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!(await condition())) {
     if (Date.now() > deadline) throw new Error("condição não atingida a tempo");
@@ -105,7 +108,8 @@ async function waitUntil(condition: () => boolean | Promise<boolean>, timeoutMs 
   }
 }
 
-describe("terminal (PTY real + WebSocket)", () => {
+// O PowerShell leva alguns segundos para abrir no runner do Windows.
+describe("terminal (PTY real + WebSocket)", { timeout: IS_WINDOWS ? 60_000 : 5000 }, () => {
   let ctx: TestContext;
   let host: string;
   let auth: { cookie: string; csrf: string };
